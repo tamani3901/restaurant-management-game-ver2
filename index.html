@@ -12,9 +12,10 @@
         --accent-color: #e74c3c;
         --success-color: #2ecc71;
         --warning-color: #f1c40f;
+        --info-color: #3498db;
     }
     body { font-family: 'Helvetica Neue', Arial, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; overflow: hidden; }
-    button { cursor: pointer; padding: 10px 15px; border: none; border-radius: 5px; background: var(--accent-color); color: white; font-weight: bold; margin: 5px; transition: 0.2s; }
+    button { cursor: pointer; padding: 8px 12px; border: none; border-radius: 5px; background: var(--accent-color); color: white; font-weight: bold; margin: 3px; transition: 0.2s; font-size: 0.9rem;}
     button:hover { opacity: 0.8; }
     button:disabled { background: #95a5a6; cursor: not-allowed; }
     input, select { padding: 8px; border-radius: 5px; border: none; margin: 5px; }
@@ -32,8 +33,8 @@
     h1 { text-align: center; color: var(--warning-color); }
 
     /* ゲーム画面レイアウト */
-    #ui-header { display: flex; justify-content: space-between; background: #1a252f; padding: 10px; align-items: center; font-size: 0.9rem; }
-    #info-bar { text-align: center; font-weight: bold; }
+    #ui-header { display: flex; flex-wrap: wrap; justify-content: space-between; background: #1a252f; padding: 10px; align-items: center; font-size: 0.8rem; }
+    #info-bar { text-align: center; font-weight: bold; flex-grow: 1; margin: 0 10px; }
     #main-area { flex: 1; position: relative; background: #ecf0f1; color: #333; padding: 10px; overflow: hidden; }
     
     /* 客席エリア */
@@ -44,8 +45,14 @@
 
     /* ポップアップ/モーダル */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
-    .modal-content { background: var(--panel-color); padding: 20px; border-radius: 10px; max-width: 90%; color: white; text-align: center; max-height: 90vh; overflow-y: auto; }
+    .modal-content { background: var(--panel-color); padding: 20px; border-radius: 10px; max-width: 90%; color: white; text-align: center; max-height: 90vh; overflow-y: auto; width: 600px; }
     
+    /* テーブルスタイル（説明書用） */
+    table.help-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.9rem; color: #ecf0f1; }
+    table.help-table th, table.help-table td { border: 1px solid #7f8c8d; padding: 6px; text-align: left; }
+    table.help-table th { background: #2980b9; }
+    h4 { margin-top: 20px; margin-bottom: 5px; border-left: 4px solid var(--warning-color); padding-left: 10px; text-align: left; }
+
     /* 注文画面 */
     #order-modal-content img { width: 100px; height: 100px; border-radius: 50%; border: 3px solid white; }
     .speech-bubble { background: white; color: black; padding: 15px; border-radius: 20px; margin: 10px 0; position: relative; font-weight: bold; }
@@ -120,9 +127,10 @@
 
     <div id="screen-game" class="screen">
         <div id="ui-header">
-            <div>
+            <div style="display:flex; gap:2px;">
                 <button onclick="ui.toggleMenu()">メニュー</button>
                 <button onclick="ui.toggleSettings()">設定</button>
+                <button onclick="ui.toggleHelp()" style="background:var(--info-color);">説明書</button>
             </div>
             <div id="info-bar">
                 <span id="display-time">Day 1 (月) 9:00</span><br>
@@ -156,6 +164,56 @@
         <button onclick="game.togglePause()">一時停止/再開</button>
         <button onclick="game.saveGame()">セーブ (保存)</button>
         <button onclick="game.quitGame()" style="background:#c0392b;">やめる</button>
+    </div>
+</div>
+
+<div id="modal-help" class="modal-overlay">
+    <div class="modal-content" style="text-align: left;">
+        <h2 style="text-align:center;">📖 ゲーム説明書</h2>
+        
+        <h4>📢 宣伝の効果</h4>
+        <table class="help-table">
+            <tr><th>種類</th><th>費用</th><th>効果</th><th>持続期間</th></tr>
+            <tr><td>ポスター</td><td>¥7,000</td><td>客+15% (終了後+5%)</td><td>2日間</td></tr>
+            <tr><td>チラシ</td><td>¥10,000</td><td>客+20% (終了後+5%)</td><td>2日間</td></tr>
+            <tr><td>CM放送</td><td>¥50,000</td><td>客+25% (終了後+20%)</td><td>10日間</td></tr>
+            <tr><td>TV番組</td><td>¥100,000</td><td>客+25% (終了後+40%)</td><td>1日</td></tr>
+        </table>
+
+        <h4>🧑‍🍳 従業員の能力</h4>
+        <table class="help-table">
+            <tr><th>ランク</th><th>給料</th><th>提供速度(倍率)</th><th>提供時間目安</th></tr>
+            <tr><td>マスター</td><td>¥50万</td><td>2.5倍</td><td>4秒</td></tr>
+            <tr><td>ベテラン</td><td>¥30万</td><td>1.6倍</td><td>6.25秒</td></tr>
+            <tr><td>標準</td><td>¥20万</td><td>1.0倍</td><td>10秒</td></tr>
+            <tr><td>ポンコツ</td><td>¥10万</td><td>0.5倍</td><td>20秒</td></tr>
+        </table>
+
+        <h4>😊 客の満足度と評価</h4>
+        <p style="font-size:0.8rem; margin-bottom:10px;">
+            提供速度によって満足度が決まります。<br>
+            満足度が100に近いほど、店の★評価が上がります。<br>
+            評価が下がると来店客数が激減します。
+        </p>
+        <table class="help-table">
+            <tr><th>提供時間</th><th>満足度</th></tr>
+            <tr><td>4秒以内</td><td>100 (最高)</td></tr>
+            <tr><td>6.25秒以内</td><td>75 (良い)</td></tr>
+            <tr><td>10秒以内</td><td>60 (普通)</td></tr>
+            <tr><td>それ以上</td><td>45 (悪い)</td></tr>
+        </table>
+
+        <h4>⚠️ その他ルール</h4>
+        <ul style="font-size:0.9rem; padding-left:20px;">
+            <li><strong>家賃:</strong> 10日ごとに100万円引き落とし。</li>
+            <li><strong>救済:</strong> 資産200万円以下で一度だけ500万円支給。</li>
+            <li><strong>ゴミ箱:</strong> 設置(1万円)で満足度+5ボーナス。</li>
+            <li><strong>清掃:</strong> 依頼(5万円)で評価が即座に0.2アップ。</li>
+        </ul>
+
+        <div style="text-align:center; margin-top:20px;">
+            <button onclick="ui.closeModal('modal-help')">閉じる</button>
+        </div>
     </div>
 </div>
 
@@ -379,8 +437,7 @@ const game = {
             } else if (seat.status === 'cooking') {
                 seat.progress += 5;
                 
-                // 従業員数0だと調理が進まない！（ハマり防止）
-                let bestEmp = { wait: 100 }; // 激遅
+                let bestEmp = { wait: 100 }; 
                 if (G.employees.length > 0) {
                     bestEmp = G.employees.map(e => EMPLOYEES[e]).reduce((a,b) => a.speed > b.speed ? a : b);
                 }
@@ -694,7 +751,7 @@ const settings = {
         if(confirm("本当に解雇しますか？")) {
             G.employees.splice(index, 1);
             settings.renderEmployeeList();
-            ui.updateHeader(); // 金額更新などあれば
+            ui.updateHeader(); 
         }
     },
     renderEmployeeList: () => {
@@ -808,11 +865,16 @@ const ui = {
     toggleSettings: () => {
         document.getElementById('modal-settings').style.display = 'flex';
         game.togglePause(true);
-        settings.renderEmployeeList(); // ここでリストを更新！
+        settings.renderEmployeeList();
     },
     
     toggleAds: () => {
         document.getElementById('modal-ads').style.display = 'flex';
+        game.togglePause(true);
+    },
+
+    toggleHelp: () => {
+        document.getElementById('modal-help').style.display = 'flex';
         game.togglePause(true);
     },
 
