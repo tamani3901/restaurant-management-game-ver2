@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>飲食店経営シミュレーション v1.4</title>
+<title>飲食店経営シミュレーション v1.5</title>
 <style>
     :root {
         --bg-color: #2c3e50;
@@ -45,14 +45,22 @@
 
     /* ポップアップ/モーダル */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
-    .modal-content { background: var(--panel-color); padding: 20px; border-radius: 10px; max-width: 90%; color: white; text-align: center; max-height: 90vh; overflow-y: auto; width: 650px; }
+    .modal-content { background: var(--panel-color); padding: 20px; border-radius: 10px; max-width: 90%; color: white; text-align: center; max-height: 90vh; overflow-y: auto; width: 700px; }
     
+    /* ヘルプ画面用スタイル */
+    .help-tabs { display: flex; border-bottom: 2px solid #7f8c8d; margin-bottom: 15px; }
+    .help-tab { flex: 1; padding: 10px; cursor: pointer; background: #2c3e50; border: 1px solid #7f8c8d; border-bottom: none; color: #95a5a6; }
+    .help-tab.active { background: var(--panel-color); color: #fff; font-weight: bold; border-top: 3px solid var(--warning-color); }
+    .help-section { display: none; text-align: left; }
+    .help-section.active { display: block; }
+    .help-section h4 { border-bottom: 1px solid #fff; padding-bottom: 5px; margin-top: 15px; }
+    .help-section ul { font-size: 0.9rem; line-height: 1.6; }
+
     /* テーブルスタイル */
-    table.help-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.9rem; color: #ecf0f1; }
+    table.help-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.85rem; color: #ecf0f1; }
     table.help-table th, table.help-table td { border: 1px solid #7f8c8d; padding: 6px; text-align: left; }
     table.help-table th { background: #2980b9; }
-    h4 { margin-top: 20px; margin-bottom: 5px; border-left: 4px solid var(--warning-color); padding-left: 10px; text-align: left; }
-
+    
     /* 注文画面 */
     #order-modal-content img { width: 100px; height: 100px; border-radius: 50%; border: 3px solid white; }
     .speech-bubble { background: white; color: black; padding: 15px; border-radius: 20px; margin: 10px 0; position: relative; font-weight: bold; max-width: 80%; margin-left: auto; margin-right: auto; }
@@ -176,41 +184,105 @@
 </div>
 
 <div id="modal-help" class="modal-overlay">
-    <div class="modal-content" style="text-align: left;">
-        <h2 style="text-align:center;">📖 ゲーム説明書</h2>
-        
-        <h4>📢 宣伝の効果 (重ねがけ可能！)</h4>
-        <table class="help-table">
-            <tr><th>種類</th><th>費用</th><th>効果</th><th>持続期間</th></tr>
-            <tr><td>ポスター</td><td>¥7,000</td><td>客+15% (終了後+5%)</td><td>2日間</td></tr>
-            <tr><td>チラシ</td><td>¥10,000</td><td>客+20% (終了後+5%)</td><td>2日間</td></tr>
-            <tr><td>CM放送</td><td>¥50,000</td><td>客+25% (終了後+20%)</td><td>10日間</td></tr>
-            <tr><td>TV番組</td><td>¥100,000</td><td>客+25% (終了後+40%)</td><td>1日</td></tr>
-        </table>
+    <div class="modal-content" style="padding:0; overflow:hidden; display:flex; flex-direction:column;">
+        <div class="help-tabs">
+            <div class="help-tab active" onclick="ui.switchHelpTab('tab-basic')">基本・流れ</div>
+            <div class="help-tab" onclick="ui.switchHelpTab('tab-staff')">従業員・設備</div>
+            <div class="help-tab" onclick="ui.switchHelpTab('tab-biz')">経営・宣伝</div>
+        </div>
 
-        <h4>🧑‍🍳 従業員の能力と費用</h4>
-        <table class="help-table">
-            <tr><th>ランク</th><th>契約金</th><th>提供速度(倍率)</th><th>提供時間目安</th></tr>
-            <tr><td>マスター</td><td>¥20万</td><td>2.5倍</td><td>4秒</td></tr>
-            <tr><td>ベテラン</td><td>¥12万</td><td>1.6倍</td><td>6.25秒</td></tr>
-            <tr><td>標準</td><td>¥8万</td><td>1.0倍</td><td>10秒</td></tr>
-            <tr><td>ポンコツ</td><td>¥4万</td><td>0.5倍</td><td>20秒</td></tr>
-        </table>
+        <div style="padding:20px; overflow-y:auto; flex:1;">
+            
+            <div id="tab-basic" class="help-section active">
+                <h3>🔰 基本ルールと遊び方</h3>
+                
+                <h4>1. ゲームの目的</h4>
+                <ul>
+                    <li>お客様に料理を提供し、資産を増やしましょう。</li>
+                    <li><strong>普通モード:</strong> 累計利益500万円を目指します。</li>
+                    <li><strong>難しいモード:</strong> 累計利益1500万円を目指します（評価★3.5以下で即終了）。</li>
+                    <li><strong>資産がマイナス</strong>になると破産（ゲームオーバー）です。</li>
+                </ul>
 
-        <h4>😊 客の満足度と評価</h4>
-        <p style="font-size:0.8rem; margin-bottom:10px;">
-            提供速度によって満足度が決まります。<br>
-            満足度が100に近いほど、店の★評価が上がります。<br>
-            評価が下がると来店客数が激減します。
-        </p>
+                <h4>2. 接客の流れ</h4>
+                <ol>
+                    <li><strong>来店:</strong> お客様が空席に座ります。</li>
+                    <li><strong>注文:</strong> 
+                        <ul>
+                            <li>お客様は<strong>ランダムで1品〜5品</strong>注文します。</li>
+                            <li><strong>自動注文:</strong> 自動で調理に入ります。</li>
+                            <li><strong>手動注文:</strong> 席をタップして注文を聞く必要があります（「設定」で切替可）。</li>
+                        </ul>
+                    </li>
+                    <li><strong>調理:</strong> 従業員が調理します。品数が多いほど時間がかかります。</li>
+                    <li><strong>食事:</strong> お客様が食事をします。</li>
+                    <li><strong>会計:</strong> 自動で会計され、売上が入ります。</li>
+                </ol>
 
-        <h4>🏗️ 店舗拡張</h4>
-        <ul style="font-size:0.9rem; padding-left:20px;">
-            <li><strong>15席へ拡張:</strong> 累計利益が10万円を超えると解禁。</li>
-            <li><strong>20席へ拡張:</strong> 累計利益が20万円を超えると解禁。</li>
-        </ul>
+                <h4>3. 評価（★）について</h4>
+                <p>料理の提供スピードで満足度が決まります。満足度が高いとお店の評価（★）が上がり、低いと下がります。<strong>評価が下がると客足が遠のきます。</strong></p>
+                <table class="help-table">
+                    <tr><th>提供時間</th><th>満足度</th><th>評価への影響</th></tr>
+                    <tr><td>4秒以内</td><td>100</td><td>★大きく上昇</td></tr>
+                    <tr><td>6秒以内</td><td>75</td><td>★上昇</td></tr>
+                    <tr><td>10秒以内</td><td>60</td><td>★維持</td></tr>
+                    <tr><td>それ以上</td><td>45</td><td>★下降</td></tr>
+                </table>
+            </div>
 
-        <div style="text-align:center; margin-top:20px;">
+            <div id="tab-staff" class="help-section">
+                <h3>🧑‍🍳 従業員と設備拡張</h3>
+
+                <h4>1. 従業員の能力</h4>
+                <p>「設定」から従業員を雇ったり解雇したりできます。</p>
+                <table class="help-table">
+                    <tr><th>ランク</th><th>契約金</th><th>速度倍率</th><th>特徴</th></tr>
+                    <tr><td>マスター</td><td>¥20万</td><td>2.5倍</td><td>超高速。エース。</td></tr>
+                    <tr><td>ベテラン</td><td>¥12万</td><td>1.6倍</td><td>頼りになる。</td></tr>
+                    <tr><td>標準</td><td>¥8万</td><td>1.0倍</td><td>普通の働き。</td></tr>
+                    <tr><td>ポンコツ</td><td>¥4万</td><td>0.5倍</td><td>遅いが安い。</td></tr>
+                </table>
+
+                <h4>2. 店舗拡張（リフォーム）</h4>
+                <p>累計利益が貯まると、「設定」から席数を増やせます。エリア上限を突破できます。</p>
+                <ul>
+                    <li><strong>15席へ拡張:</strong> 累計利益 10万円以上で解禁</li>
+                    <li><strong>20席へ拡張:</strong> 累計利益 20万円以上で解禁</li>
+                </ul>
+
+                <h4>3. お助けアイテム</h4>
+                <ul>
+                    <li><strong>ゴミ箱 (1万円):</strong> 設置すると客の満足度が常に+5されます。</li>
+                    <li><strong>清掃 (5万円):</strong> 即座にお店の評価(★)を0.2回復させます。</li>
+                </ul>
+            </div>
+
+            <div id="tab-biz" class="help-section">
+                <h3>💰 経営戦略と宣伝</h3>
+
+                <h4>1. メニューと価格設定</h4>
+                <p>「設定」＞「メニュー管理」から、販売する5品を選べます。<br>
+                <strong>価格も自由に変更可能</strong>です。高くしすぎても現状ペナルティはありませんが、良心は痛みます。</p>
+
+                <h4>2. 宣伝活動 (重ねがけOK!)</h4>
+                <p>宣伝を行うと、期間中、来店率がアップします。複数の宣伝を同時に行うと効果は加算されます。</p>
+                <table class="help-table">
+                    <tr><th>種類</th><th>費用</th><th>効果</th><th>期間</th></tr>
+                    <tr><td>ポスター</td><td>¥7,000</td><td>+15% (終了後+5%)</td><td>2日間</td></tr>
+                    <tr><td>チラシ</td><td>¥10,000</td><td>+20% (終了後+5%)</td><td>2日間</td></tr>
+                    <tr><td>CM放送</td><td>¥50,000</td><td>+25% (終了後+20%)</td><td>10日間</td></tr>
+                    <tr><td>TV番組</td><td>¥100,000</td><td>+25% (終了後+40%)</td><td>1日</td></tr>
+                </table>
+
+                <h4>3. 経費と救済</h4>
+                <ul>
+                    <li><strong>家賃・光熱費:</strong> 10日ごとに<strong>一律100万円</strong>が引き落とされます。残高に注意！</li>
+                    <li><strong>救済措置:</strong> 資産が200万円を切ると、一度だけ政府？から<strong>500万円</strong>の支援金が降ります。</li>
+                </ul>
+            </div>
+        </div>
+
+        <div style="padding:10px; text-align:center; background:#34495e; border-top:1px solid #7f8c8d;">
             <button onclick="ui.closeModal('modal-help')">閉じる</button>
         </div>
     </div>
@@ -943,7 +1015,6 @@ const ui = {
             document.getElementById('ad-status-detail').innerText = `+${totalBuff}% (アクティブな宣伝: ${G.activeAds.length}件)`;
         }
 
-        // 拡張ボタンの更新
         ui.updateSettingsButtons();
     },
 
@@ -1030,7 +1101,22 @@ const ui = {
 
     toggleHelp: () => {
         document.getElementById('modal-help').style.display = 'flex';
+        // デフォルトでタブ1を表示
+        ui.switchHelpTab('tab-basic');
         game.togglePause(true);
+    },
+
+    switchHelpTab: (tabId) => {
+        document.querySelectorAll('.help-section').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        
+        document.querySelectorAll('.help-tab').forEach(el => el.classList.remove('active'));
+        // タブのactive切り替えロジック（クリックイベントの親要素等から特定するか、簡易的にテキスト等で判定）
+        // ここでは簡易実装のため、CSSクラスの付け替えをDOM全体から探す
+        const tabs = document.querySelectorAll('.help-tab');
+        if(tabId === 'tab-basic') tabs[0].classList.add('active');
+        if(tabId === 'tab-staff') tabs[1].classList.add('active');
+        if(tabId === 'tab-biz') tabs[2].classList.add('active');
     },
 
     toggleMode: () => {
