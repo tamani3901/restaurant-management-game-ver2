@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>飲食店経営シミュレーション v1.3</title>
+<title>飲食店経営シミュレーション v1.4</title>
 <style>
     :root {
         --bg-color: #2c3e50;
@@ -17,7 +17,7 @@
     body { font-family: 'Helvetica Neue', Arial, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; overflow: hidden; }
     button { cursor: pointer; padding: 8px 12px; border: none; border-radius: 5px; background: var(--accent-color); color: white; font-weight: bold; margin: 3px; transition: 0.2s; font-size: 0.9rem;}
     button:hover { opacity: 0.8; }
-    button:disabled { background: #95a5a6; cursor: not-allowed; }
+    button:disabled { background: #7f8c8d; cursor: not-allowed; opacity: 0.6; }
     input, select { padding: 8px; border-radius: 5px; border: none; margin: 5px; color:#333; }
 
     /* 画面モード */
@@ -55,7 +55,7 @@
 
     /* 注文画面 */
     #order-modal-content img { width: 100px; height: 100px; border-radius: 50%; border: 3px solid white; }
-    .speech-bubble { background: white; color: black; padding: 15px; border-radius: 20px; margin: 10px 0; position: relative; font-weight: bold; }
+    .speech-bubble { background: white; color: black; padding: 15px; border-radius: 20px; margin: 10px 0; position: relative; font-weight: bold; max-width: 80%; margin-left: auto; margin-right: auto; }
     .speech-bubble:after { content: ''; position: absolute; top: -10px; left: 50%; border-width: 10px; border-style: solid; border-color: transparent transparent white transparent; margin-left: -10px; }
 
     /* 設定・メニューリスト */
@@ -203,13 +203,12 @@
             満足度が100に近いほど、店の★評価が上がります。<br>
             評価が下がると来店客数が激減します。
         </p>
-        <table class="help-table">
-            <tr><th>提供時間</th><th>満足度</th></tr>
-            <tr><td>4秒以内</td><td>100 (最高)</td></tr>
-            <tr><td>6.25秒以内</td><td>75 (良い)</td></tr>
-            <tr><td>10秒以内</td><td>60 (普通)</td></tr>
-            <tr><td>それ以上</td><td>45 (悪い)</td></tr>
-        </table>
+
+        <h4>🏗️ 店舗拡張</h4>
+        <ul style="font-size:0.9rem; padding-left:20px;">
+            <li><strong>15席へ拡張:</strong> 累計利益が10万円を超えると解禁。</li>
+            <li><strong>20席へ拡張:</strong> 累計利益が20万円を超えると解禁。</li>
+        </ul>
 
         <div style="text-align:center; margin-top:20px;">
             <button onclick="ui.closeModal('modal-help')">閉じる</button>
@@ -221,6 +220,17 @@
     <div class="modal-content">
         <h3>店舗設定</h3>
         <button onclick="ui.toggleMode()">スマホ/PCモード切替</button>
+        <hr>
+        
+        <h4>🏗️ 店舗拡張リフォーム</h4>
+        <div style="display:flex; justify-content:center; gap:10px;">
+            <button id="btn-expand-15" onclick="settings.expandSeats(15)" disabled>15席に拡張</button>
+            <button id="btn-expand-20" onclick="settings.expandSeats(20)" disabled>20席に拡張</button>
+        </div>
+        <p style="font-size:0.8rem; color:#f1c40f;">
+            ※15席(累計利益10万以上) / 20席(累計利益20万以上)
+        </p>
+
         <hr>
         
         <h4>雇用センター (契約金)</h4>
@@ -282,7 +292,7 @@ const IMAGES = [
     "https://i.ibb.co/Xkkr114y/IMG-2529.jpg"
 ];
 
-// メニューデータ (初期値)
+// メニューデータ
 const MENUS = {
     fastfood: [
         {id: 'b_cheese', name: 'チーズバーガー', price: 500},
@@ -324,7 +334,7 @@ const MENUS = {
     ]
 };
 
-// 従業員データ (コスト変更)
+// 従業員データ
 const EMPLOYEES = {
     master: { name: 'マスター', speed: 2.5, cost: 200000, wait: 4 }, 
     veteran: { name: 'ベテラン', speed: 1.6, cost: 120000, wait: 6.25 },
@@ -359,7 +369,7 @@ let G = {
     employees: ['master'], 
     manualOrder: false,
     difficulty: 'normal',
-    activeAds: [], // スタック可能にするため配列に変更
+    activeAds: [], 
     bailoutUsed: false,
     trashBin: false,
     
@@ -409,7 +419,7 @@ const game = {
         G.weekDay = 0;
         G.seats = Array(G.maxSeats).fill(null).map(() => ({ occupied: false, customer: null, status: 'empty', waitTime: 0 }));
         G.totalEarnings = 0;
-        G.activeAds = []; // 初期化
+        G.activeAds = []; 
 
         document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
         document.getElementById('screen-game').classList.add('active');
@@ -454,7 +464,11 @@ const game = {
                     bestEmp = G.employees.map(e => EMPLOYEES[e]).reduce((a,b) => a.speed > b.speed ? a : b);
                 }
                 
-                const reqTime = (bestEmp.wait * 60) / 5;
+                // 品数に応じて時間が伸びる (1品につき+20%程度)
+                const itemCount = seat.customer.order.length;
+                const itemPenalty = 1 + (itemCount - 1) * 0.2;
+                const reqTime = ((bestEmp.wait * 60) / 5) * itemPenalty;
+                
                 seat.realWaitTime = (seat.realWaitTime || 0) + 1; 
 
                 if (seat.progress >= reqTime) {
@@ -489,7 +503,6 @@ const game = {
         }
         if (G.weekDay >= 5) rate += 20;
 
-        // 宣伝効果の合算
         let adBuff = 0;
         G.activeAds.forEach(ad => {
             if (ad.daysLeft > 0) adBuff += ad.buff;
@@ -525,13 +538,20 @@ const game = {
         if (!seat) return;
         
         const menuList = MENUS[G.type].filter(m => G.menu.includes(m.id));
-        // 現在設定されているメニューからランダムで1品
-        const item = menuList[Math.floor(Math.random() * menuList.length)];
-        seat.customer.order = item;
+        
+        // 1～5品をランダム注文
+        const count = Math.floor(Math.random() * 5) + 1; 
+        const orderItems = [];
+        for(let i=0; i<count; i++) {
+            const item = menuList[Math.floor(Math.random() * menuList.length)];
+            orderItems.push(item);
+        }
+        
+        seat.customer.order = orderItems;
         seat.status = 'cooking';
         seat.progress = 0;
         ui.updateSeat(seatIdx);
-        ui.ticker(`席${seatIdx+1}: ${item.name}を注文`);
+        ui.ticker(`席${seatIdx+1}: ${count}品を注文中`);
     },
 
     manualOrderClick: (seatIdx) => {
@@ -539,10 +559,19 @@ const game = {
         if (seat && seat.status === 'ordering' && !seat.customer.isTablet) {
             G.activeOrder = seatIdx;
             document.getElementById('order-customer-img').src = seat.customer.img;
+            
             const menuList = MENUS[G.type].filter(m => G.menu.includes(m.id));
-            const item = menuList[Math.floor(Math.random() * menuList.length)];
-            seat.customer.order = item; 
-            document.getElementById('order-text').innerText = `「${item.name}」をください。`;
+            
+            // 手動でもランダム1-5品生成
+            const count = Math.floor(Math.random() * 5) + 1; 
+            const orderItems = [];
+            for(let i=0; i<count; i++) {
+                orderItems.push(menuList[Math.floor(Math.random() * menuList.length)]);
+            }
+            seat.customer.order = orderItems;
+
+            const itemNames = orderItems.map(i => i.name).join('、<br>');
+            document.getElementById('order-text').innerHTML = `「${itemNames}」<br>をお願いします！`;
             document.getElementById('modal-order').style.display = 'flex';
             game.togglePause(true);
         }
@@ -562,9 +591,15 @@ const game = {
         const seat = G.seats[seatIdx];
         if (!seat) return;
 
-        const profit = seat.customer.order.price * seat.customer.size;
-        G.money += profit;
-        G.totalEarnings += profit;
+        // 合計金額計算
+        let totalProfit = 0;
+        seat.customer.order.forEach(item => {
+            totalProfit += item.price;
+        });
+        totalProfit *= seat.customer.size; // 人数分
+
+        G.money += totalProfit;
+        G.totalEarnings += totalProfit;
         
         const sat = seat.satisfaction;
         G.reputation = (G.reputation * 0.9) + ((sat / 20) * 0.1); 
@@ -574,7 +609,7 @@ const game = {
         G.seats[seatIdx] = { occupied: false, customer: null, status: 'empty' };
         ui.updateSeat(seatIdx);
         ui.updateHeader();
-        ui.ticker(`会計: ¥${profit} 売り上げ！ 評価:${G.reputation.toFixed(1)}`);
+        ui.ticker(`会計: ¥${totalProfit} 売り上げ！ 評価:${G.reputation.toFixed(1)}`);
     },
 
     endDay: () => {
@@ -582,7 +617,6 @@ const game = {
         G.weekDay = (G.weekDay + 1) % 7;
         G.time = 540;
         
-        // 広告日数の更新
         G.activeAds.forEach(ad => {
             if (ad.daysLeft > 0) {
                 ad.daysLeft--;
@@ -593,7 +627,6 @@ const game = {
                 ad.afterDays--;
             }
         });
-        // 期限切れ広告の削除
         G.activeAds = G.activeAds.filter(ad => ad.daysLeft > 0 || ad.afterDays > 0);
 
         if (G.day % 10 === 0) {
@@ -671,7 +704,6 @@ const game = {
         reader.onload = (e) => {
             try {
                 const loaded = JSON.parse(e.target.result);
-                // MENUSデータを復元（価格変更を反映するため）
                 if(loaded.customMenus) {
                     MENUS.fastfood = loaded.customMenus.fastfood;
                     MENUS.restaurant = loaded.customMenus.restaurant;
@@ -829,26 +861,40 @@ const settings = {
             alert("メニューは必ず5つ選択してください！");
             return;
         }
-        
-        // 1. 価格更新
         MENUS[G.type].forEach(item => {
             const input = document.getElementById(`price-${item.id}`);
             if(input) {
                 item.price = parseInt(input.value);
             }
         });
-        
-        // 2. 選択メニュー更新
         G.menu = Array.from(checkboxes).map(cb => cb.value);
-        
-        // 3. 保存用データに反映
-        G.customMenus = {
-            fastfood: MENUS.fastfood,
-            restaurant: MENUS.restaurant
-        };
+        G.customMenus = { fastfood: MENUS.fastfood, restaurant: MENUS.restaurant };
 
         alert("メニューと価格を更新しました！");
         settings.toggleMenuEdit();
+    },
+    // 店舗拡張ロジック
+    expandSeats: (target) => {
+        if (target === 15) {
+            if (G.totalEarnings < 100000) { alert("累計利益が10万円に達していません"); return; }
+        } else if (target === 20) {
+            if (G.totalEarnings < 200000) { alert("累計利益が20万円に達していません"); return; }
+        }
+
+        if (G.maxSeats >= target) {
+            alert("すでに拡張済みです");
+            return;
+        }
+
+        const added = target - G.maxSeats;
+        G.maxSeats = target;
+        for(let i=0; i<added; i++) {
+            G.seats.push({ occupied: false, customer: null, status: 'empty', waitTime: 0 });
+        }
+        
+        alert(`店舗を拡張しました！席数が${target}になりました！`);
+        ui.renderSeats();
+        ui.updateSettingsButtons(); // ボタン状態更新
     }
 };
 
@@ -863,7 +909,6 @@ const ads = {
         if (G.money < cost) { alert("資金不足です"); return; }
         
         G.money -= cost;
-        // スタック用に配列に追加
         G.activeAds.push({ type: type, daysLeft: dur, buff: buff, afterBuff: abuff, afterDays: 0 });
         alert("宣伝を開始しました！効果は重複します。");
         ui.updateHeader();
@@ -887,7 +932,6 @@ const ui = {
         for(let i=0; i<5; i++) stars += (i < Math.floor(G.reputation)) ? "★" : "☆";
         document.getElementById('display-stars').innerText = stars;
         
-        // 広告状態 (合算値を表示)
         let totalBuff = 0;
         G.activeAds.forEach(ad => {
             if (ad.daysLeft > 0) totalBuff += ad.buff;
@@ -895,9 +939,23 @@ const ui = {
         });
         document.getElementById('ad-buff-display').innerText = `宣伝: +${totalBuff}%`;
         
-        // モーダル内の詳細表示
         if(document.getElementById('ad-status-detail')) {
             document.getElementById('ad-status-detail').innerText = `+${totalBuff}% (アクティブな宣伝: ${G.activeAds.length}件)`;
+        }
+
+        // 拡張ボタンの更新
+        ui.updateSettingsButtons();
+    },
+
+    updateSettingsButtons: () => {
+        const btn15 = document.getElementById('btn-expand-15');
+        const btn20 = document.getElementById('btn-expand-20');
+        if(btn15 && btn20) {
+            if(G.maxSeats >= 15) btn15.disabled = true;
+            else btn15.disabled = (G.totalEarnings < 100000);
+
+            if(G.maxSeats >= 20) btn20.disabled = true;
+            else btn20.disabled = (G.totalEarnings < 200000);
         }
     },
     
@@ -960,14 +1018,14 @@ const ui = {
         document.getElementById('modal-settings').style.display = 'flex';
         game.togglePause(true);
         settings.renderEmployeeList();
-        // メニュー編集エリアは閉じておく
         document.getElementById('menu-edit-area').style.display = 'none';
+        ui.updateSettingsButtons();
     },
     
     toggleAds: () => {
         document.getElementById('modal-ads').style.display = 'flex';
         game.togglePause(true);
-        ui.updateHeader(); // 詳細表示更新のため
+        ui.updateHeader(); 
     },
 
     toggleHelp: () => {
