@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>飲食店経営シミュレーション</title>
+<title>飲食店経営シミュレーション v1.3</title>
 <style>
     :root {
         --bg-color: #2c3e50;
@@ -18,7 +18,7 @@
     button { cursor: pointer; padding: 8px 12px; border: none; border-radius: 5px; background: var(--accent-color); color: white; font-weight: bold; margin: 3px; transition: 0.2s; font-size: 0.9rem;}
     button:hover { opacity: 0.8; }
     button:disabled { background: #95a5a6; cursor: not-allowed; }
-    input, select { padding: 8px; border-radius: 5px; border: none; margin: 5px; }
+    input, select { padding: 8px; border-radius: 5px; border: none; margin: 5px; color:#333; }
 
     /* 画面モード */
     #game-container.pc-mode { max-width: 1024px; margin: 0 auto; border: 2px solid #7f8c8d; height: 100vh; display: flex; flex-direction: column; }
@@ -45,9 +45,9 @@
 
     /* ポップアップ/モーダル */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
-    .modal-content { background: var(--panel-color); padding: 20px; border-radius: 10px; max-width: 90%; color: white; text-align: center; max-height: 90vh; overflow-y: auto; width: 600px; }
+    .modal-content { background: var(--panel-color); padding: 20px; border-radius: 10px; max-width: 90%; color: white; text-align: center; max-height: 90vh; overflow-y: auto; width: 650px; }
     
-    /* テーブルスタイル（説明書用） */
+    /* テーブルスタイル */
     table.help-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.9rem; color: #ecf0f1; }
     table.help-table th, table.help-table td { border: 1px solid #7f8c8d; padding: 6px; text-align: left; }
     table.help-table th { background: #2980b9; }
@@ -63,6 +63,11 @@
     .item-select { background: #2980b9; padding: 5px; border-radius: 3px; font-size: 0.8rem; cursor: pointer; }
     .item-select.selected { background: #2ecc71; border: 2px solid white; }
     
+    /* メニュー編集用リスト */
+    .menu-edit-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.1); margin: 2px 0; padding: 4px; border-radius: 4px; }
+    .menu-edit-row input[type="number"] { width: 70px; padding: 4px; }
+    .menu-edit-row input[type="checkbox"] { transform: scale(1.2); }
+
     /* 従業員管理用 */
     .emp-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.1); padding: 5px; margin: 2px 0; border-radius: 4px; }
     .emp-row button { padding: 2px 8px; font-size: 0.8rem; background: #c0392b; margin: 0; }
@@ -136,9 +141,12 @@
                 <span id="display-time">Day 1 (月) 9:00</span><br>
                 <span id="display-money">¥15,000,000</span> | <span id="display-stars">★★★★★</span>
             </div>
-            <div>
+            <div style="display:flex; align-items:center;">
+                <div style="text-align:right; margin-right:5px; font-size:0.7rem;">
+                    <span id="ad-buff-display" style="color:var(--success-color); font-weight:bold;">宣伝: +0%</span>
+                </div>
                 <button onclick="ui.toggleAds()">宣伝</button>
-                <span id="display-assets">資産</span>
+                <span id="display-assets" style="margin-left:5px; font-size:0.8rem;">資産</span>
             </div>
         </div>
 
@@ -171,7 +179,7 @@
     <div class="modal-content" style="text-align: left;">
         <h2 style="text-align:center;">📖 ゲーム説明書</h2>
         
-        <h4>📢 宣伝の効果</h4>
+        <h4>📢 宣伝の効果 (重ねがけ可能！)</h4>
         <table class="help-table">
             <tr><th>種類</th><th>費用</th><th>効果</th><th>持続期間</th></tr>
             <tr><td>ポスター</td><td>¥7,000</td><td>客+15% (終了後+5%)</td><td>2日間</td></tr>
@@ -180,13 +188,13 @@
             <tr><td>TV番組</td><td>¥100,000</td><td>客+25% (終了後+40%)</td><td>1日</td></tr>
         </table>
 
-        <h4>🧑‍🍳 従業員の能力</h4>
+        <h4>🧑‍🍳 従業員の能力と費用</h4>
         <table class="help-table">
-            <tr><th>ランク</th><th>給料</th><th>提供速度(倍率)</th><th>提供時間目安</th></tr>
-            <tr><td>マスター</td><td>¥50万</td><td>2.5倍</td><td>4秒</td></tr>
-            <tr><td>ベテラン</td><td>¥30万</td><td>1.6倍</td><td>6.25秒</td></tr>
-            <tr><td>標準</td><td>¥20万</td><td>1.0倍</td><td>10秒</td></tr>
-            <tr><td>ポンコツ</td><td>¥10万</td><td>0.5倍</td><td>20秒</td></tr>
+            <tr><th>ランク</th><th>契約金</th><th>提供速度(倍率)</th><th>提供時間目安</th></tr>
+            <tr><td>マスター</td><td>¥20万</td><td>2.5倍</td><td>4秒</td></tr>
+            <tr><td>ベテラン</td><td>¥12万</td><td>1.6倍</td><td>6.25秒</td></tr>
+            <tr><td>標準</td><td>¥8万</td><td>1.0倍</td><td>10秒</td></tr>
+            <tr><td>ポンコツ</td><td>¥4万</td><td>0.5倍</td><td>20秒</td></tr>
         </table>
 
         <h4>😊 客の満足度と評価</h4>
@@ -203,14 +211,6 @@
             <tr><td>それ以上</td><td>45 (悪い)</td></tr>
         </table>
 
-        <h4>⚠️ その他ルール</h4>
-        <ul style="font-size:0.9rem; padding-left:20px;">
-            <li><strong>家賃:</strong> 10日ごとに100万円引き落とし。</li>
-            <li><strong>救済:</strong> 資産200万円以下で一度だけ500万円支給。</li>
-            <li><strong>ゴミ箱:</strong> 設置(1万円)で満足度+5ボーナス。</li>
-            <li><strong>清掃:</strong> 依頼(5万円)で評価が即座に0.2アップ。</li>
-        </ul>
-
         <div style="text-align:center; margin-top:20px;">
             <button onclick="ui.closeModal('modal-help')">閉じる</button>
         </div>
@@ -223,25 +223,33 @@
         <button onclick="ui.toggleMode()">スマホ/PCモード切替</button>
         <hr>
         
-        <h4>雇用センター</h4>
+        <h4>雇用センター (契約金)</h4>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
-            <button onclick="settings.hire('master')">マスター (50万)</button>
-            <button onclick="settings.hire('veteran')">ベテラン (30万)</button>
-            <button onclick="settings.hire('standard')">標準 (20万)</button>
-            <button onclick="settings.hire('ponkotsu')">ポンコツ (10万)</button>
+            <button onclick="settings.hire('master')">マスター (20万)</button>
+            <button onclick="settings.hire('veteran')">ベテラン (12万)</button>
+            <button onclick="settings.hire('standard')">標準 (8万)</button>
+            <button onclick="settings.hire('ponkotsu')">ポンコツ (4万)</button>
         </div>
         
         <h4>現在の従業員</h4>
-        <div id="current-employees-list" style="max-height: 100px; overflow-y: auto; border:1px solid #7f8c8d; padding:5px;">
-            </div>
+        <div id="current-employees-list" style="max-height: 80px; overflow-y: auto; border:1px solid #7f8c8d; padding:5px; margin-bottom:10px;"></div>
         
         <hr>
-        <label>注文モード:</label>
-        <button id="btn-order-mode" onclick="settings.toggleOrderMode()">手動</button>
+        <button onclick="settings.toggleMenuEdit()" style="background:#2980b9; width:100%;">📝 メニューと価格の管理を開く</button>
+        <div id="menu-edit-area" style="display:none; margin-top:10px; background:#2c3e50; padding:10px; border-radius:5px;">
+            <p style="font-size:0.8rem; color:#f1c40f;">※5つ選択してください。価格も変更可能です。</p>
+            <div id="menu-edit-list" style="max-height:200px; overflow-y:auto;"></div>
+            <button onclick="settings.saveMenuChanges()" style="background:#2ecc71; width:100%; margin-top:5px;">変更を適用</button>
+        </div>
+
         <hr>
-        <label>アイテム購入:</label>
-        <button onclick="settings.buyItem('trash')">ゴミ箱 (1万)</button>
-        <button onclick="settings.buyItem('clean')">清掃 (5万, 評価+0.2)</button>
+        <div style="display:flex; justify-content:center; gap:10px;">
+            <button id="btn-order-mode" onclick="settings.toggleOrderMode()">手動注文: OFF</button>
+        </div>
+        <div style="margin-top:5px;">
+            <button onclick="settings.buyItem('trash')">ゴミ箱 (1万)</button>
+            <button onclick="settings.buyItem('clean')">清掃 (5万)</button>
+        </div>
         <hr>
         <button onclick="ui.closeModal('modal-settings')">閉じる</button>
     </div>
@@ -250,7 +258,8 @@
 <div id="modal-ads" class="modal-overlay">
     <div class="modal-content">
         <h3>宣伝活動</h3>
-        <p>現在の集客効果: <span id="ad-status">なし</span></p>
+        <p>現在効果: <span id="ad-status-detail" style="color:#2ecc71; font-weight:bold;">0%</span></p>
+        <p style="font-size:0.8rem;">※効果は重複（重ねがけ）されます。</p>
         <button onclick="ads.start('poster')">ポスター (7,000円)</button>
         <button onclick="ads.start('flyer')">チラシ (10,000円)</button>
         <button onclick="ads.start('cm')">CM (50,000円)</button>
@@ -263,7 +272,7 @@
 
 <script>
 /* =========================================
-   データ定義 (Z80のメモリマップのようなもの)
+   データ定義
    ========================================= */
 const IMAGES = [
     "https://i.ibb.co/2YPFhJ1D/IMG-2529.jpg",
@@ -273,6 +282,7 @@ const IMAGES = [
     "https://i.ibb.co/Xkkr114y/IMG-2529.jpg"
 ];
 
+// メニューデータ (初期値)
 const MENUS = {
     fastfood: [
         {id: 'b_cheese', name: 'チーズバーガー', price: 500},
@@ -314,11 +324,12 @@ const MENUS = {
     ]
 };
 
+// 従業員データ (コスト変更)
 const EMPLOYEES = {
-    master: { name: 'マスター', speed: 2.5, cost: 500000, wait: 4 }, 
-    veteran: { name: 'ベテラン', speed: 1.6, cost: 300000, wait: 6.25 },
-    standard: { name: '標準', speed: 1.0, cost: 200000, wait: 10 },
-    ponkotsu: { name: 'ポンコツ', speed: 0.5, cost: 100000, wait: 20 }
+    master: { name: 'マスター', speed: 2.5, cost: 200000, wait: 4 }, 
+    veteran: { name: 'ベテラン', speed: 1.6, cost: 120000, wait: 6.25 },
+    standard: { name: '標準', speed: 1.0, cost: 80000, wait: 10 },
+    ponkotsu: { name: 'ポンコツ', speed: 0.5, cost: 40000, wait: 20 }
 };
 
 const LOCATIONS = {
@@ -329,7 +340,7 @@ const LOCATIONS = {
 };
 
 /* =========================================
-   ゲーム状態管理 (Global State)
+   ゲーム状態管理
    ========================================= */
 let G = {
     mode: 'pc',
@@ -348,7 +359,7 @@ let G = {
     employees: ['master'], 
     manualOrder: false,
     difficulty: 'normal',
-    ads: { type: null, daysLeft: 0, buff: 0, afterBuff: 0, afterDays: 0 },
+    activeAds: [], // スタック可能にするため配列に変更
     bailoutUsed: false,
     trashBin: false,
     
@@ -398,6 +409,7 @@ const game = {
         G.weekDay = 0;
         G.seats = Array(G.maxSeats).fill(null).map(() => ({ occupied: false, customer: null, status: 'empty', waitTime: 0 }));
         G.totalEarnings = 0;
+        G.activeAds = []; // 初期化
 
         document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
         document.getElementById('screen-game').classList.add('active');
@@ -477,8 +489,13 @@ const game = {
         }
         if (G.weekDay >= 5) rate += 20;
 
-        if (G.ads.daysLeft > 0) rate += G.ads.buff;
-        if (G.ads.afterDays > 0) rate += G.ads.afterBuff;
+        // 宣伝効果の合算
+        let adBuff = 0;
+        G.activeAds.forEach(ad => {
+            if (ad.daysLeft > 0) adBuff += ad.buff;
+            else if (ad.afterDays > 0) adBuff += ad.afterBuff;
+        });
+        rate += adBuff;
 
         if (G.reputation < 1.5) rate *= 0.4;
         else if (G.reputation < 2.5) rate *= 0.6;
@@ -508,6 +525,7 @@ const game = {
         if (!seat) return;
         
         const menuList = MENUS[G.type].filter(m => G.menu.includes(m.id));
+        // 現在設定されているメニューからランダムで1品
         const item = menuList[Math.floor(Math.random() * menuList.length)];
         seat.customer.order = item;
         seat.status = 'cooking';
@@ -564,14 +582,19 @@ const game = {
         G.weekDay = (G.weekDay + 1) % 7;
         G.time = 540;
         
-        if (G.ads.daysLeft > 0) {
-            G.ads.daysLeft--;
-            if (G.ads.daysLeft === 0) {
-                G.ads.afterDays = (G.ads.type === 'poster') ? 2 : (G.ads.type === 'flyer') ? 1 : (G.ads.type === 'cm') ? 3 : 5;
+        // 広告日数の更新
+        G.activeAds.forEach(ad => {
+            if (ad.daysLeft > 0) {
+                ad.daysLeft--;
+                if (ad.daysLeft === 0) {
+                    ad.afterDays = (ad.type === 'poster') ? 2 : (ad.type === 'flyer') ? 1 : (ad.type === 'cm') ? 3 : 5;
+                }
+            } else if (ad.afterDays > 0) {
+                ad.afterDays--;
             }
-        } else if (G.ads.afterDays > 0) {
-            G.ads.afterDays--;
-        }
+        });
+        // 期限切れ広告の削除
+        G.activeAds = G.activeAds.filter(ad => ad.daysLeft > 0 || ad.afterDays > 0);
 
         if (G.day % 10 === 0) {
             G.money -= 1000000;
@@ -647,7 +670,13 @@ const game = {
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
-                G = JSON.parse(e.target.result);
+                const loaded = JSON.parse(e.target.result);
+                // MENUSデータを復元（価格変更を反映するため）
+                if(loaded.customMenus) {
+                    MENUS.fastfood = loaded.customMenus.fastfood;
+                    MENUS.restaurant = loaded.customMenus.restaurant;
+                }
+                G = loaded;
                 document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
                 document.getElementById('screen-game').classList.add('active');
                 ui.renderSeats();
@@ -713,7 +742,7 @@ const setup = {
 const settings = {
     toggleOrderMode: () => {
         G.manualOrder = !G.manualOrder;
-        document.getElementById('btn-order-mode').innerText = G.manualOrder ? "手動" : "自動";
+        document.getElementById('btn-order-mode').innerText = G.manualOrder ? "手動注文: ON" : "手動注文: OFF";
     },
     buyItem: (item) => {
         if (item === 'trash') {
@@ -764,6 +793,62 @@ const settings = {
             row.innerHTML = `<span>${data.name} (速度x${data.speed})</span> <button onclick="settings.fire(${idx})">解雇</button>`;
             list.appendChild(row);
         });
+    },
+    toggleMenuEdit: () => {
+        const area = document.getElementById('menu-edit-area');
+        if (area.style.display === 'none') {
+            area.style.display = 'block';
+            settings.renderMenuEditList();
+        } else {
+            area.style.display = 'none';
+        }
+    },
+    renderMenuEditList: () => {
+        const list = document.getElementById('menu-edit-list');
+        list.innerHTML = '';
+        const allMenus = MENUS[G.type];
+        
+        allMenus.forEach((item, idx) => {
+            const row = document.createElement('div');
+            row.className = 'menu-edit-row';
+            
+            const isChecked = G.menu.includes(item.id) ? 'checked' : '';
+            
+            row.innerHTML = `
+                <label style="flex:1; font-size:0.8rem;">
+                    <input type="checkbox" class="menu-chk" value="${item.id}" ${isChecked}> ${item.name}
+                </label>
+                <input type="number" id="price-${item.id}" value="${item.price}" min="10">円
+            `;
+            list.appendChild(row);
+        });
+    },
+    saveMenuChanges: () => {
+        const checkboxes = document.querySelectorAll('.menu-chk:checked');
+        if (checkboxes.length !== 5) {
+            alert("メニューは必ず5つ選択してください！");
+            return;
+        }
+        
+        // 1. 価格更新
+        MENUS[G.type].forEach(item => {
+            const input = document.getElementById(`price-${item.id}`);
+            if(input) {
+                item.price = parseInt(input.value);
+            }
+        });
+        
+        // 2. 選択メニュー更新
+        G.menu = Array.from(checkboxes).map(cb => cb.value);
+        
+        // 3. 保存用データに反映
+        G.customMenus = {
+            fastfood: MENUS.fastfood,
+            restaurant: MENUS.restaurant
+        };
+
+        alert("メニューと価格を更新しました！");
+        settings.toggleMenuEdit();
     }
 };
 
@@ -778,8 +863,9 @@ const ads = {
         if (G.money < cost) { alert("資金不足です"); return; }
         
         G.money -= cost;
-        G.ads = { type: type, daysLeft: dur, buff: buff, afterBuff: abuff, afterDays: 0 };
-        alert("宣伝を開始しました！");
+        // スタック用に配列に追加
+        G.activeAds.push({ type: type, daysLeft: dur, buff: buff, afterBuff: abuff, afterDays: 0 });
+        alert("宣伝を開始しました！効果は重複します。");
         ui.updateHeader();
         ui.closeModal('modal-ads');
     }
@@ -801,10 +887,18 @@ const ui = {
         for(let i=0; i<5; i++) stars += (i < Math.floor(G.reputation)) ? "★" : "☆";
         document.getElementById('display-stars').innerText = stars;
         
-        let adTxt = "なし";
-        if (G.ads.daysLeft > 0) adTxt = `${G.ads.type}実施中 (+${G.ads.buff}%)`;
-        else if (G.ads.afterDays > 0) adTxt = `効果残存 (+${G.ads.afterBuff}%)`;
-        document.getElementById('ad-status').innerText = adTxt;
+        // 広告状態 (合算値を表示)
+        let totalBuff = 0;
+        G.activeAds.forEach(ad => {
+            if (ad.daysLeft > 0) totalBuff += ad.buff;
+            else if (ad.afterDays > 0) totalBuff += ad.afterBuff;
+        });
+        document.getElementById('ad-buff-display').innerText = `宣伝: +${totalBuff}%`;
+        
+        // モーダル内の詳細表示
+        if(document.getElementById('ad-status-detail')) {
+            document.getElementById('ad-status-detail').innerText = `+${totalBuff}% (アクティブな宣伝: ${G.activeAds.length}件)`;
+        }
     },
     
     renderSeats: () => {
@@ -866,11 +960,14 @@ const ui = {
         document.getElementById('modal-settings').style.display = 'flex';
         game.togglePause(true);
         settings.renderEmployeeList();
+        // メニュー編集エリアは閉じておく
+        document.getElementById('menu-edit-area').style.display = 'none';
     },
     
     toggleAds: () => {
         document.getElementById('modal-ads').style.display = 'flex';
         game.togglePause(true);
+        ui.updateHeader(); // 詳細表示更新のため
     },
 
     toggleHelp: () => {
