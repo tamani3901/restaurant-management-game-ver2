@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>飲食店経営シミュレーション v1.11</title>
+<title>飲食店経営シミュレーション v1.12</title>
 <style>
     :root {
         --bg-color: #2c3e50;
@@ -59,7 +59,7 @@
     
     /* 客席エリア */
     #seats-section { flex: 2; overflow-y: auto; }
-    #seats-container { display: grid; gap: 5px; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); padding-bottom: 20px; }
+    #seats-container { display: grid; gap: 5px; grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); padding-bottom: 20px; }
     .seat { background: #bdc3c7; border-radius: 6px; text-align: center; position: relative; height: 75px; border: 2px solid #7f8c8d; }
     .seat.occupied { background: #f39c12; border-color: #d35400; }
     .seat-status { font-size: 9px; position: absolute; bottom: 2px; left: 0; width: 100%; background:rgba(255,255,255,0.8); font-weight: bold; }
@@ -112,7 +112,7 @@
 
     <div id="screen-home" class="screen active">
         <h1 style="text-align: center; color: var(--warning-color); margin-top: 30px;">🍔 Kitchen Tycoon 🍝</h1>
-        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;">v1.11 FastForward & Endless</p>
+        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;">v1.12 Cleared Bonus Update</p>
         <div class="home-btn-group">
             <button onclick="game.showSetup()">新しいゲームを開始</button>
             <input type="file" id="save-file-input" style="display:none" onchange="game.loadGameData(this)">
@@ -167,15 +167,18 @@
     <div id="screen-game" class="screen" style="padding:0; overflow:hidden;">
         <div id="ui-header">
             <div class="header-row">
-                <button onclick="ui.toggleMenu()">メニュー</button>
-                <button onclick="ui.toggleSettings()">設定</button>
-                <button onclick="stats.show()">統計</button>
-                <button onclick="ui.toggleHelp()" style="background:var(--info-color);">説明書</button>
+                <div style="display:flex; gap:3px;">
+                    <button onclick="ui.toggleMenu()" style="padding:6px 10px;">メニュー</button>
+                    <button onclick="ui.toggleSettings()" style="padding:6px 10px;">設定</button>
+                    <button onclick="stats.show()" style="padding:6px 10px;">統計</button>
+                    <button onclick="ui.toggleHelp()" style="background:var(--info-color); padding:6px 10px;">説明</button>
+                </div>
                 <div style="display:flex; gap:0;">
                     <button class="speed-btn active" id="btn-spd-1" onclick="game.setSpeed(1)">x1</button>
                     <button class="speed-btn" id="btn-spd-2" onclick="game.setSpeed(2)">x2</button>
                     <button class="speed-btn" id="btn-spd-3" onclick="game.setSpeed(3)">x3</button>
                 </div>
+                <button onclick="ui.toggleMode()" style="font-size:0.7rem; padding:5px; margin-left:2px;">切替</button>
             </div>
             <div class="header-row" style="background:#2c3e50; padding:2px; border-radius:4px; margin-top:3px;">
                 <div style="flex:1; text-align:center; font-size:0.85rem;">
@@ -266,9 +269,8 @@
             <ul>
                 <li><strong>普通:</strong> 累計利益 500万円でクリア</li>
                 <li><strong>難しい:</strong> 累計利益 1500万円でクリア <br><small style="color:#e74c3c;">※評価★3.5以下で即ゲームオーバー</small></li>
-                <li><strong>簡単:</strong> 条件なし (評価2.5以下にならない)</li>
             </ul>
-            <p><strong>※クリア後は200万円のボーナスをもらって経営を継続できます。</strong></p>
+            <p>※クリア後は<strong>ボーナス200万円</strong>を獲得し、<strong>最大40席</strong>まで拡張可能になります。</p>
 
             <h4 style="border-color:white;">🎮 遊び方の流れ</h4>
             <ol>
@@ -276,13 +278,13 @@
                 <li>従業員が調理 (品数が多いと時間がかかる)</li>
                 <li>食事が終わると自動で会計</li>
                 <li><strong>22:00</strong>で閉店。</li>
-                <li>※閉店時、<strong>食事中の客は最後まで残りますが、調理中・注文待ちは強制退店（キャンセル）</strong>となります。</li>
+                <li>※閉店時、<strong>調理中・注文待ちは強制退去</strong>になります。</li>
             </ol>
         </div>
 
         <div id="tab-staff" class="help-section">
             <h4 style="border-color:white;">🧑‍🍳 従業員 (優先度あり)</h4>
-            <p>調理は<strong>ランクの高い順</strong>に担当します。<br>全員調理中の場合、注文は「待ち」になります。</p>
+            <p>調理は<strong>ランクの高い順</strong>に担当します。</p>
             <table class="help-table">
                 <tr><th>ランク</th><th>契約金</th><th>速度</th></tr>
                 <tr><td>マスター</td><td>20万</td><td>2.5倍</td></tr>
@@ -295,12 +297,12 @@
             <ul>
                 <li><strong>15席へ:</strong> 累計利益10万で解禁</li>
                 <li><strong>20席へ:</strong> 累計利益20万で解禁</li>
+                <li><strong>40席まで:</strong> ゲームクリア後、5席単位で増減可能！</li>
             </ul>
         </div>
 
         <div id="tab-biz" class="help-section">
             <h4 style="border-color:white;">📢 宣伝効果 (重ねがけOK)</h4>
-            <p>宣伝期間が終わっても、しばらく余韻効果が残ります。</p>
             <table class="help-table">
                 <tr><th>種類</th><th>費用</th><th>効果(期間)</th><th>終了後</th></tr>
                 <tr><td>ポスター</td><td>2万</td><td>+15% (2日)</td><td>+5% (2日)</td></tr>
@@ -316,7 +318,6 @@
                 <li><strong>土日ランチ:</strong> 客+30%</li>
                 <li><strong>ゴミ箱設置:</strong> 満足度+5 (固定)</li>
                 <li><strong>家賃:</strong> 10日ごとに100万円</li>
-                <li><strong>支援金:</strong> 資産200万以下で500万 (1回のみ)</li>
             </ul>
         </div>
 
@@ -329,10 +330,25 @@
 <div id="modal-settings" class="modal-overlay">
     <div class="modal-content">
         <h3>店舗設定</h3>
-        <div style="display:flex; justify-content:center; gap:5px; margin-bottom:10px;">
+        <hr>
+        <h4>🏗️ 店舗拡張リフォーム</h4>
+        
+        <div id="expansion-normal" style="display:flex; justify-content:center; gap:5px; margin-bottom:10px;">
             <button id="btn-expand-15" onclick="settings.expandSeats(15)" disabled style="font-size:0.8rem;">15席へ (累計10万)</button>
             <button id="btn-expand-20" onclick="settings.expandSeats(20)" disabled style="font-size:0.8rem;">20席へ (累計20万)</button>
         </div>
+
+        <div id="expansion-cleared" style="display:none; background:#2c3e50; padding:10px; border-radius:5px; margin-bottom:10px;">
+            <p style="margin:0 0 5px 0; font-size:0.9rem; color:var(--success-color);">🎉 クリア特典: 自由拡張 (Max 40)</p>
+            <div style="display:flex; justify-content:center; align-items:center; gap:10px;">
+                <button onclick="settings.changeSeats(-5)" style="background:#c0392b;">－5席</button>
+                <span id="current-seats-display" style="font-weight:bold; font-size:1.2rem;">20席</span>
+                <button onclick="settings.changeSeats(5)" style="background:#2ecc71;">＋5席</button>
+            </div>
+        </div>
+
+        <hr>
+        <h4>雇用センター</h4>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
             <button onclick="settings.hire('master')">マスター(20万)</button>
             <button onclick="settings.hire('veteran')">ベテラン(12万)</button>
@@ -341,6 +357,7 @@
         </div>
         <div id="current-employees-list" style="max-height: 80px; overflow-y: auto; border:1px solid #7f8c8d; padding:5px; margin:10px 0;"></div>
         
+        <hr>
         <button onclick="settings.toggleMenuEdit()" style="background:#2980b9; width:100%;">📝 メニュー価格管理</button>
         <div id="menu-edit-area" style="display:none; margin-top:10px; background:#2c3e50; padding:10px;">
             <div id="menu-edit-list" style="max-height:150px; overflow-y:auto;"></div>
@@ -414,7 +431,7 @@ let G = {
     manualOrder: false, difficulty: 'normal', activeAds: [], bailoutUsed: false, trashBin: false,
     timerId: null, activeOrder: null,
     statsHistory: [], dailyRevenue: 0, dailyExpense: 0,
-    speed: 1, isCleared: false // 新規フラグ
+    speed: 1, isCleared: false
 };
 
 const DAYS = ['月', '火', '水', '木', '金', '土', '日'];
@@ -464,7 +481,7 @@ const game = {
         G.state = 'playing';
         
         game.sortEmployees();
-        game.setSpeed(1); // 初期速度設定
+        game.setSpeed(1);
 
         ui.renderSeats();
         ui.updateStaffPanel();
@@ -478,7 +495,6 @@ const game = {
         if (G.state === 'playing') {
             G.timerId = setInterval(game.loop, 1000 / G.speed);
         }
-        // ボタンの見た目更新
         document.querySelectorAll('.speed-btn').forEach((btn, idx) => {
             if (idx + 1 === spd) btn.classList.add('active');
             else btn.classList.remove('active');
@@ -494,31 +510,21 @@ const game = {
 
         G.time += 5;
         
-        // 閉店時間チェック
-        if (G.time === 1320) { // 22:00 ジャストに処理
+        if (G.time === 1320) { 
             let kicked = 0;
             G.seats.forEach((s, i) => {
-                // 食事中以外は強制退去
                 if (s.occupied && ['sitting', 'ordering', 'cooking'].includes(s.status)) {
-                    s.occupied = false;
-                    s.customer = null;
-                    s.status = 'empty';
-                    s.assignedChef = undefined; // シェフ解放
-                    kicked++;
+                    s.occupied = false; s.customer = null; s.status = 'empty';
+                    s.assignedChef = undefined; kicked++;
                 }
             });
-            if(kicked > 0) ui.ticker(`閉店時間です。${kicked}組をお断りしました。`);
-            ui.renderSeats();
-            ui.updateStaffPanel();
+            if(kicked > 0) ui.ticker(`閉店時間。${kicked}組をお断りしました。`);
+            ui.renderSeats(); ui.updateStaffPanel();
         }
 
         if (G.time >= 1320) {
-            // 客がいるか確認
             const eaters = G.seats.filter(s => s.occupied);
-            if (eaters.length === 0) {
-                game.endDay(); 
-                return;
-            }
+            if (eaters.length === 0) { game.endDay(); return; }
         } else {
             game.trySpawnCustomer();
         }
@@ -532,12 +538,8 @@ const game = {
 
             if (seat.status === 'sitting') {
                 seat.status = 'ordering';
-                if (c.isTablet || !G.manualOrder) {
-                    setTimeout(() => game.processOrder(idx), 500 / G.speed); // 速度反映
-                } else {
-                    ui.updateSeat(idx);
-                    ui.ticker(`席${idx+1}: 注文待ち`);
-                }
+                if (c.isTablet || !G.manualOrder) setTimeout(() => game.processOrder(idx), 500 / G.speed);
+                else { ui.updateSeat(idx); ui.ticker(`席${idx+1}: 注文待ち`); }
             } else if (seat.status === 'cooking') {
                 if (seat.assignedChef !== undefined) {
                     seat.progress += 5;
@@ -549,71 +551,43 @@ const game = {
                     seat.realWaitTime = (seat.realWaitTime || 0) + 1; 
 
                     if (seat.progress >= reqTime) {
-                        seat.status = 'eating';
-                        seat.progress = 0;
-                        seat.assignedChef = undefined; 
+                        seat.status = 'eating'; seat.progress = 0; seat.assignedChef = undefined; 
                         ui.updateStaffPanel(); 
-                        
-                        const sec = seat.realWaitTime; 
-                        let sat = 60;
-                        if (sec <= 4) sat = 100;
-                        else if (sec <= 6.25) sat = 75;
-                        else if (sec <= 10) sat = 60;
-                        else sat = 45;
-                        if (G.trashBin) sat += 5; 
-                        seat.satisfaction = sat;
+                        const sec = seat.realWaitTime; let sat = 60;
+                        if (sec <= 4) sat = 100; else if (sec <= 6.25) sat = 75; else if (sec <= 10) sat = 60; else sat = 45;
+                        if (G.trashBin) sat += 5; seat.satisfaction = sat;
                     }
                 }
                 ui.updateSeat(idx);
             } else if (seat.status === 'eating') {
                 seat.progress += 5;
-                if (seat.progress >= 30) { 
-                    seat.status = 'paying';
-                    game.processPayment(idx);
-                }
+                if (seat.progress >= 30) { seat.status = 'paying'; game.processPayment(idx); }
             }
         });
     },
 
     processCookingAssignment: () => {
-        const busyChefs = G.seats.filter(s => s.occupied && s.status === 'cooking' && s.assignedChef !== undefined)
-                                 .map(s => s.assignedChef);
+        const busyChefs = G.seats.filter(s => s.occupied && s.status === 'cooking' && s.assignedChef !== undefined).map(s => s.assignedChef);
         const waitingSeats = G.seats.filter(s => s.occupied && s.status === 'cooking' && s.assignedChef === undefined);
-
         waitingSeats.forEach(seat => {
             let freeChefIdx = -1;
             for(let i=0; i < G.employees.length; i++) {
-                if (!busyChefs.includes(i)) {
-                    freeChefIdx = i;
-                    break;
-                }
+                if (!busyChefs.includes(i)) { freeChefIdx = i; break; }
             }
             if (freeChefIdx !== -1) {
-                seat.assignedChef = freeChefIdx;
-                busyChefs.push(freeChefIdx); 
-                ui.updateStaffPanel();
+                seat.assignedChef = freeChefIdx; busyChefs.push(freeChefIdx); ui.updateStaffPanel();
             }
         });
     },
 
     trySpawnCustomer: () => {
-        let rate = 10; 
-        const h = Math.floor(G.time / 60);
-        if ((h >= 11 && h < 13)) {
-            rate += (G.weekDay >= 5) ? 30 : 10; 
-        }
+        let rate = 10; const h = Math.floor(G.time / 60);
+        if ((h >= 11 && h < 13)) rate += (G.weekDay >= 5) ? 30 : 10; 
         if (G.weekDay >= 5) rate += 20;
-
         let adBuff = 0;
-        G.activeAds.forEach(ad => {
-            if (ad.daysLeft > 0) adBuff += ad.buff;
-            else if (ad.afterDays > 0) adBuff += ad.afterBuff;
-        });
+        G.activeAds.forEach(ad => { if (ad.daysLeft > 0) adBuff += ad.buff; else if (ad.afterDays > 0) adBuff += ad.afterBuff; });
         rate += adBuff;
-
-        if (G.reputation < 1.5) rate *= 0.4;
-        else if (G.reputation < 2.5) rate *= 0.6;
-        else if (G.reputation < 3.5) rate *= 0.8;
+        if (G.reputation < 1.5) rate *= 0.4; else if (G.reputation < 2.5) rate *= 0.6; else if (G.reputation < 3.5) rate *= 0.8;
 
         if (Math.random() * 100 < rate) {
             const emptyIdx = G.seats.findIndex(s => !s.occupied);
@@ -621,128 +595,62 @@ const game = {
                 const groupSize = Math.floor(Math.random() * 4) + 1;
                 const isTablet = Math.random() > 0.5;
                 const img = IMAGES[Math.floor(Math.random() * IMAGES.length)];
-                
-                G.seats[emptyIdx] = {
-                    occupied: true, status: 'sitting', progress: 0, realWaitTime: 0,
-                    customer: { size: groupSize, isTablet: isTablet, img: img, order: [] }
-                };
+                G.seats[emptyIdx] = { occupied: true, status: 'sitting', progress: 0, realWaitTime: 0, customer: { size: groupSize, isTablet: isTablet, img: img, order: [] } };
                 ui.updateSeat(emptyIdx);
             }
         }
     },
 
     processOrder: (seatIdx) => {
-        const seat = G.seats[seatIdx];
-        if (!seat) return;
-        
+        const seat = G.seats[seatIdx]; if (!seat) return;
         const menuList = MENUS[G.type].filter(m => G.menu.includes(m.id));
         const count = Math.floor(Math.random() * 5) + 1; 
         const orderItems = [];
-        for(let i=0; i<count; i++) {
-            orderItems.push(menuList[Math.floor(Math.random() * menuList.length)]);
-        }
-        
-        seat.customer.order = orderItems;
-        seat.status = 'cooking'; 
-        seat.progress = 0;
-        ui.updateSeat(seatIdx);
-        ui.ticker(`席${seatIdx+1}: ${count}品注文入りました！`);
+        for(let i=0; i<count; i++) orderItems.push(menuList[Math.floor(Math.random() * menuList.length)]);
+        seat.customer.order = orderItems; seat.status = 'cooking'; seat.progress = 0;
+        ui.updateSeat(seatIdx); ui.ticker(`席${seatIdx+1}: ${count}品注文入りました！`);
     },
 
     manualOrderClick: (seatIdx) => {
         const seat = G.seats[seatIdx];
         if (seat && seat.status === 'ordering' && !seat.customer.isTablet) {
-            G.activeOrder = seatIdx;
-            document.getElementById('order-customer-img').src = seat.customer.img;
-            
+            G.activeOrder = seatIdx; document.getElementById('order-customer-img').src = seat.customer.img;
             const menuList = MENUS[G.type].filter(m => G.menu.includes(m.id));
-            const count = Math.floor(Math.random() * 5) + 1; 
-            const orderItems = [];
-            for(let i=0; i<count; i++) {
-                orderItems.push(menuList[Math.floor(Math.random() * menuList.length)]);
-            }
+            const count = Math.floor(Math.random() * 5) + 1; const orderItems = [];
+            for(let i=0; i<count; i++) orderItems.push(menuList[Math.floor(Math.random() * menuList.length)]);
             seat.customer.order = orderItems;
-
             const itemNames = orderItems.map(i => i.name).join('、<br>');
             document.getElementById('order-text').innerHTML = `「${itemNames}」<br>をお願いします！`;
-            document.getElementById('modal-order').style.display = 'flex';
-            game.togglePause(true);
+            document.getElementById('modal-order').style.display = 'flex'; game.togglePause(true);
         }
     },
 
-    confirmOrder: () => {
-        document.getElementById('modal-order').style.display = 'none';
-        game.togglePause(false);
-        if (G.activeOrder !== null) {
-            G.seats[G.activeOrder].status = 'cooking';
-            ui.updateSeat(G.activeOrder);
-            G.activeOrder = null;
-        }
-    },
+    confirmOrder: () => { document.getElementById('modal-order').style.display = 'none'; game.togglePause(false); if (G.activeOrder !== null) { G.seats[G.activeOrder].status = 'cooking'; ui.updateSeat(G.activeOrder); G.activeOrder = null; } },
 
     processPayment: (seatIdx) => {
-        const seat = G.seats[seatIdx];
-        if (!seat) return;
-
-        let totalProfit = 0;
-        seat.customer.order.forEach(item => { totalProfit += item.price; });
-        totalProfit *= seat.customer.size; 
-
-        G.money += totalProfit;
-        G.totalEarnings += totalProfit;
-        G.dailyRevenue += totalProfit;
-        
+        const seat = G.seats[seatIdx]; if (!seat) return;
+        let totalProfit = 0; seat.customer.order.forEach(item => { totalProfit += item.price; }); totalProfit *= seat.customer.size; 
+        G.money += totalProfit; G.totalEarnings += totalProfit; G.dailyRevenue += totalProfit;
         const sat = seat.satisfaction;
         G.reputation = (G.reputation * 0.9) + ((sat / 20) * 0.1); 
-        if (G.reputation > 5) G.reputation = 5;
-        if (G.reputation < 1) G.reputation = 1;
-
+        if (G.reputation > 5) G.reputation = 5; if (G.reputation < 1) G.reputation = 1;
         G.seats[seatIdx] = { occupied: false, customer: null, status: 'empty' };
-        ui.updateSeat(seatIdx);
-        ui.updateHeader();
-        ui.ticker(`会計: ¥${totalProfit.toLocaleString()}`);
+        ui.updateSeat(seatIdx); ui.updateHeader(); ui.ticker(`会計: ¥${totalProfit.toLocaleString()}`);
     },
 
     endDay: () => {
-        G.statsHistory.push({
-            day: G.day,
-            revenue: G.dailyRevenue,
-            assets: G.money,
-            expense: G.dailyExpense
-        });
-        
-        G.day++;
-        G.weekDay = (G.weekDay + 1) % 7;
-        G.time = 540;
-        G.dailyRevenue = 0;
-        G.dailyExpense = 0;
+        G.statsHistory.push({ day: G.day, revenue: G.dailyRevenue, assets: G.money, expense: G.dailyExpense });
+        G.day++; G.weekDay = (G.weekDay + 1) % 7; G.time = 540; G.dailyRevenue = 0; G.dailyExpense = 0;
         
         G.activeAds.forEach(ad => {
-            if (ad.daysLeft > 0) {
-                ad.daysLeft--;
-                if (ad.daysLeft === 0) {
-                    ad.afterDays = (ad.type === 'poster') ? 2 : (ad.type === 'flyer') ? 1 : (ad.type === 'cm') ? 3 : 5;
-                }
-            } else if (ad.afterDays > 0) {
-                ad.afterDays--;
-            }
+            if (ad.daysLeft > 0) { ad.daysLeft--; if (ad.daysLeft === 0) { ad.afterDays = (ad.type === 'poster') ? 2 : (ad.type === 'flyer') ? 1 : (ad.type === 'cm') ? 3 : 5; } } else if (ad.afterDays > 0) { ad.afterDays--; }
         });
         G.activeAds = G.activeAds.filter(ad => ad.daysLeft > 0 || ad.afterDays > 0);
 
-        if (G.day % 10 === 0) {
-            G.money -= 1000000;
-            G.dailyExpense += 1000000;
-            alert('家賃と光熱費 100万円を支払いました。');
-        }
-
-        if (G.money < 2000000 && !G.bailoutUsed) {
-            G.money += 5000000;
-            G.bailoutUsed = true;
-            alert('経営危機のため支援金500万円を受け取りました。');
-        }
+        if (G.day % 10 === 0) { G.money -= 1000000; G.dailyExpense += 1000000; alert('家賃と光熱費 100万円を支払いました。'); }
+        if (G.money < 2000000 && !G.bailoutUsed) { G.money += 5000000; G.bailoutUsed = true; alert('経営危機のため支援金500万円を受け取りました。'); }
 
         game.checkWinLose();
-
         clearInterval(G.timerId);
         alert(`1日が終了しました。\n売上: ¥${G.statsHistory[G.statsHistory.length-1].revenue.toLocaleString()}`);
         G.timerId = setInterval(game.loop, 1000 / G.speed);
@@ -750,292 +658,137 @@ const game = {
 
     checkWinLose: () => {
         if (G.money < 0) { game.gameOver("破産しました..."); return; }
-
         if (!G.isCleared) {
             let clear = false;
-            if (G.difficulty === 'hard') {
-                if (G.reputation < 3.5) { game.gameOver("評価が低すぎます..."); return; }
-                if (G.totalEarnings >= 15000000) clear = true;
-            } else if (G.difficulty === 'normal') {
-                if (G.totalEarnings >= 5000000) clear = true;
-            }
-
+            if (G.difficulty === 'hard') { if (G.reputation < 3.5) { game.gameOver("評価が低すぎます..."); return; } if (G.totalEarnings >= 15000000) clear = true; }
+            else if (G.difficulty === 'normal') { if (G.totalEarnings >= 5000000) clear = true; }
             if (clear) {
-                G.isCleared = true;
-                G.money += 2000000;
-                alert("🎉 クリア条件達成！ 🎉\nボーナス200万円を獲得しました。\n経営を継続します！");
+                G.isCleared = true; G.money += 2000000;
+                alert("🎉 クリア条件達成！ 🎉\nボーナス200万円を獲得！\n上限40席まで拡張可能になりました！");
                 ui.updateHeader();
             }
         }
     },
     
     gameOver: (msg) => { clearInterval(G.timerId); alert("GAME OVER\n" + msg); game.showHome(); },
-    gameWin: (msg) => { /* used for simple end, now unused in favor of continue */ },
-
-    togglePause: (forceState) => {
-        if (forceState !== undefined) {
-            if (forceState) clearInterval(G.timerId);
-            else G.timerId = setInterval(game.loop, 1000 / G.speed);
-        } else {
-            if (G.timerId) { clearInterval(G.timerId); G.timerId = null; }
-            else G.timerId = setInterval(game.loop, 1000 / G.speed);
-        }
-    },
-
-    saveGame: () => {
-        const json = JSON.stringify(G);
-        const blob = new Blob([json], {type: "application/json"});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = "kitchen_tycoon_save.json";
-        a.click();
-    },
-    
-    loadGameData: (input) => {
-        const file = input.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                const loaded = JSON.parse(e.target.result);
-                if(loaded.customMenus) {
-                    MENUS.fastfood = loaded.customMenus.fastfood;
-                    MENUS.restaurant = loaded.customMenus.restaurant;
-                }
-                G = loaded;
-                document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
-                document.getElementById('screen-game').classList.add('active');
-                game.sortEmployees(); 
-                game.setSpeed(1);
-                ui.renderSeats();
-                ui.updateStaffPanel();
-                ui.updateHeader();
-            } catch (err) { alert("データ破損"); }
-        };
-        reader.readAsText(file);
-    },
-    quitGame: () => {
-        if(confirm("本当にやめますか？")) { clearInterval(G.timerId); game.showHome(); ui.closeModal('modal-menu'); }
-    }
+    togglePause: (forceState) => { if (forceState !== undefined) { if (forceState) clearInterval(G.timerId); else G.timerId = setInterval(game.loop, 1000 / G.speed); } else { if (G.timerId) { clearInterval(G.timerId); G.timerId = null; } else G.timerId = setInterval(game.loop, 1000 / G.speed); } },
+    saveGame: () => { const json = JSON.stringify(G); const blob = new Blob([json], {type: "application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = "kitchen_tycoon_save.json"; a.click(); },
+    loadGameData: (input) => { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { try { const loaded = JSON.parse(e.target.result); if(loaded.customMenus) { MENUS.fastfood = loaded.customMenus.fastfood; MENUS.restaurant = loaded.customMenus.restaurant; } G = loaded; document.querySelectorAll('.screen').forEach(e => e.classList.remove('active')); document.getElementById('screen-game').classList.add('active'); game.sortEmployees(); game.setSpeed(1); ui.renderSeats(); ui.updateStaffPanel(); ui.updateHeader(); } catch (err) { alert("データ破損"); } }; reader.readAsText(file); },
+    quitGame: () => { if(confirm("本当にやめますか？")) { clearInterval(G.timerId); game.showHome(); ui.closeModal('modal-menu'); } }
 };
 
 /* 設定・セットアップ */
 const setup = {
     updateMenuOptions: () => {
-        const type = document.getElementById('setup-type').value;
-        const list = document.getElementById('setup-menu-list');
-        list.innerHTML = '';
-        MENUS[type].forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'item-select';
-            div.innerText = `${item.name} (${item.price})`;
-            div.style.cssText = "background:#2980b9;padding:8px;border-radius:4px;font-size:0.8rem;cursor:pointer;text-align:center;width:30%;";
-            div.dataset.id = item.id;
-            div.onclick = () => {
-                if (div.classList.contains('selected')) { div.classList.remove('selected'); div.style.background = '#2980b9'; }
-                else if (document.querySelectorAll('.item-select.selected').length < 5) { div.classList.add('selected'); div.style.background = '#2ecc71'; }
-            };
-            list.appendChild(div);
-        });
+        const type = document.getElementById('setup-type').value; const list = document.getElementById('setup-menu-list'); list.innerHTML = '';
+        MENUS[type].forEach(item => { const div = document.createElement('div'); div.className = 'item-select'; div.innerText = `${item.name} (${item.price})`; div.style.cssText = "background:#2980b9;padding:8px;border-radius:4px;font-size:0.8rem;cursor:pointer;text-align:center;width:30%;"; div.dataset.id = item.id; div.onclick = () => { if (div.classList.contains('selected')) { div.classList.remove('selected'); div.style.background = '#2980b9'; } else if (document.querySelectorAll('.item-select.selected').length < 5) { div.classList.add('selected'); div.style.background = '#2ecc71'; } }; list.appendChild(div); });
     },
     updateSizeOptions: () => {
-        const loc = document.getElementById('setup-location').value;
-        const max = LOCATIONS[loc].max;
-        const select = document.getElementById('setup-seats');
-        select.innerHTML = '';
-        for (let i = 4; i <= max; i+=2) {
-            const op = document.createElement('option'); op.value = i; op.innerText = `${i}席`; if (i===max) op.selected = true;
-            select.appendChild(op);
-        }
+        const loc = document.getElementById('setup-location').value; const max = LOCATIONS[loc].max; const select = document.getElementById('setup-seats'); select.innerHTML = '';
+        for (let i = 4; i <= max; i+=2) { const op = document.createElement('option'); op.value = i; op.innerText = `${i}席`; if (i===max) op.selected = true; select.appendChild(op); }
     }
 };
 
 const settings = {
-    toggleOrderMode: () => {
-        G.manualOrder = !G.manualOrder;
-        document.getElementById('btn-order-mode').innerText = G.manualOrder ? "手動注文: ON" : "手動注文: OFF";
-    },
-    buyItem: (item) => {
-        if (item === 'trash' && G.money >= 10000) { G.money -= 10000; G.dailyExpense += 10000; G.trashBin = true; alert("ゴミ箱設置！"); }
-        else if (item === 'clean' && G.money >= 50000) { G.money -= 50000; G.dailyExpense += 50000; G.reputation += 0.2; alert("清掃完了！"); }
-        ui.updateHeader();
-    },
-    hire: (type) => {
-        const emp = EMPLOYEES[type];
-        if (G.money >= emp.cost) {
-            G.money -= emp.cost; G.dailyExpense += emp.cost; G.employees.push(type);
-            game.sortEmployees(); 
-            alert(`${emp.name}を雇いました！`);
-            settings.renderEmployeeList(); ui.updateStaffPanel(); ui.updateHeader();
-        } else alert("資金不足");
-    },
-    fire: (index) => {
-        if (G.employees.length <= 1) { alert("最後の1人は解雇できません"); return; }
-        if(confirm("解雇しますか？")) { G.employees.splice(index, 1); settings.renderEmployeeList(); ui.updateStaffPanel(); ui.updateHeader(); }
-    },
-    renderEmployeeList: () => {
-        const list = document.getElementById('current-employees-list'); list.innerHTML = '';
-        G.employees.forEach((key, idx) => {
-            const data = EMPLOYEES[key];
-            const row = document.createElement('div'); row.className = 'emp-row';
-            row.innerHTML = `<span>${data.name}</span> <button onclick="settings.fire(${idx})">解雇</button>`;
-            list.appendChild(row);
-        });
-    },
-    toggleMenuEdit: () => {
-        const area = document.getElementById('menu-edit-area');
-        if (area.style.display === 'none') { area.style.display = 'block'; settings.renderMenuEditList(); }
-        else area.style.display = 'none';
-    },
-    renderMenuEditList: () => {
-        const list = document.getElementById('menu-edit-list'); list.innerHTML = '';
-        MENUS[G.type].forEach(item => {
-            const row = document.createElement('div'); row.className = 'menu-edit-row';
-            const isChecked = G.menu.includes(item.id) ? 'checked' : '';
-            row.innerHTML = `<label><input type="checkbox" class="menu-chk" value="${item.id}" ${isChecked}> ${item.name}</label><input type="number" id="price-${item.id}" value="${item.price}" min="10">`;
-            list.appendChild(row);
-        });
-    },
-    saveMenuChanges: () => {
-        const checkboxes = document.querySelectorAll('.menu-chk:checked');
-        if (checkboxes.length !== 5) { alert("5つ選択してください"); return; }
-        MENUS[G.type].forEach(item => {
-            const input = document.getElementById(`price-${item.id}`);
-            if(input) item.price = parseInt(input.value);
-        });
-        G.menu = Array.from(checkboxes).map(cb => cb.value);
-        G.customMenus = { fastfood: MENUS.fastfood, restaurant: MENUS.restaurant };
-        alert("メニュー更新完了"); settings.toggleMenuEdit();
-    },
+    toggleOrderMode: () => { G.manualOrder = !G.manualOrder; document.getElementById('btn-order-mode').innerText = G.manualOrder ? "手動注文: ON" : "手動注文: OFF"; },
+    buyItem: (item) => { if (item === 'trash' && G.money >= 10000) { G.money -= 10000; G.dailyExpense += 10000; G.trashBin = true; alert("ゴミ箱設置！"); } else if (item === 'clean' && G.money >= 50000) { G.money -= 50000; G.dailyExpense += 50000; G.reputation += 0.2; alert("清掃完了！"); } ui.updateHeader(); },
+    hire: (type) => { const emp = EMPLOYEES[type]; if (G.money >= emp.cost) { G.money -= emp.cost; G.dailyExpense += emp.cost; G.employees.push(type); game.sortEmployees(); alert(`${emp.name}を雇いました！`); settings.renderEmployeeList(); ui.updateStaffPanel(); ui.updateHeader(); } else alert("資金不足"); },
+    fire: (index) => { if (G.employees.length <= 1) { alert("最後の1人は解雇できません"); return; } if(confirm("解雇しますか？")) { G.employees.splice(index, 1); settings.renderEmployeeList(); ui.updateStaffPanel(); ui.updateHeader(); } },
+    renderEmployeeList: () => { const list = document.getElementById('current-employees-list'); list.innerHTML = ''; G.employees.forEach((key, idx) => { const data = EMPLOYEES[key]; const row = document.createElement('div'); row.className = 'emp-row'; row.innerHTML = `<span>${data.name}</span> <button onclick="settings.fire(${idx})">解雇</button>`; list.appendChild(row); }); },
+    toggleMenuEdit: () => { const area = document.getElementById('menu-edit-area'); if (area.style.display === 'none') { area.style.display = 'block'; settings.renderMenuEditList(); } else area.style.display = 'none'; },
+    renderMenuEditList: () => { const list = document.getElementById('menu-edit-list'); list.innerHTML = ''; MENUS[G.type].forEach(item => { const row = document.createElement('div'); row.className = 'menu-edit-row'; const isChecked = G.menu.includes(item.id) ? 'checked' : ''; row.innerHTML = `<label><input type="checkbox" class="menu-chk" value="${item.id}" ${isChecked}> ${item.name}</label><input type="number" id="price-${item.id}" value="${item.price}" min="10">`; list.appendChild(row); }); },
+    saveMenuChanges: () => { const checkboxes = document.querySelectorAll('.menu-chk:checked'); if (checkboxes.length !== 5) { alert("5つ選択してください"); return; } MENUS[G.type].forEach(item => { const input = document.getElementById(`price-${item.id}`); if(input) item.price = parseInt(input.value); }); G.menu = Array.from(checkboxes).map(cb => cb.value); G.customMenus = { fastfood: MENUS.fastfood, restaurant: MENUS.restaurant }; alert("メニュー更新完了"); settings.toggleMenuEdit(); },
     expandSeats: (target) => {
         if ((target === 15 && G.totalEarnings < 100000) || (target === 20 && G.totalEarnings < 200000)) { alert("実績不足"); return; }
         if (G.maxSeats >= target) { alert("拡張済み"); return; }
         const added = target - G.maxSeats; G.maxSeats = target;
         for(let i=0; i<added; i++) G.seats.push({ occupied: false, customer: null, status: 'empty', waitTime: 0 });
         alert(`拡張完了！${target}席`); ui.renderSeats(); ui.updateSettingsButtons();
+    },
+    changeSeats: (delta) => {
+        if(!G.isCleared) return;
+        const current = G.maxSeats;
+        const next = current + delta;
+        if (next < 4) { alert("これ以上減らせません"); return; }
+        if (next > 40) { alert("最大40席までです"); return; }
+        
+        if (delta > 0) {
+            // 増やす
+            for(let i=0; i<delta; i++) G.seats.push({ occupied: false, customer: null, status: 'empty', waitTime: 0 });
+        } else {
+            // 減らす (末尾から削除、客がいたら飛ばす=強制退去)
+            for(let i=0; i<Math.abs(delta); i++) G.seats.pop();
+        }
+        G.maxSeats = next;
+        ui.renderSeats();
+        ui.updateSettingsButtons();
     }
 };
 
 const ads = {
     start: (type) => {
-        let cost=0, buff=0, dur=0;
-        if(type==='poster'){cost=20000;buff=15;dur=2;}
-        if(type==='flyer'){cost=50000;buff=20;dur=2;}
-        if(type==='cm'){cost=200000;buff=25;dur=10;}
-        if(type==='tv'){cost=500000;buff=25;dur=1;}
+        let cost=0, buff=0, dur=0; if(type==='poster'){cost=20000;buff=15;dur=2;} if(type==='flyer'){cost=50000;buff=20;dur=2;} if(type==='cm'){cost=200000;buff=25;dur=10;} if(type==='tv'){cost=500000;buff=25;dur=1;}
         if (G.money < cost) { alert("資金不足"); return; }
         G.money -= cost; G.dailyExpense += cost;
         G.activeAds.push({ type: type, daysLeft: dur, buff: buff, afterBuff: 5, afterDays: 0 });
-        if(type==='tv') G.activeAds[G.activeAds.length-1].afterBuff = 40; 
-        if(type==='cm') G.activeAds[G.activeAds.length-1].afterBuff = 20; 
+        if(type==='tv') G.activeAds[G.activeAds.length-1].afterBuff = 40; if(type==='cm') G.activeAds[G.activeAds.length-1].afterBuff = 20; 
         alert("宣伝開始"); ui.updateHeader(); ui.closeModal('modal-ads');
     }
 };
 
-/* 統計機能 */
 const stats = {
-    range: 100, 
-    type: 'revenue',
-    show: () => {
-        document.getElementById('modal-stats').style.display = 'flex';
-        game.togglePause(true);
-        stats.draw();
-        document.getElementById('stat-today-rev').innerText = `¥${G.dailyRevenue.toLocaleString()}`;
-        document.getElementById('stat-today-exp').innerText = `¥${G.dailyExpense.toLocaleString()}`;
-    },
+    range: 100, type: 'revenue',
+    show: () => { document.getElementById('modal-stats').style.display = 'flex'; game.togglePause(true); stats.draw(); document.getElementById('stat-today-rev').innerText = `¥${G.dailyRevenue.toLocaleString()}`; document.getElementById('stat-today-exp').innerText = `¥${G.dailyExpense.toLocaleString()}`; },
     setRange: (r) => { stats.range = r; stats.draw(); },
-    setType: (t) => { 
-        stats.type = t; 
-        document.getElementById('btn-graph-rev').classList.remove('active');
-        document.getElementById('btn-graph-asset').classList.remove('active');
-        if(t === 'revenue') document.getElementById('btn-graph-rev').classList.add('active');
-        else document.getElementById('btn-graph-asset').classList.add('active');
-        stats.draw(); 
-    },
+    setType: (t) => { stats.type = t; document.getElementById('btn-graph-rev').classList.remove('active'); document.getElementById('btn-graph-asset').classList.remove('active'); if(t === 'revenue') document.getElementById('btn-graph-rev').classList.add('active'); else document.getElementById('btn-graph-asset').classList.add('active'); stats.draw(); },
     draw: () => {
-        const canvas = document.getElementById('stats-canvas');
-        const ctx = canvas.getContext('2d');
-        const w = canvas.width = canvas.offsetWidth;
-        const h = canvas.height = canvas.offsetHeight;
-        ctx.clearRect(0,0,w,h);
-
-        let data = [...G.statsHistory];
-        if (stats.range > 0 && data.length > stats.range) {
-            data = data.slice(data.length - stats.range);
-        }
-        if (data.length < 2) {
-            ctx.fillStyle = "#333"; ctx.font = "14px Arial";
-            ctx.fillText("データが足りません (2日目以降表示)", 20, 50);
-            return;
-        }
-
-        let maxVal = 0, minVal = Infinity;
-        data.forEach(d => {
-            let val = (stats.type === 'revenue') ? d.revenue : d.assets;
-            if(val > maxVal) maxVal = val;
-            if(val < minVal) minVal = val;
-        });
-        if (minVal > 0 && stats.type === 'revenue') minVal = 0;
-
-        const padding = 20;
-        ctx.beginPath();
-        ctx.strokeStyle = (stats.type === 'revenue') ? '#2ecc71' : '#f1c40f';
-        ctx.lineWidth = 2;
-
-        data.forEach((d, i) => {
-            let val = (stats.type === 'revenue') ? d.revenue : d.assets;
-            let x = padding + (i / (data.length - 1)) * (w - padding * 2);
-            let y = h - padding - ((val - minVal) / (maxVal - minVal || 1)) * (h - padding * 2);
-            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-        });
-        ctx.stroke();
+        const canvas = document.getElementById('stats-canvas'); const ctx = canvas.getContext('2d'); const w = canvas.width = canvas.offsetWidth; const h = canvas.height = canvas.offsetHeight; ctx.clearRect(0,0,w,h);
+        let data = [...G.statsHistory]; if (stats.range > 0 && data.length > stats.range) data = data.slice(data.length - stats.range);
+        if (data.length < 2) { ctx.fillStyle = "#333"; ctx.font = "14px Arial"; ctx.fillText("データ不足 (2日目以降)", 20, 50); return; }
+        let maxVal = 0, minVal = Infinity; data.forEach(d => { let val = (stats.type === 'revenue') ? d.revenue : d.assets; if(val > maxVal) maxVal = val; if(val < minVal) minVal = val; }); if (minVal > 0 && stats.type === 'revenue') minVal = 0;
+        const padding = 20; ctx.beginPath(); ctx.strokeStyle = (stats.type === 'revenue') ? '#2ecc71' : '#f1c40f'; ctx.lineWidth = 2;
+        data.forEach((d, i) => { let val = (stats.type === 'revenue') ? d.revenue : d.assets; let x = padding + (i / (data.length - 1)) * (w - padding * 2); let y = h - padding - ((val - minVal) / (maxVal - minVal || 1)) * (h - padding * 2); if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); }); ctx.stroke();
     }
 };
 
-/* UI制御 */
 const ui = {
     updateHeader: () => {
-        const h = Math.floor(G.time / 60);
-        const m = G.time % 60;
+        const h = Math.floor(G.time / 60); const m = G.time % 60;
         document.getElementById('display-time').innerText = `Day ${G.day} (${DAYS[G.weekDay]}) ${('0'+h).slice(-2)}:${('0'+m).slice(-2)}`;
         document.getElementById('display-money').innerText = `¥${G.money.toLocaleString()}`;
         document.getElementById('display-earnings').innerText = `¥${G.totalEarnings.toLocaleString()}`;
-        
-        let stars = ""; for(let i=0; i<5; i++) stars += (i < Math.floor(G.reputation)) ? "★" : "☆";
-        document.getElementById('display-stars').innerText = stars;
-        
-        let totalBuff = 0;
-        G.activeAds.forEach(ad => { if (ad.daysLeft > 0) totalBuff += ad.buff; else if (ad.afterDays > 0) totalBuff += ad.afterBuff; });
-        document.getElementById('ad-buff-display').innerText = `宣伝:+${totalBuff}%`;
-
+        let stars = ""; for(let i=0; i<5; i++) stars += (i < Math.floor(G.reputation)) ? "★" : "☆"; document.getElementById('display-stars').innerText = stars;
+        let totalBuff = 0; G.activeAds.forEach(ad => { if (ad.daysLeft > 0) totalBuff += ad.buff; else if (ad.afterDays > 0) totalBuff += ad.afterBuff; }); document.getElementById('ad-buff-display').innerText = `宣伝:+${totalBuff}%`;
         ui.updateSettingsButtons();
     },
     updateSettingsButtons: () => {
-        const btn15 = document.getElementById('btn-expand-15');
-        const btn20 = document.getElementById('btn-expand-20');
-        if(btn15 && btn20) {
-            if(G.maxSeats >= 15) btn15.disabled = true; else btn15.disabled = (G.totalEarnings < 100000);
-            if(G.maxSeats >= 20) btn20.disabled = true; else btn20.disabled = (G.totalEarnings < 200000);
+        const btn15 = document.getElementById('btn-expand-15'); const btn20 = document.getElementById('btn-expand-20');
+        if (G.isCleared) {
+            // クリア後は通常拡張ボタンを消し、自由拡張を表示
+            document.getElementById('expansion-normal').style.display = 'none';
+            document.getElementById('expansion-cleared').style.display = 'block';
+            document.getElementById('current-seats-display').innerText = `${G.maxSeats}席`;
+        } else {
+            if(btn15 && btn20) {
+                if(G.maxSeats >= 15) btn15.disabled = true; else btn15.disabled = (G.totalEarnings < 100000);
+                if(G.maxSeats >= 20) btn20.disabled = true; else btn20.disabled = (G.totalEarnings < 200000);
+            }
         }
     },
     renderSeats: () => {
         const con = document.getElementById('seats-container'); con.innerHTML = '';
         G.seats.forEach((seat, idx) => {
-            const div = document.createElement('div'); div.className = 'seat'; div.id = `seat-${idx}`;
-            div.onclick = () => game.manualOrderClick(idx);
+            const div = document.createElement('div'); div.className = 'seat'; div.id = `seat-${idx}`; div.onclick = () => game.manualOrderClick(idx);
             const info = document.createElement('div'); info.className = 'seat-status'; info.id = `seat-info-${idx}`; info.innerText = '空席';
             div.appendChild(info); con.appendChild(div);
         });
     },
     updateSeat: (idx) => {
         const seat = G.seats[idx]; const div = document.getElementById(`seat-${idx}`); const info = document.getElementById(`seat-info-${idx}`);
+        if(!div) return; // 席減少時のエラー防止
         if (seat.occupied) {
             div.classList.add('occupied'); div.style.backgroundImage = `url(${seat.customer.img})`; div.style.backgroundSize = 'contain'; div.style.backgroundRepeat = 'no-repeat'; div.style.backgroundPosition = 'center';
-            let txt = "";
-            if (seat.status === 'sitting') txt = "着席"; else if (seat.status === 'ordering') txt = "注文";
-            else if (seat.status === 'cooking') txt = (seat.assignedChef !== undefined) ? "調理中" : "調理待";
-            else if (seat.status === 'eating') txt = "食事"; else if (seat.status === 'paying') txt = "会計";
+            let txt = ""; if (seat.status === 'sitting') txt = "着席"; else if (seat.status === 'ordering') txt = "注文"; else if (seat.status === 'cooking') txt = (seat.assignedChef !== undefined) ? "調理中" : "調理待"; else if (seat.status === 'eating') txt = "食事"; else if (seat.status === 'paying') txt = "会計";
             info.innerText = txt;
         } else { div.classList.remove('occupied'); div.style.backgroundImage = 'none'; info.innerText = '空席'; }
     },
@@ -1043,12 +796,8 @@ const ui = {
         const con = document.getElementById('staff-container'); con.innerHTML = '';
         G.employees.forEach((key, idx) => {
             const cookingSeatIdx = G.seats.findIndex(s => s.occupied && s.status === 'cooking' && s.assignedChef === idx);
-            const isBusy = (cookingSeatIdx !== -1);
-            const data = EMPLOYEES[key];
-            const div = document.createElement('div');
-            div.className = `staff-card ${isBusy ? 'busy' : 'free'}`;
-            div.innerHTML = `<div>${data.name}</div><div class="staff-status-text">${isBusy ? '調理中 (席'+(cookingSeatIdx+1)+')' : '待機中'}</div>`;
-            con.appendChild(div);
+            const isBusy = (cookingSeatIdx !== -1); const data = EMPLOYEES[key];
+            const div = document.createElement('div'); div.className = `staff-card ${isBusy ? 'busy' : 'free'}`; div.innerHTML = `<div>${data.name}</div><div class="staff-status-text">${isBusy ? '調理中 (席'+(cookingSeatIdx+1)+')' : '待機中'}</div>`; con.appendChild(div);
         });
     },
     ticker: (msg) => { document.getElementById('ticker').innerText = msg; },
@@ -1056,15 +805,7 @@ const ui = {
     toggleSettings: () => { document.getElementById('modal-settings').style.display = 'flex'; game.togglePause(true); settings.renderEmployeeList(); document.getElementById('menu-edit-area').style.display = 'none'; ui.updateSettingsButtons(); },
     toggleAds: () => { document.getElementById('modal-ads').style.display = 'flex'; game.togglePause(true); ui.updateHeader(); },
     toggleHelp: () => { document.getElementById('modal-help').style.display = 'flex'; ui.switchHelpTab('tab-basic'); game.togglePause(true); },
-    switchHelpTab: (tabId) => {
-        document.querySelectorAll('.help-section').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        const tabs = document.querySelectorAll('.help-tab');
-        tabs.forEach(t => t.classList.remove('active'));
-        if(tabId === 'tab-basic') tabs[0].classList.add('active');
-        if(tabId === 'tab-staff') tabs[1].classList.add('active');
-        if(tabId === 'tab-biz') tabs[2].classList.add('active');
-    },
+    switchHelpTab: (tabId) => { document.querySelectorAll('.help-section').forEach(el => el.classList.remove('active')); document.getElementById(tabId).classList.add('active'); const tabs = document.querySelectorAll('.help-tab'); tabs.forEach(t => t.classList.remove('active')); if(tabId === 'tab-basic') tabs[0].classList.add('active'); if(tabId === 'tab-staff') tabs[1].classList.add('active'); if(tabId === 'tab-biz') tabs[2].classList.add('active'); },
     toggleMode: () => { const c = document.getElementById('game-container'); if (G.mode === 'pc') { c.classList.remove('pc-mode'); G.mode = 'mobile'; } else { c.classList.add('pc-mode'); G.mode = 'pc'; } },
     closeModal: (id) => { document.getElementById(id).style.display = 'none'; game.togglePause(false); }
 };
