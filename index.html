@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>飲食店経営シミュレーション v1.10</title>
+<title>飲食店経営シミュレーション v1.11</title>
 <style>
     :root {
         --bg-color: #2c3e50;
@@ -43,6 +43,12 @@
     .header-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
     #info-bar { text-align: center; font-weight: bold; flex-grow: 1; }
 
+    /* スピードボタン */
+    .speed-btn { padding: 4px 8px; font-size: 0.75rem; background: #7f8c8d; margin: 0; border-radius: 0; }
+    .speed-btn:first-child { border-radius: 4px 0 0 4px; }
+    .speed-btn:last-child { border-radius: 0 4px 4px 0; }
+    .speed-btn.active { background: var(--success-color); }
+
     /* メインエリア */
     #main-area { 
         flex: 1; position: relative; background: #ecf0f1; color: #333; 
@@ -76,10 +82,8 @@
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 10px; }
     .modal-content { background: var(--panel-color); padding: 15px; border-radius: 8px; width: 100%; max-width: 650px; color: white; text-align: center; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; }
     
-    /* グラフ用キャンバス */
     #stats-canvas { background: #fff; width: 100%; height: 250px; margin-bottom: 10px; border-radius: 4px; flex-shrink: 0;}
     
-    /* タブ式説明書スタイル */
     .help-tabs { display: flex; border-bottom: 2px solid #7f8c8d; margin-bottom: 10px; flex-shrink: 0; }
     .help-tab { flex: 1; padding: 10px 5px; font-size: 0.85rem; cursor: pointer; background: #2c3e50; border: 1px solid #7f8c8d; border-bottom: none; color: #95a5a6; }
     .help-tab.active { background: var(--panel-color); color: #fff; font-weight: bold; border-top: 3px solid var(--warning-color); }
@@ -87,19 +91,16 @@
     .help-section.active { display: block; }
     .help-section h4 { border-bottom: 1px solid #fff; padding-bottom: 3px; margin-top: 15px; font-size: 0.95rem; color: var(--warning-color); }
     
-    /* テーブルスタイル */
     table.help-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 0.8rem; color: #ecf0f1; }
     table.help-table th, table.help-table td { border: 1px solid #7f8c8d; padding: 4px; text-align: left; }
     table.help-table th { background: #2980b9; }
 
-    /* その他UIパーツ */
     .home-btn-group { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 30px; }
     .home-btn-group button { width: 80%; max-width: 280px; padding: 12px; font-size: 1rem; }
     .tab-group { display: flex; gap: 5px; margin-bottom: 10px; justify-content: center; }
     .tab-btn { background: #7f8c8d; flex: 1; font-size: 0.8rem; }
     .tab-btn.active { background: var(--info-color); }
 
-    /* テロップ */
     #ticker { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.9); color: #0f0; padding: 4px; white-space: nowrap; overflow: hidden; font-family: 'Courier New', monospace; z-index: 900; height: 25px; line-height: 25px; font-size: 0.85rem; }
 </style>
 </head>
@@ -111,7 +112,7 @@
 
     <div id="screen-home" class="screen active">
         <h1 style="text-align: center; color: var(--warning-color); margin-top: 30px;">🍔 Kitchen Tycoon 🍝</h1>
-        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;">v1.10 Overtime Update</p>
+        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;">v1.11 FastForward & Endless</p>
         <div class="home-btn-group">
             <button onclick="game.showSetup()">新しいゲームを開始</button>
             <input type="file" id="save-file-input" style="display:none" onchange="game.loadGameData(this)">
@@ -170,7 +171,11 @@
                 <button onclick="ui.toggleSettings()">設定</button>
                 <button onclick="stats.show()">統計</button>
                 <button onclick="ui.toggleHelp()" style="background:var(--info-color);">説明書</button>
-                <button onclick="ui.toggleMode()" style="font-size:0.7rem;">切替</button>
+                <div style="display:flex; gap:0;">
+                    <button class="speed-btn active" id="btn-spd-1" onclick="game.setSpeed(1)">x1</button>
+                    <button class="speed-btn" id="btn-spd-2" onclick="game.setSpeed(2)">x2</button>
+                    <button class="speed-btn" id="btn-spd-3" onclick="game.setSpeed(3)">x3</button>
+                </div>
             </div>
             <div class="header-row" style="background:#2c3e50; padding:2px; border-radius:4px; margin-top:3px;">
                 <div style="flex:1; text-align:center; font-size:0.85rem;">
@@ -263,14 +268,15 @@
                 <li><strong>難しい:</strong> 累計利益 1500万円でクリア <br><small style="color:#e74c3c;">※評価★3.5以下で即ゲームオーバー</small></li>
                 <li><strong>簡単:</strong> 条件なし (評価2.5以下にならない)</li>
             </ul>
-            <p>※資金がマイナスになると<strong>破産</strong>です。</p>
+            <p><strong>※クリア後は200万円のボーナスをもらって経営を継続できます。</strong></p>
 
             <h4 style="border-color:white;">🎮 遊び方の流れ</h4>
             <ol>
                 <li>客が来店 (1〜5品をランダム注文)</li>
                 <li>従業員が調理 (品数が多いと時間がかかる)</li>
                 <li>食事が終わると自動で会計</li>
-                <li><strong>22:00</strong>で閉店。客が全員帰るまで営業します。</li>
+                <li><strong>22:00</strong>で閉店。</li>
+                <li>※閉店時、<strong>食事中の客は最後まで残りますが、調理中・注文待ちは強制退店（キャンセル）</strong>となります。</li>
             </ol>
         </div>
 
@@ -407,7 +413,8 @@ let G = {
     employees: ['master'], 
     manualOrder: false, difficulty: 'normal', activeAds: [], bailoutUsed: false, trashBin: false,
     timerId: null, activeOrder: null,
-    statsHistory: [], dailyRevenue: 0, dailyExpense: 0
+    statsHistory: [], dailyRevenue: 0, dailyExpense: 0,
+    speed: 1, isCleared: false // 新規フラグ
 };
 
 const DAYS = ['月', '火', '水', '木', '金', '土', '日'];
@@ -449,20 +456,33 @@ const game = {
         G.activeAds = [];
         G.statsHistory = [];
         G.dailyRevenue = 0; G.dailyExpense = 0;
+        G.speed = 1;
+        G.isCleared = false;
 
         document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
         document.getElementById('screen-game').classList.add('active');
         G.state = 'playing';
         
         game.sortEmployees();
+        game.setSpeed(1); // 初期速度設定
 
         ui.renderSeats();
         ui.updateStaffPanel();
         ui.updateHeader();
         ui.ticker("本日も開店です！");
+    },
 
+    setSpeed: (spd) => {
+        G.speed = spd;
         if (G.timerId) clearInterval(G.timerId);
-        G.timerId = setInterval(game.loop, 1000);
+        if (G.state === 'playing') {
+            G.timerId = setInterval(game.loop, 1000 / G.speed);
+        }
+        // ボタンの見た目更新
+        document.querySelectorAll('.speed-btn').forEach((btn, idx) => {
+            if (idx + 1 === spd) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
     },
 
     sortEmployees: () => {
@@ -474,20 +494,36 @@ const game = {
 
         G.time += 5;
         
-        // 閉店チェック: 22時以降(1320分)は客が来ない。全員帰ったらEndDay
+        // 閉店時間チェック
+        if (G.time === 1320) { // 22:00 ジャストに処理
+            let kicked = 0;
+            G.seats.forEach((s, i) => {
+                // 食事中以外は強制退去
+                if (s.occupied && ['sitting', 'ordering', 'cooking'].includes(s.status)) {
+                    s.occupied = false;
+                    s.customer = null;
+                    s.status = 'empty';
+                    s.assignedChef = undefined; // シェフ解放
+                    kicked++;
+                }
+            });
+            if(kicked > 0) ui.ticker(`閉店時間です。${kicked}組をお断りしました。`);
+            ui.renderSeats();
+            ui.updateStaffPanel();
+        }
+
         if (G.time >= 1320) {
-            // 客がまだいるかチェック
-            const occupiedSeats = G.seats.filter(s => s.occupied);
-            if (occupiedSeats.length === 0) {
+            // 客がいるか確認
+            const eaters = G.seats.filter(s => s.occupied);
+            if (eaters.length === 0) {
                 game.endDay(); 
                 return;
             }
-            ui.ticker(`閉店時間です。残りのお客様: ${occupiedSeats.length}組`);
         } else {
             game.trySpawnCustomer();
         }
+        
         ui.updateHeader();
-
         game.processCookingAssignment(); 
 
         G.seats.forEach((seat, idx) => {
@@ -497,7 +533,7 @@ const game = {
             if (seat.status === 'sitting') {
                 seat.status = 'ordering';
                 if (c.isTablet || !G.manualOrder) {
-                    setTimeout(() => game.processOrder(idx), 500); 
+                    setTimeout(() => game.processOrder(idx), 500 / G.speed); // 速度反映
                 } else {
                     ui.updateSeat(idx);
                     ui.ticker(`席${idx+1}: 注文待ち`);
@@ -709,29 +745,40 @@ const game = {
 
         clearInterval(G.timerId);
         alert(`1日が終了しました。\n売上: ¥${G.statsHistory[G.statsHistory.length-1].revenue.toLocaleString()}`);
-        G.timerId = setInterval(game.loop, 1000);
+        G.timerId = setInterval(game.loop, 1000 / G.speed);
     },
 
     checkWinLose: () => {
-        if (G.difficulty === 'hard') {
-            if (G.reputation < 3.5) { game.gameOver("評価が低すぎます..."); return; }
-            if (G.totalEarnings >= 15000000) game.gameWin();
-        } else if (G.difficulty === 'normal') {
-            if (G.totalEarnings >= 5000000) game.gameWin();
+        if (G.money < 0) { game.gameOver("破産しました..."); return; }
+
+        if (!G.isCleared) {
+            let clear = false;
+            if (G.difficulty === 'hard') {
+                if (G.reputation < 3.5) { game.gameOver("評価が低すぎます..."); return; }
+                if (G.totalEarnings >= 15000000) clear = true;
+            } else if (G.difficulty === 'normal') {
+                if (G.totalEarnings >= 5000000) clear = true;
+            }
+
+            if (clear) {
+                G.isCleared = true;
+                G.money += 2000000;
+                alert("🎉 クリア条件達成！ 🎉\nボーナス200万円を獲得しました。\n経営を継続します！");
+                ui.updateHeader();
+            }
         }
-        if (G.money < 0) game.gameOver("破産しました...");
     },
     
     gameOver: (msg) => { clearInterval(G.timerId); alert("GAME OVER\n" + msg); game.showHome(); },
-    gameWin: (msg) => { clearInterval(G.timerId); alert("CONGRATULATIONS!\n目標金額達成！"); game.showHome(); },
+    gameWin: (msg) => { /* used for simple end, now unused in favor of continue */ },
 
     togglePause: (forceState) => {
         if (forceState !== undefined) {
             if (forceState) clearInterval(G.timerId);
-            else G.timerId = setInterval(game.loop, 1000);
+            else G.timerId = setInterval(game.loop, 1000 / G.speed);
         } else {
             if (G.timerId) { clearInterval(G.timerId); G.timerId = null; }
-            else G.timerId = setInterval(game.loop, 1000);
+            else G.timerId = setInterval(game.loop, 1000 / G.speed);
         }
     },
 
@@ -759,12 +806,11 @@ const game = {
                 G = loaded;
                 document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
                 document.getElementById('screen-game').classList.add('active');
-                game.sortEmployees(); // ソートしなおし
+                game.sortEmployees(); 
+                game.setSpeed(1);
                 ui.renderSeats();
                 ui.updateStaffPanel();
                 ui.updateHeader();
-                game.togglePause(false); 
-                if(!G.timerId) G.timerId = setInterval(game.loop, 1000);
             } catch (err) { alert("データ破損"); }
         };
         reader.readAsText(file);
