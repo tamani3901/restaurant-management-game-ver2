@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>飲食店経営シミュレーション v1.9</title>
+<title>飲食店経営シミュレーション v1.10</title>
 <style>
     :root {
         --bg-color: #2c3e50;
@@ -43,13 +43,12 @@
     .header-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
     #info-bar { text-align: center; font-weight: bold; flex-grow: 1; }
 
-    /* メインエリア（スプリットビュー） */
+    /* メインエリア */
     #main-area { 
         flex: 1; position: relative; background: #ecf0f1; color: #333; 
         padding: 10px; overflow-y: auto; 
         display: flex; flex-direction: column; gap: 10px;
     }
-    /* PCモード時は左右分割 */
     #game-container.pc-mode #main-area { flex-direction: row; }
     
     /* 客席エリア */
@@ -112,7 +111,7 @@
 
     <div id="screen-home" class="screen active">
         <h1 style="text-align: center; color: var(--warning-color); margin-top: 30px;">🍔 Kitchen Tycoon 🍝</h1>
-        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;">v1.9 Tabbed Manual Edition</p>
+        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;">v1.10 Overtime Update</p>
         <div class="home-btn-group">
             <button onclick="game.showSetup()">新しいゲームを開始</button>
             <input type="file" id="save-file-input" style="display:none" onchange="game.loadGameData(this)">
@@ -271,8 +270,8 @@
                 <li>客が来店 (1〜5品をランダム注文)</li>
                 <li>従業員が調理 (品数が多いと時間がかかる)</li>
                 <li>食事が終わると自動で会計</li>
+                <li><strong>22:00</strong>で閉店。客が全員帰るまで営業します。</li>
             </ol>
-            <p>提供が遅いと評価(★)が下がり、客が来なくなります。</p>
         </div>
 
         <div id="tab-staff" class="help-section">
@@ -297,11 +296,11 @@
             <h4 style="border-color:white;">📢 宣伝効果 (重ねがけOK)</h4>
             <p>宣伝期間が終わっても、しばらく余韻効果が残ります。</p>
             <table class="help-table">
-                <tr><th>種類</th><th>費用</th><th>実施中</th><th>終了後</th></tr>
-                <tr><td>ポスター</td><td>2万</td><td>+15%</td><td>+5% (2日間)</td></tr>
-                <tr><td>チラシ</td><td>5万</td><td>+20%</td><td>+5% (1日間)</td></tr>
-                <tr><td>CM</td><td>20万</td><td>+25%</td><td>+20% (3日間)</td></tr>
-                <tr><td>TV</td><td>50万</td><td>+25%</td><td>+40% (5日間)</td></tr>
+                <tr><th>種類</th><th>費用</th><th>効果(期間)</th><th>終了後</th></tr>
+                <tr><td>ポスター</td><td>2万</td><td>+15% (2日)</td><td>+5% (2日)</td></tr>
+                <tr><td>チラシ</td><td>5万</td><td>+20% (2日)</td><td>+5% (1日)</td></tr>
+                <tr><td>CM</td><td>20万</td><td>+25% (10日)</td><td>+20% (3日)</td></tr>
+                <tr><td>TV</td><td>50万</td><td>+25% (1日)</td><td>+40% (5日)</td></tr>
             </table>
 
             <h4 style="border-color:white;">⚠️ 裏仕様・ボーナス</h4>
@@ -474,10 +473,21 @@ const game = {
         if (G.state !== 'playing') return;
 
         G.time += 5;
-        if (G.time >= 1320) { game.endDay(); return; }
+        
+        // 閉店チェック: 22時以降(1320分)は客が来ない。全員帰ったらEndDay
+        if (G.time >= 1320) {
+            // 客がまだいるかチェック
+            const occupiedSeats = G.seats.filter(s => s.occupied);
+            if (occupiedSeats.length === 0) {
+                game.endDay(); 
+                return;
+            }
+            ui.ticker(`閉店時間です。残りのお客様: ${occupiedSeats.length}組`);
+        } else {
+            game.trySpawnCustomer();
+        }
         ui.updateHeader();
 
-        game.trySpawnCustomer();
         game.processCookingAssignment(); 
 
         G.seats.forEach((seat, idx) => {
