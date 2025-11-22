@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>飲食店経営シミュレーション v1.7</title>
+<title>飲食店経営シミュレーション v1.8</title>
 <style>
     :root {
         --bg-color: #2c3e50;
@@ -19,145 +19,78 @@
         font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; 
         background: var(--bg-color); 
         color: var(--text-color); 
-        margin: 0; 
-        padding: 0; 
-        overflow: hidden; 
-        height: 100dvh;
+        margin: 0; padding: 0; 
+        overflow: hidden; height: 100dvh;
     }
     button { 
-        cursor: pointer; 
-        padding: 8px 12px; /* サイズを元に戻しました */
-        border: none; 
-        border-radius: 4px; 
-        background: var(--accent-color); 
-        color: white; 
-        font-weight: bold; 
-        margin: 3px; 
-        font-size: 0.9rem; /* フォントサイズも標準へ */
-        touch-action: manipulation;
+        cursor: pointer; padding: 8px 12px; border: none; border-radius: 4px; 
+        background: var(--accent-color); color: white; font-weight: bold; margin: 3px; 
+        font-size: 0.9rem; touch-action: manipulation;
     }
     button:hover { opacity: 0.9; }
     button:disabled { background: #7f8c8d; cursor: not-allowed; opacity: 0.6; }
     input, select { padding: 8px; border-radius: 4px; border: none; margin: 4px; color:#333; font-size: 0.9rem; }
 
-    /* メインコンテナ */
-    #game-container {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        background: var(--bg-color);
-    }
+    /* レイアウト */
+    #game-container { width: 100%; height: 100%; display: flex; flex-direction: column; background: var(--bg-color); }
+    #game-container.pc-mode { max-width: 1024px; margin: 0 auto; border-left: 2px solid #7f8c8d; border-right: 2px solid #7f8c8d; }
 
-    /* PCモード強制時 */
-    #game-container.pc-mode { 
-        max-width: 1024px; 
-        margin: 0 auto; 
-        border-left: 2px solid #7f8c8d; 
-        border-right: 2px solid #7f8c8d; 
-    }
-
-    /* 画面切り替え */
-    .screen { 
-        display: none; 
-        flex: 1; 
-        flex-direction: column; 
-        padding: 10px; 
-        overflow-y: auto; 
-        -webkit-overflow-scrolling: touch;
-        padding-bottom: 40px; 
-    }
+    .screen { display: none; flex: 1; flex-direction: column; padding: 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 40px; }
     .screen.active { display: flex; }
 
-    /* ホーム画面 */
-    .home-btn-group { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 30px; }
-    .home-btn-group button { width: 80%; max-width: 280px; padding: 12px; font-size: 1rem; }
-    h1 { text-align: center; color: var(--warning-color); margin-top: 30px; font-size: 1.5rem; }
-
-    /* ゲーム画面レイアウト */
-    #ui-header { 
-        background: #1a252f; 
-        padding: 5px 8px; 
-        font-size: 0.8rem; 
-        flex-shrink: 0; 
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
+    /* ヘッダー */
+    #ui-header { background: #1a252f; padding: 5px 8px; font-size: 0.8rem; flex-shrink: 0; display: flex; flex-direction: column; gap: 4px; }
     .header-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-    
     #info-bar { text-align: center; font-weight: bold; flex-grow: 1; }
-    #main-area { flex: 1; position: relative; background: #ecf0f1; color: #333; padding: 10px; overflow-y: auto; }
+
+    /* メインエリア（スプリットビュー） */
+    #main-area { 
+        flex: 1; position: relative; background: #ecf0f1; color: #333; 
+        padding: 10px; overflow-y: auto; 
+        display: flex; flex-direction: column; gap: 10px;
+    }
+    /* PCモード時は左右分割 */
+    #game-container.pc-mode #main-area { flex-direction: row; }
     
     /* 客席エリア */
-    #seats-container { 
-        display: grid; 
-        gap: 5px; 
-        grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); 
-        padding-bottom: 20px;
-    }
-    .seat { 
-        background: #bdc3c7; 
-        border-radius: 6px; 
-        text-align: center; 
-        position: relative; 
-        height: 70px; 
-        border: 2px solid #7f8c8d; 
-    }
+    #seats-section { flex: 2; overflow-y: auto; }
+    #seats-container { display: grid; gap: 5px; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); padding-bottom: 20px; }
+    .seat { background: #bdc3c7; border-radius: 6px; text-align: center; position: relative; height: 75px; border: 2px solid #7f8c8d; }
     .seat.occupied { background: #f39c12; border-color: #d35400; }
-    .seat-status { font-size: 9px; position: absolute; bottom: 2px; left: 0; width: 100%; background:rgba(255,255,255,0.7); }
+    .seat-status { font-size: 9px; position: absolute; bottom: 2px; left: 0; width: 100%; background:rgba(255,255,255,0.8); font-weight: bold; }
 
-    /* ポップアップ/モーダル */
-    .modal-overlay { 
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-        background: rgba(0,0,0,0.8); 
-        display: none; 
-        justify-content: center; 
-        align-items: center; 
-        z-index: 1000; 
-        padding: 10px;
+    /* 従業員パネル */
+    #staff-section { 
+        flex: 1; background: #34495e; color: white; border-radius: 5px; padding: 5px; 
+        overflow-y: auto; min-height: 150px;
     }
-    .modal-content { 
-        background: var(--panel-color); 
-        padding: 15px; 
-        border-radius: 8px; 
-        width: 100%; 
-        max-width: 600px; 
-        color: white; 
-        text-align: center; 
-        max-height: 90vh; 
-        overflow-y: auto; 
+    #staff-section h3 { margin: 5px 0; font-size: 1rem; text-align: center; border-bottom: 1px solid #7f8c8d; }
+    .staff-card { 
+        background: rgba(0,0,0,0.3); margin-bottom: 4px; padding: 5px; border-radius: 3px; font-size: 0.85rem; 
+        display: flex; justify-content: space-between; align-items: center;
     }
+    .staff-card.busy { border-left: 4px solid var(--accent-color); }
+    .staff-card.free { border-left: 4px solid var(--success-color); }
+    .staff-status-text { font-size: 0.75rem; font-weight: bold; }
+
+    /* モーダル */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 10px; }
+    .modal-content { background: var(--panel-color); padding: 15px; border-radius: 8px; width: 100%; max-width: 650px; color: white; text-align: center; max-height: 90vh; overflow-y: auto; }
     
-    /* ヘルプ画面用スタイル */
-    .help-tabs { display: flex; border-bottom: 2px solid #7f8c8d; margin-bottom: 10px; }
-    .help-tab { flex: 1; padding: 8px 4px; font-size: 0.85rem; cursor: pointer; background: #2c3e50; border: 1px solid #7f8c8d; border-bottom: none; color: #95a5a6; }
-    .help-tab.active { background: var(--panel-color); color: #fff; font-weight: bold; border-top: 3px solid var(--warning-color); }
-    .help-section { display: none; text-align: left; }
-    .help-section.active { display: block; }
-    .help-section h4 { border-bottom: 1px solid #fff; padding-bottom: 3px; margin-top: 10px; font-size: 0.95rem; color: var(--warning-color); }
-    .help-section ul, .help-section p { font-size: 0.85rem; line-height: 1.5; }
-
+    /* グラフ用キャンバス */
+    #stats-canvas { background: #fff; width: 100%; height: 250px; margin-bottom: 10px; border-radius: 4px; }
+    
     /* テーブルスタイル */
     table.help-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 0.8rem; color: #ecf0f1; }
     table.help-table th, table.help-table td { border: 1px solid #7f8c8d; padding: 4px; text-align: left; }
     table.help-table th { background: #2980b9; }
-    
-    /* 注文画面 */
-    #order-modal-content img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid white; }
-    .speech-bubble { background: white; color: black; padding: 10px; border-radius: 15px; margin: 10px auto; position: relative; font-weight: bold; max-width: 90%; font-size: 1rem; }
 
-    /* 設定・メニューリスト */
-    .item-list { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
-    .item-select { background: #2980b9; padding: 8px; border-radius: 4px; font-size: 0.85rem; cursor: pointer; width: 48%; text-align: center; }
-    .item-select.selected { background: #2ecc71; border: 2px solid white; }
-    
-    /* メニュー編集用リスト */
-    .menu-edit-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.1); margin: 3px 0; padding: 5px; border-radius: 4px; font-size: 0.85rem;}
-    .menu-edit-row input[type="number"] { width: 60px; padding: 4px; }
-
-    /* 従業員管理用 */
-    .emp-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.1); padding: 6px; margin: 3px 0; border-radius: 4px; font-size: 0.85rem;}
+    /* その他UIパーツ */
+    .home-btn-group { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 30px; }
+    .home-btn-group button { width: 80%; max-width: 280px; padding: 12px; font-size: 1rem; }
+    .tab-group { display: flex; gap: 5px; margin-bottom: 10px; justify-content: center; }
+    .tab-btn { background: #7f8c8d; flex: 1; font-size: 0.8rem; }
+    .tab-btn.active { background: var(--info-color); }
 
     /* テロップ */
     #ticker { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.9); color: #0f0; padding: 4px; white-space: nowrap; overflow: hidden; font-family: 'Courier New', monospace; z-index: 900; height: 25px; line-height: 25px; font-size: 0.85rem; }
@@ -170,13 +103,13 @@
     <div id="ticker">システム起動: 準備完了...</div>
 
     <div id="screen-home" class="screen active">
-        <h1>🍔 Kitchen Tycoon 🍝</h1>
-        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;">v1.7 Compact UI</p>
+        <h1 style="text-align: center; color: var(--warning-color); margin-top: 30px;">🍔 Kitchen Tycoon 🍝</h1>
+        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;">v1.8 Stats & Staff Update</p>
         <div class="home-btn-group">
             <button onclick="game.showSetup()">新しいゲームを開始</button>
             <input type="file" id="save-file-input" style="display:none" onchange="game.loadGameData(this)">
             <button onclick="document.getElementById('save-file-input').click()">セーブデータ読込</button>
-            <button onclick="ui.toggleHelp()" style="background:var(--info-color);">説明書 (遊び方・難易度)</button>
+            <button onclick="ui.toggleHelp()" style="background:var(--info-color);">説明書 (遊び方・裏仕様)</button>
             <a href="https://tamani3901.github.io/ti-tobann/" target="_blank" style="width:100%; text-align:center;">
                 <button style="background:#8e44ad; width:80%;">チートエディションへ</button>
             </a>
@@ -184,8 +117,7 @@
     </div>
 
     <div id="screen-setup" class="screen">
-        <h2 style="text-align:center; font-size:1.2rem;">新規店舗セットアップ</h2>
-        
+        <h2 style="text-align:center;">新規店舗セットアップ</h2>
         <div style="margin-bottom:10px;">
             <label>店の種類:</label>
             <select id="setup-type" onchange="setup.updateMenuOptions()" style="width:100%;">
@@ -193,7 +125,6 @@
                 <option value="restaurant">レストラン</option>
             </select>
         </div>
-
         <div style="margin-bottom:10px;">
             <label>場所:</label>
             <select id="setup-location" onchange="setup.updateSizeOptions()" style="width:100%;">
@@ -203,7 +134,6 @@
                 <option value="small_city">小都市 (MAX 4席)</option>
             </select>
         </div>
-
         <div style="display:flex; gap:10px;">
             <div style="flex:1;">
                 <label>初期席数:</label>
@@ -218,11 +148,9 @@
                 </select>
             </div>
         </div>
-
         <label style="margin-top:15px; display:block;">初期メニュー (5つ選択):</label>
-        <div id="setup-menu-list" class="item-list"></div>
-
-        <div style="margin-top: 20px; text-align: center; padding-bottom:40px;">
+        <div id="setup-menu-list" style="display: flex; flex-wrap: wrap; gap: 5px; justify-content: center;"></div>
+        <div style="margin-top: 20px; text-align: center;">
             <button onclick="game.startGame()" style="width:100%; padding:12px; font-size:1.1rem;">開店する</button>
             <button onclick="game.showHome()" style="background:#7f8c8d; width:100%; margin-top:10px;">戻る</button>
         </div>
@@ -233,35 +161,70 @@
             <div class="header-row">
                 <button onclick="ui.toggleMenu()">メニュー</button>
                 <button onclick="ui.toggleSettings()">設定</button>
+                <button onclick="stats.show()">統計</button>
                 <button onclick="ui.toggleHelp()" style="background:var(--info-color);">説明書</button>
-                <button onclick="ui.toggleMode()" style="font-size:0.7rem; padding:5px;">PC/スマホ</button>
+                <button onclick="ui.toggleMode()" style="font-size:0.7rem;">切替</button>
             </div>
             <div class="header-row" style="background:#2c3e50; padding:2px; border-radius:4px; margin-top:3px;">
                 <div style="flex:1; text-align:center; font-size:0.85rem;">
                     <span id="display-time">Day 1 9:00</span>
                 </div>
                 <div style="flex:1; text-align:center; font-weight:bold; color:var(--warning-color); font-size:0.9rem;">
-                    <span id="display-money">¥15,000,000</span>
+                    資産: <span id="display-money">¥15,000,000</span>
                 </div>
             </div>
             <div class="header-row" style="font-size:0.75rem; margin-top:2px;">
                  <span id="display-stars">★★★★★</span>
-                 <span id="ad-buff-display" style="color:var(--success-color);">宣伝: +0%</span>
-                 <button onclick="ui.toggleAds()" style="padding:4px 8px; font-size:0.8rem;">宣伝</button>
+                 <span style="margin-left:5px;">累計: <span id="display-earnings">¥0</span></span>
+                 <div style="margin-left:auto; display:flex; align-items:center;">
+                    <span id="ad-buff-display" style="color:var(--success-color); margin-right:5px;">宣伝:+0%</span>
+                    <button onclick="ui.toggleAds()" style="padding:4px 8px; font-size:0.8rem;">宣伝</button>
+                 </div>
             </div>
         </div>
 
         <div id="main-area">
-            <div id="seats-container"></div>
+            <div id="seats-section">
+                <div id="seats-container"></div>
+            </div>
+            <div id="staff-section">
+                <h3>スタッフルーム</h3>
+                <div id="staff-container">
+                    </div>
+            </div>
         </div>
     </div>
 
 </div>
 
+<div id="modal-stats" class="modal-overlay">
+    <div class="modal-content">
+        <h3>📊 経営統計</h3>
+        <div class="tab-group">
+            <button class="tab-btn" onclick="stats.setRange(1)">1日</button>
+            <button class="tab-btn" onclick="stats.setRange(5)">5日</button>
+            <button class="tab-btn" onclick="stats.setRange(10)">10日</button>
+            <button class="tab-btn" onclick="stats.setRange(20)">20日</button>
+            <button class="tab-btn" onclick="stats.setRange(100)">100日</button>
+            <button class="tab-btn" onclick="stats.setRange(0)">全期間</button>
+        </div>
+        <div class="tab-group">
+            <button id="btn-graph-rev" class="tab-btn active" onclick="stats.setType('revenue')">売上</button>
+            <button id="btn-graph-asset" class="tab-btn" onclick="stats.setType('assets')">総資産</button>
+        </div>
+        <canvas id="stats-canvas"></canvas>
+        <div style="text-align:left; font-size:0.85rem; background:rgba(0,0,0,0.2); padding:5px;">
+            <p>本日の売上: <span id="stat-today-rev">¥0</span></p>
+            <p>本日の出費: <span id="stat-today-exp" style="color:#e74c3c;">¥0</span></p>
+        </div>
+        <button onclick="ui.closeModal('modal-stats')" style="width:100%; margin-top:10px;">閉じる</button>
+    </div>
+</div>
+
 <div id="modal-order" class="modal-overlay">
     <div class="modal-content" id="order-modal-content">
-        <img id="order-customer-img" src="" alt="Customer">
-        <div class="speech-bubble" id="order-text">注文内容...</div>
+        <img id="order-customer-img" src="" alt="Customer" style="width:80px;height:80px;border-radius:50%;">
+        <div class="speech-bubble" id="order-text" style="background:white;color:black;padding:10px;margin:10px auto;border-radius:10px;">注文内容...</div>
         <button onclick="game.confirmOrder()" style="width:80%; padding:10px; margin-top:10px;">了解</button>
     </div>
 </div>
@@ -271,82 +234,52 @@
         <h3>メニュー</h3>
         <button onclick="ui.closeModal('modal-menu')" style="width:100%;">戻る</button>
         <button onclick="game.togglePause()" style="width:100%;">一時停止/再開</button>
-        <button onclick="game.saveGame()" style="width:100%;">セーブ (保存)</button>
+        <button onclick="game.saveGame()" style="width:100%;">セーブ</button>
         <button onclick="game.quitGame()" style="background:#c0392b; width:100%;">やめる</button>
     </div>
 </div>
 
 <div id="modal-help" class="modal-overlay">
-    <div class="modal-content" style="padding:0; overflow:hidden; display:flex; flex-direction:column; height:80vh;">
-        <div class="help-tabs">
-            <div class="help-tab active" onclick="ui.switchHelpTab('tab-basic')">基本</div>
-            <div class="help-tab" onclick="ui.switchHelpTab('tab-staff')">従業員</div>
-            <div class="help-tab" onclick="ui.switchHelpTab('tab-biz')">経営</div>
-        </div>
+    <div class="modal-content" style="text-align:left;">
+        <h2 style="text-align:center;">📖 ゲーム説明書</h2>
+        
+        <h4 style="color:var(--warning-color); border-bottom:1px solid white;">基本ルール</h4>
+        <ul>
+            <li><strong>普通:</strong> 利益500万でクリア</li>
+            <li><strong>難しい:</strong> 利益1500万でクリア (評価★3.5以下即死)</li>
+            <li><strong>破産:</strong> 資産マイナスで終了</li>
+        </ul>
 
-        <div style="padding:15px; overflow-y:auto; flex:1;">
-            
-            <div id="tab-basic" class="help-section active">
-                <h3>🔰 基本ルールと難易度</h3>
-                <p>料理を提供し、資産を増やして店を大きくしましょう。</p>
-                
-                <h4>難易度設定</h4>
-                <ul>
-                    <li><strong>普通:</strong> 累計利益500万円でクリア。</li>
-                    <li><strong>難しい:</strong> 累計利益1500万円でクリア。<br><span style="color:var(--accent-color);">※評価(★)が3.5を下回ると即ゲームオーバー。</span></li>
-                    <li><strong>簡単:</strong> クリア条件なし。評価2.5以下にならない。</li>
-                </ul>
-                <p>※資産がマイナスになると<strong>破産(終了)</strong>です。</p>
+        <h4 style="color:var(--warning-color); border-bottom:1px solid white;">従業員仕様 (優先度あり)</h4>
+        <p>調理は<strong>ランクの高い順</strong>に行われます。<br>全員が調理中の場合、注文は「待ち」状態になります。</p>
+        <table class="help-table">
+            <tr><th>ランク</th><th>契約金</th><th>速度</th></tr>
+            <tr><td>マスター</td><td>20万</td><td>2.5倍</td></tr>
+            <tr><td>ベテラン</td><td>12万</td><td>1.6倍</td></tr>
+            <tr><td>標準</td><td>8万</td><td>1.0倍</td></tr>
+            <tr><td>ポンコツ</td><td>4万</td><td>0.5倍</td></tr>
+        </table>
 
-                <h4>遊び方の流れ</h4>
-                <ol>
-                    <li>客が来店し、1〜5品をランダム注文。</li>
-                    <li>従業員が調理 (品数が多いと時間がかかる)。</li>
-                    <li>食事が終わると自動で会計。</li>
-                </ol>
-            </div>
+        <h4 style="color:var(--warning-color); border-bottom:1px solid white;">💰 宣伝費</h4>
+        <table class="help-table">
+            <tr><th>種類</th><th>費用</th><th>効果</th></tr>
+            <tr><td>ポスター</td><td>2万</td><td>+15%</td></tr>
+            <tr><td>チラシ</td><td>5万</td><td>+20%</td></tr>
+            <tr><td>CM</td><td>20万</td><td>+25%</td></tr>
+            <tr><td>TV</td><td>50万</td><td>+25%</td></tr>
+        </table>
 
-            <div id="tab-staff" class="help-section">
-                <h3>🧑‍🍳 従業員・拡張</h3>
+        <h4 style="color:var(--accent-color); border-bottom:1px solid white;">⚠️ 裏仕様・ボーナス</h4>
+        <ul style="font-size:0.85rem;">
+            <li><strong>平日ランチ (11:00-13:00):</strong> 来店率 +10%</li>
+            <li><strong>土日祝 (終日):</strong> 来店率 +20%</li>
+            <li><strong>土日ランチ:</strong> 来店率 +30%</li>
+            <li><strong>ゴミ箱設置:</strong> 満足度 +5 固定ボーナス</li>
+            <li><strong>家賃:</strong> 10日ごとに100万円徴収</li>
+            <li><strong>支援金:</strong> 資産200万以下で1回のみ500万支給</li>
+        </ul>
 
-                <h4>契約金と能力</h4>
-                <table class="help-table">
-                    <tr><th>ランク</th><th>契約金</th><th>特徴</th></tr>
-                    <tr><td>マスター</td><td>20万</td><td>2.5倍速 (神速)</td></tr>
-                    <tr><td>ベテラン</td><td>12万</td><td>1.6倍速 (速い)</td></tr>
-                    <tr><td>標準</td><td>8万</td><td>1.0倍速 (普通)</td></tr>
-                    <tr><td>ポンコツ</td><td>4万</td><td>0.5倍速 (遅い)</td></tr>
-                </table>
-
-                <h4>店舗拡張リフォーム</h4>
-                <ul>
-                    <li><strong>15席へ:</strong> 累計利益 10万円以上で解禁</li>
-                    <li><strong>20席へ:</strong> 累計利益 20万円以上で解禁</li>
-                </ul>
-                <p>※「設定」画面から拡張できます。</p>
-            </div>
-
-            <div id="tab-biz" class="help-section">
-                <h3>💰 経営・宣伝</h3>
-
-                <h4>宣伝 (重ねがけOK)</h4>
-                <table class="help-table">
-                    <tr><th>種類</th><th>費用</th><th>効果</th></tr>
-                    <tr><td>ポスター</td><td>7千</td><td>+15% (2日)</td></tr>
-                    <tr><td>チラシ</td><td>1万</td><td>+20% (2日)</td></tr>
-                    <tr><td>CM</td><td>5万</td><td>+25% (10日)</td></tr>
-                    <tr><td>TV</td><td>10万</td><td>+25% (1日)</td></tr>
-                </table>
-                
-                <h4>経費</h4>
-                <ul>
-                    <li><strong>家賃:</strong> 10日ごとに100万円。</li>
-                    <li><strong>救済:</strong> 資産200万円以下で500万支給(1回のみ)。</li>
-                </ul>
-            </div>
-        </div>
-
-        <div style="padding:10px; text-align:center; background:#34495e; border-top:1px solid #7f8c8d;">
+        <div style="text-align:center; margin-top:10px;">
             <button onclick="ui.closeModal('modal-help')" style="width:100%;">閉じる</button>
         </div>
     </div>
@@ -355,41 +288,32 @@
 <div id="modal-settings" class="modal-overlay">
     <div class="modal-content">
         <h3>店舗設定</h3>
-        <hr>
-        
-        <h4>🏗️ 店舗拡張</h4>
-        <div style="display:flex; justify-content:center; gap:5px;">
-            <button id="btn-expand-15" onclick="settings.expandSeats(15)" disabled style="font-size:0.8rem;">15席へ</button>
-            <button id="btn-expand-20" onclick="settings.expandSeats(20)" disabled style="font-size:0.8rem;">20席へ</button>
+        <div style="display:flex; justify-content:center; gap:5px; margin-bottom:10px;">
+            <button id="btn-expand-15" onclick="settings.expandSeats(15)" disabled style="font-size:0.8rem;">15席へ (累計10万)</button>
+            <button id="btn-expand-20" onclick="settings.expandSeats(20)" disabled style="font-size:0.8rem;">20席へ (累計20万)</button>
         </div>
-        
-        <h4>雇用センター</h4>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
-            <button onclick="settings.hire('master')">マスター</button>
-            <button onclick="settings.hire('veteran')">ベテラン</button>
-            <button onclick="settings.hire('standard')">標準</button>
-            <button onclick="settings.hire('ponkotsu')">ポンコツ</button>
+            <button onclick="settings.hire('master')">マスター(20万)</button>
+            <button onclick="settings.hire('veteran')">ベテラン(12万)</button>
+            <button onclick="settings.hire('standard')">標準(8万)</button>
+            <button onclick="settings.hire('ponkotsu')">ポンコツ(4万)</button>
         </div>
+        <div id="current-employees-list" style="max-height: 80px; overflow-y: auto; border:1px solid #7f8c8d; padding:5px; margin:10px 0;"></div>
         
-        <h4>現在の従業員</h4>
-        <div id="current-employees-list" style="max-height: 80px; overflow-y: auto; border:1px solid #7f8c8d; padding:5px; margin-bottom:10px;"></div>
-        
-        <hr>
         <button onclick="settings.toggleMenuEdit()" style="background:#2980b9; width:100%;">📝 メニュー価格管理</button>
-        <div id="menu-edit-area" style="display:none; margin-top:10px; background:#2c3e50; padding:10px; border-radius:5px;">
-            <p style="font-size:0.8rem; color:#f1c40f;">5つ選択してください。</p>
+        <div id="menu-edit-area" style="display:none; margin-top:10px; background:#2c3e50; padding:10px;">
             <div id="menu-edit-list" style="max-height:150px; overflow-y:auto;"></div>
-            <button onclick="settings.saveMenuChanges()" style="background:#2ecc71; width:100%; margin-top:5px;">変更を適用</button>
+            <button onclick="settings.saveMenuChanges()" style="background:#2ecc71; width:100%; margin-top:5px;">適用</button>
         </div>
 
-        <hr>
-        <button id="btn-order-mode" onclick="settings.toggleOrderMode()" style="width:100%;">手動注文: OFF</button>
-        <div style="margin-top:5px; display:flex; gap:5px;">
-            <button onclick="settings.buyItem('trash')" style="flex:1;">ゴミ箱(1万)</button>
-            <button onclick="settings.buyItem('clean')" style="flex:1;">清掃(5万)</button>
+        <div style="margin-top:10px;">
+            <button id="btn-order-mode" onclick="settings.toggleOrderMode()" style="width:100%;">手動注文: OFF</button>
+            <div style="display:flex; gap:5px; margin-top:5px;">
+                <button onclick="settings.buyItem('trash')" style="flex:1;">ゴミ箱(1万)</button>
+                <button onclick="settings.buyItem('clean')" style="flex:1;">清掃(5万)</button>
+            </div>
         </div>
-        <hr>
-        <button onclick="ui.closeModal('modal-settings')" style="width:100%;">閉じる</button>
+        <button onclick="ui.closeModal('modal-settings')" style="width:100%; margin-top:10px;">閉じる</button>
     </div>
 </div>
 
@@ -398,119 +322,65 @@
         <h3>宣伝活動</h3>
         <p>現在効果: <span id="ad-status-detail" style="color:#2ecc71; font-weight:bold;">0%</span></p>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <button onclick="ads.start('poster')">ポスター<br>(7,000)</button>
-            <button onclick="ads.start('flyer')">チラシ<br>(10,000)</button>
-            <button onclick="ads.start('cm')">CM<br>(50,000)</button>
-            <button onclick="ads.start('tv')">TV番組<br>(100,000)</button>
+            <button onclick="ads.start('poster')">ポスター<br>(2万)</button>
+            <button onclick="ads.start('flyer')">チラシ<br>(5万)</button>
+            <button onclick="ads.start('cm')">CM<br>(20万)</button>
+            <button onclick="ads.start('tv')">TV番組<br>(50万)</button>
         </div>
-        <br>
-        <button onclick="ui.closeModal('modal-ads')" style="width:100%;">閉じる</button>
+        <button onclick="ui.closeModal('modal-ads')" style="width:100%; margin-top:15px;">閉じる</button>
     </div>
 </div>
 
 
 <script>
-/* =========================================
-   データ定義
-   ========================================= */
-const IMAGES = [
-    "https://i.ibb.co/2YPFhJ1D/IMG-2529.jpg",
-    "https://i.ibb.co/p6DSzpHQ/IMG-2529.jpg",
-    "https://i.ibb.co/BHW5cMvS/IMG-2529.jpg",
-    "https://i.ibb.co/7tjqbkkX/IMG-2529.jpg",
-    "https://i.ibb.co/Xkkr114y/IMG-2529.jpg"
-];
+/* データ定義 */
+const IMAGES = ["https://i.ibb.co/2YPFhJ1D/IMG-2529.jpg","https://i.ibb.co/p6DSzpHQ/IMG-2529.jpg","https://i.ibb.co/BHW5cMvS/IMG-2529.jpg","https://i.ibb.co/7tjqbkkX/IMG-2529.jpg","https://i.ibb.co/Xkkr114y/IMG-2529.jpg"];
 
-// メニューデータ
 const MENUS = {
     fastfood: [
-        {id: 'b_cheese', name: 'チーズバーガー', price: 500},
-        {id: 'b_teri', name: 'テリヤキバーガー', price: 500},
-        {id: 'b_plain', name: 'ハンバーガー', price: 500},
-        {id: 'b_rice', name: '焼肉ライスバーガー', price: 500},
-        {id: 'set_burger', name: 'ハンバーガーセット', price: 700},
-        {id: 'set_potato', name: 'ポテトセット', price: 600},
-        {id: 'pot_s', name: 'ポテトS', price: 200},
-        {id: 'pot_m', name: 'ポテトM', price: 300},
-        {id: 'pot_l', name: 'ポテトL', price: 450},
-        {id: 'nugget', name: 'ナゲット', price: 300},
-        {id: 'shake_vanilla', name: 'バニラシェイク', price: 300},
-        {id: 'shake_strawberry', name: 'いちごシェイク', price: 300},
-        {id: 'juice_orange', name: 'オレンジジュース', price: 300},
-        {id: 'juice_apple', name: 'リンゴジュース', price: 300},
-        {id: 'juice_cola', name: 'コーラ', price: 300},
-        {id: 'juice_melon', name: 'メロンソーダ', price: 300}
+        {id:'b_cheese',name:'チーズバーガー',price:500}, {id:'b_teri',name:'テリヤキ',price:500}, {id:'b_plain',name:'ハンバーガー',price:500}, {id:'b_rice',name:'ライスバーガー',price:500},
+        {id:'set_burger',name:'バーガーセット',price:700}, {id:'set_potato',name:'ポテトセット',price:600},
+        {id:'pot_s',name:'ポテトS',price:200}, {id:'pot_m',name:'ポテトM',price:300}, {id:'pot_l',name:'ポテトL',price:450}, {id:'nugget',name:'ナゲット',price:300},
+        {id:'shake_v',name:'バニラシェイク',price:300}, {id:'shake_s',name:'いちごシェイク',price:300},
+        {id:'j_org',name:'オレンジ',price:300}, {id:'j_apl',name:'リンゴ',price:300}, {id:'j_col',name:'コーラ',price:300}, {id:'j_mel',name:'メロンソーダ',price:300}
     ],
     restaurant: [
-        {id: 'p_mar', name: 'マルゲリータ', price: 1200},
-        {id: 'p_chs', name: 'チーズピザ', price: 1200},
-        {id: 'spa_nap', name: 'ナポリタン', price: 1000},
-        {id: 'spa_tom', name: 'トマトパスタ', price: 1000},
-        {id: 'spa_car', name: 'カルボナーラ', price: 1000},
-        {id: 'pancake', name: 'パンケーキ', price: 900},
-        {id: 'hamburg', name: 'ハンバーグ', price: 1300},
-        {id: 'steak', name: 'ステーキ', price: 1400},
-        {id: 'salad', name: 'サラダ', price: 500},
-        {id: 'potato', name: 'ポテト', price: 400},
-        {id: 'parfait', name: 'パフェ', price: 700},
-        {id: 'pudding', name: 'プリン', price: 400},
-        {id: 'rice', name: 'ご飯', price: 350},
-        {id: 'juice_org', name: 'オレンジジュース', price: 300},
-        {id: 'juice_apl', name: 'リンゴジュース', price: 300},
-        {id: 'juice_cal', name: 'カルピス', price: 300},
-        {id: 'juice_col', name: 'コーラ', price: 300},
-        {id: 'juice_mel', name: 'メロンソーダ', price: 300}
+        {id:'p_mar',name:'マルゲリータ',price:1200}, {id:'p_chs',name:'チーズピザ',price:1200},
+        {id:'spa_nap',name:'ナポリタン',price:1000}, {id:'spa_tom',name:'トマトパスタ',price:1000}, {id:'spa_car',name:'カルボナーラ',price:1000},
+        {id:'pancake',name:'パンケーキ',price:900}, {id:'hamburg',name:'ハンバーグ',price:1300}, {id:'steak',name:'ステーキ',price:1400},
+        {id:'salad',name:'サラダ',price:500}, {id:'potato',name:'ポテト',price:400}, {id:'parfait',name:'パフェ',price:700}, {id:'pudding',name:'プリン',price:400},
+        {id:'rice',name:'ご飯',price:350}, {id:'j_org',name:'オレンジ',price:300}, {id:'j_apl',name:'リンゴ',price:300}, {id:'j_cal',name:'カルピス',price:300}, {id:'j_col',name:'コーラ',price:300}, {id:'j_mel',name:'メロンソーダ',price:300}
     ]
 };
 
-// 従業員データ
+// 従業員ランク定義（powerが高いほど優先）
 const EMPLOYEES = {
-    master: { name: 'マスター', speed: 2.5, cost: 200000, wait: 4 }, 
-    veteran: { name: 'ベテラン', speed: 1.6, cost: 120000, wait: 6.25 },
-    standard: { name: '標準', speed: 1.0, cost: 80000, wait: 10 },
-    ponkotsu: { name: 'ポンコツ', speed: 0.5, cost: 40000, wait: 20 }
+    master: { name: 'マスター', speed: 2.5, cost: 200000, wait: 4, power: 4 }, 
+    veteran: { name: 'ベテラン', speed: 1.6, cost: 120000, wait: 6.25, power: 3 },
+    standard: { name: '標準', speed: 1.0, cost: 80000, wait: 10, power: 2 },
+    ponkotsu: { name: 'ポンコツ', speed: 0.5, cost: 40000, wait: 20, power: 1 }
 };
 
 const LOCATIONS = {
-    big_city: { name: '大都市', max: 10, build: 3000000 },
-    city: { name: '都市部', max: 8, build: 3000000 },
-    mid_city: { name: '中都市', max: 6, build: 2000000 },
-    small_city: { name: '小都市', max: 4, build: 2000000 }
+    big_city: { max: 10 }, city: { max: 8 }, mid_city: { max: 6 }, small_city: { max: 4 }
 };
 
-/* =========================================
-   ゲーム状態管理
-   ========================================= */
+/* ゲーム状態 */
 let G = {
-    mode: 'mobile', // デフォルトをモバイルに変更
-    state: 'home', 
-    type: null, 
-    location: null,
-    maxSeats: 0,
-    money: 15000000,
-    totalEarnings: 0, 
-    reputation: 5.0, 
-    day: 1,
-    time: 540, 
-    weekDay: 0, 
-    seats: [], 
-    menu: [], 
-    employees: ['master'], 
-    manualOrder: false,
-    difficulty: 'normal',
-    activeAds: [], 
-    bailoutUsed: false,
-    trashBin: false,
-    
-    timerId: null,
-    activeOrder: null
+    mode: 'mobile', state: 'home', type: null, location: null, maxSeats: 0,
+    money: 15000000, totalEarnings: 0, reputation: 5.0, day: 1, time: 540, weekDay: 0,
+    seats: [], menu: [], 
+    employees: ['master'], // string array
+    manualOrder: false, difficulty: 'normal', activeAds: [], bailoutUsed: false, trashBin: false,
+    timerId: null, activeOrder: null,
+    // 統計用
+    statsHistory: [], // {day, revenue, assets, expense}
+    dailyRevenue: 0, dailyExpense: 0
 };
 
 const DAYS = ['月', '火', '水', '木', '金', '土', '日'];
 
-/* =========================================
-   ゲームロジック
-   ========================================= */
+/* ロジック */
 const game = {
     showHome: () => {
         document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
@@ -526,34 +396,37 @@ const game = {
     },
     startGame: () => {
         const selectedMenu = Array.from(document.querySelectorAll('.item-select.selected')).map(e => e.dataset.id);
-        if (selectedMenu.length > 5) { alert('初期メニューは5つまでです'); return; }
-        if (selectedMenu.length === 0) { alert('メニューを選んでください'); return; }
-
+        if (selectedMenu.length < 1) { alert('メニューを選んでください'); return; } // 一応
+        
         G.type = document.getElementById('setup-type').value;
         const locKey = document.getElementById('setup-location').value;
         G.location = locKey;
         G.maxSeats = parseInt(document.getElementById('setup-seats').value);
         G.difficulty = document.getElementById('setup-difficulty').value;
         G.menu = selectedMenu;
-        G.money = 15000000 - 3000000; 
-        if (G.difficulty === 'hard') G.money = 15000000 - 3000000; 
+        G.money = (G.difficulty === 'hard') ? 12000000 : 12000000; // 初期建築費引いた体
         
         if (G.maxSeats > 8) G.money -= 3000000;
         else if (G.maxSeats > 4) G.money -= 2000000;
 
         G.employees = ['master']; 
         G.reputation = 5.0;
-        G.day = 1;
-        G.time = 540;
-        G.weekDay = 0;
+        G.day = 1; G.time = 540; G.weekDay = 0;
         G.seats = Array(G.maxSeats).fill(null).map(() => ({ occupied: false, customer: null, status: 'empty', waitTime: 0 }));
         G.totalEarnings = 0;
-        G.activeAds = []; 
+        G.activeAds = [];
+        G.statsHistory = [];
+        G.dailyRevenue = 0; G.dailyExpense = 0;
 
         document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
         document.getElementById('screen-game').classList.add('active');
         G.state = 'playing';
+        
+        // 従業員リストをランク順にソート
+        game.sortEmployees();
+
         ui.renderSeats();
+        ui.updateStaffPanel();
         ui.updateHeader();
         ui.ticker("本日も開店です！");
 
@@ -561,17 +434,20 @@ const game = {
         G.timerId = setInterval(game.loop, 1000);
     },
 
+    // 従業員を能力順に並び替え
+    sortEmployees: () => {
+        G.employees.sort((a, b) => EMPLOYEES[b].power - EMPLOYEES[a].power);
+    },
+
     loop: () => {
         if (G.state !== 'playing') return;
 
         G.time += 5;
-        if (G.time >= 1320) { 
-            game.endDay();
-            return;
-        }
+        if (G.time >= 1320) { game.endDay(); return; }
         ui.updateHeader();
 
         game.trySpawnCustomer();
+        game.processCookingAssignment(); // 調理割り当て処理
 
         G.seats.forEach((seat, idx) => {
             if (!seat.occupied) return;
@@ -586,33 +462,34 @@ const game = {
                     ui.ticker(`席${idx+1}: 注文待ち`);
                 }
             } else if (seat.status === 'cooking') {
-                seat.progress += 5;
-                
-                let bestEmp = { wait: 100 }; 
-                if (G.employees.length > 0) {
-                    bestEmp = G.employees.map(e => EMPLOYEES[e]).reduce((a,b) => a.speed > b.speed ? a : b);
-                }
-                
-                const itemCount = seat.customer.order.length;
-                const itemPenalty = 1 + (itemCount - 1) * 0.2;
-                const reqTime = ((bestEmp.wait * 60) / 5) * itemPenalty;
-                
-                seat.realWaitTime = (seat.realWaitTime || 0) + 1; 
-
-                if (seat.progress >= reqTime) {
-                    seat.status = 'eating';
-                    seat.progress = 0;
-                    const sec = seat.realWaitTime; 
-                    let sat = 60;
-                    if (sec <= 4) sat = 100;
-                    else if (sec <= 6.25) sat = 75;
-                    else if (sec <= 10) sat = 60;
-                    else sat = 45;
+                // assignedChef がいる場合のみ進む
+                if (seat.assignedChef !== undefined) {
+                    seat.progress += 5;
+                    const emp = EMPLOYEES[G.employees[seat.assignedChef]];
+                    const itemCount = seat.customer.order.length;
+                    const itemPenalty = 1 + (itemCount - 1) * 0.2;
+                    const reqTime = ((emp.wait * 60) / 5) * itemPenalty;
                     
-                    if (G.trashBin) sat += 5; 
-                    seat.satisfaction = sat;
-                    ui.updateSeat(idx);
+                    seat.realWaitTime = (seat.realWaitTime || 0) + 1; 
+
+                    if (seat.progress >= reqTime) {
+                        seat.status = 'eating';
+                        seat.progress = 0;
+                        seat.assignedChef = undefined; // シェフ解放
+                        ui.updateStaffPanel(); // パネル更新
+                        
+                        // 満足度計算
+                        const sec = seat.realWaitTime; 
+                        let sat = 60;
+                        if (sec <= 4) sat = 100;
+                        else if (sec <= 6.25) sat = 75;
+                        else if (sec <= 10) sat = 60;
+                        else sat = 45;
+                        if (G.trashBin) sat += 5; 
+                        seat.satisfaction = sat;
+                    }
                 }
+                ui.updateSeat(idx);
             } else if (seat.status === 'eating') {
                 seat.progress += 5;
                 if (seat.progress >= 30) { 
@@ -623,9 +500,37 @@ const game = {
         });
     },
 
+    // 調理割り当てロジック
+    processCookingAssignment: () => {
+        // 現在調理を担当しているシェフのインデックスリストを作成
+        const busyChefs = G.seats.filter(s => s.occupied && s.status === 'cooking' && s.assignedChef !== undefined)
+                                 .map(s => s.assignedChef);
+        
+        // 調理待ち（assignedChefなし）の席を探す
+        const waitingSeats = G.seats.filter(s => s.occupied && s.status === 'cooking' && s.assignedChef === undefined);
+
+        waitingSeats.forEach(seat => {
+            // 空いているシェフを探す (0番目=マスターから順に探索)
+            let freeChefIdx = -1;
+            for(let i=0; i < G.employees.length; i++) {
+                if (!busyChefs.includes(i)) {
+                    freeChefIdx = i;
+                    break;
+                }
+            }
+
+            if (freeChefIdx !== -1) {
+                seat.assignedChef = freeChefIdx;
+                busyChefs.push(freeChefIdx); // 即座にbusyリストに追加
+                ui.updateStaffPanel();
+            }
+        });
+    },
+
     trySpawnCustomer: () => {
         let rate = 10; 
         const h = Math.floor(G.time / 60);
+        // 裏仕様: 平日ランチ
         if ((h >= 11 && h < 13)) {
             rate += (G.weekDay >= 5) ? 30 : 10; 
         }
@@ -650,10 +555,7 @@ const game = {
                 const img = IMAGES[Math.floor(Math.random() * IMAGES.length)];
                 
                 G.seats[emptyIdx] = {
-                    occupied: true,
-                    status: 'sitting',
-                    progress: 0,
-                    realWaitTime: 0,
+                    occupied: true, status: 'sitting', progress: 0, realWaitTime: 0,
                     customer: { size: groupSize, isTablet: isTablet, img: img, order: [] }
                 };
                 ui.updateSeat(emptyIdx);
@@ -669,15 +571,14 @@ const game = {
         const count = Math.floor(Math.random() * 5) + 1; 
         const orderItems = [];
         for(let i=0; i<count; i++) {
-            const item = menuList[Math.floor(Math.random() * menuList.length)];
-            orderItems.push(item);
+            orderItems.push(menuList[Math.floor(Math.random() * menuList.length)]);
         }
         
         seat.customer.order = orderItems;
-        seat.status = 'cooking';
+        seat.status = 'cooking'; // 調理待ちへ移行
         seat.progress = 0;
         ui.updateSeat(seatIdx);
-        ui.ticker(`席${seatIdx+1}: ${count}品を注文中`);
+        ui.ticker(`席${seatIdx+1}: ${count}品注文入りました！`);
     },
 
     manualOrderClick: (seatIdx) => {
@@ -721,6 +622,7 @@ const game = {
 
         G.money += totalProfit;
         G.totalEarnings += totalProfit;
+        G.dailyRevenue += totalProfit;
         
         const sat = seat.satisfaction;
         G.reputation = (G.reputation * 0.9) + ((sat / 20) * 0.1); 
@@ -730,13 +632,24 @@ const game = {
         G.seats[seatIdx] = { occupied: false, customer: null, status: 'empty' };
         ui.updateSeat(seatIdx);
         ui.updateHeader();
-        ui.ticker(`会計: ¥${totalProfit} 売り上げ！`);
+        ui.ticker(`会計: ¥${totalProfit.toLocaleString()}`);
     },
 
     endDay: () => {
+        // 統計保存
+        G.statsHistory.push({
+            day: G.day,
+            revenue: G.dailyRevenue,
+            assets: G.money,
+            expense: G.dailyExpense
+        });
+        
+        // 日付更新処理
         G.day++;
         G.weekDay = (G.weekDay + 1) % 7;
         G.time = 540;
+        G.dailyRevenue = 0;
+        G.dailyExpense = 0;
         
         G.activeAds.forEach(ad => {
             if (ad.daysLeft > 0) {
@@ -752,6 +665,7 @@ const game = {
 
         if (G.day % 10 === 0) {
             G.money -= 1000000;
+            G.dailyExpense += 1000000;
             alert('家賃と光熱費 100万円を支払いました。');
         }
 
@@ -764,39 +678,22 @@ const game = {
         game.checkWinLose();
 
         clearInterval(G.timerId);
-        alert(`1日が終了しました。現在の資産: ¥${G.money.toLocaleString()}`);
+        alert(`1日が終了しました。\n売上: ¥${G.statsHistory[G.statsHistory.length-1].revenue.toLocaleString()}`);
         G.timerId = setInterval(game.loop, 1000);
     },
 
     checkWinLose: () => {
         if (G.difficulty === 'hard') {
-            if (G.reputation < 3.5) {
-                game.gameOver("評価が低すぎます。閉店です...");
-                return;
-            }
-            if (G.totalEarnings >= 15000000) {
-                game.gameWin();
-            }
+            if (G.reputation < 3.5) { game.gameOver("評価が低すぎます..."); return; }
+            if (G.totalEarnings >= 15000000) game.gameWin();
         } else if (G.difficulty === 'normal') {
-            if (G.totalEarnings >= 5000000) {
-                game.gameWin();
-            }
+            if (G.totalEarnings >= 5000000) game.gameWin();
         }
-        if (G.money < 0) {
-            game.gameOver("破産しました...");
-        }
+        if (G.money < 0) game.gameOver("破産しました...");
     },
     
-    gameOver: (msg) => {
-        clearInterval(G.timerId);
-        alert("GAME OVER\n" + msg);
-        game.showHome();
-    },
-    gameWin: (msg) => {
-        clearInterval(G.timerId);
-        alert("CONGRATULATIONS!\n目標金額を達成しました！経営は大成功です！");
-        game.showHome();
-    },
+    gameOver: (msg) => { clearInterval(G.timerId); alert("GAME OVER\n" + msg); game.showHome(); },
+    gameWin: (msg) => { clearInterval(G.timerId); alert("CONGRATULATIONS!\n目標金額達成！"); game.showHome(); },
 
     togglePause: (forceState) => {
         if (forceState !== undefined) {
@@ -832,29 +729,22 @@ const game = {
                 G = loaded;
                 document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
                 document.getElementById('screen-game').classList.add('active');
+                game.sortEmployees(); // ソートしなおし
                 ui.renderSeats();
+                ui.updateStaffPanel();
                 ui.updateHeader();
                 game.togglePause(false); 
                 if(!G.timerId) G.timerId = setInterval(game.loop, 1000);
-            } catch (err) {
-                alert("セーブデータが破損しています");
-            }
+            } catch (err) { alert("データ破損"); }
         };
         reader.readAsText(file);
     },
-
     quitGame: () => {
-        if(confirm("セーブしましたか？本当にやめますか？")) {
-            clearInterval(G.timerId);
-            game.showHome();
-            ui.closeModal('modal-menu');
-        }
+        if(confirm("本当にやめますか？")) { clearInterval(G.timerId); game.showHome(); ui.closeModal('modal-menu'); }
     }
 };
 
-/* =========================================
-   設定・セットアップロジック
-   ========================================= */
+/* 設定・セットアップ */
 const setup = {
     updateMenuOptions: () => {
         const type = document.getElementById('setup-type').value;
@@ -863,16 +753,12 @@ const setup = {
         MENUS[type].forEach(item => {
             const div = document.createElement('div');
             div.className = 'item-select';
-            div.innerText = `${item.name} (${item.price}円)`;
+            div.innerText = `${item.name} (${item.price})`;
+            div.style.cssText = "background:#2980b9;padding:8px;border-radius:4px;font-size:0.8rem;cursor:pointer;text-align:center;width:30%;";
             div.dataset.id = item.id;
             div.onclick = () => {
-                if (div.classList.contains('selected')) {
-                    div.classList.remove('selected');
-                } else {
-                    if (document.querySelectorAll('.item-select.selected').length < 5) {
-                        div.classList.add('selected');
-                    }
-                }
+                if (div.classList.contains('selected')) { div.classList.remove('selected'); div.style.background = '#2980b9'; }
+                else if (document.querySelectorAll('.item-select.selected').length < 5) { div.classList.add('selected'); div.style.background = '#2ecc71'; }
             };
             list.appendChild(div);
         });
@@ -883,10 +769,7 @@ const setup = {
         const select = document.getElementById('setup-seats');
         select.innerHTML = '';
         for (let i = 4; i <= max; i+=2) {
-            const op = document.createElement('option');
-            op.value = i;
-            op.innerText = `${i}席`;
-            if (i===max) op.selected = true;
+            const op = document.createElement('option'); op.value = i; op.innerText = `${i}席`; if (i===max) op.selected = true;
             select.appendChild(op);
         }
     }
@@ -898,296 +781,218 @@ const settings = {
         document.getElementById('btn-order-mode').innerText = G.manualOrder ? "手動注文: ON" : "手動注文: OFF";
     },
     buyItem: (item) => {
-        if (item === 'trash') {
-            if (G.money >= 10000) {
-                G.money -= 10000;
-                G.trashBin = true;
-                alert("ゴミ箱を設置しました！");
-            }
-        } else if (item === 'clean') {
-            if (G.money >= 50000) {
-                G.money -= 50000;
-                G.reputation += 0.2;
-                alert("清掃しました！");
-            }
-        }
+        if (item === 'trash' && G.money >= 10000) { G.money -= 10000; G.dailyExpense += 10000; G.trashBin = true; alert("ゴミ箱設置！"); }
+        else if (item === 'clean' && G.money >= 50000) { G.money -= 50000; G.dailyExpense += 50000; G.reputation += 0.2; alert("清掃完了！"); }
         ui.updateHeader();
     },
     hire: (type) => {
         const emp = EMPLOYEES[type];
         if (G.money >= emp.cost) {
-            G.money -= emp.cost;
-            G.employees.push(type);
+            G.money -= emp.cost; G.dailyExpense += emp.cost; G.employees.push(type);
+            game.sortEmployees(); // ランク順にソート
             alert(`${emp.name}を雇いました！`);
-            settings.renderEmployeeList();
-            ui.updateHeader();
-        } else {
-            alert("資金が足りません...");
-        }
+            settings.renderEmployeeList(); ui.updateStaffPanel(); ui.updateHeader();
+        } else alert("資金不足");
     },
     fire: (index) => {
-        if (G.employees.length <= 1) {
-            alert("最後の従業員は解雇できません！");
-            return;
-        }
-        if(confirm("本当に解雇しますか？")) {
-            G.employees.splice(index, 1);
-            settings.renderEmployeeList();
-            ui.updateHeader(); 
-        }
+        if (G.employees.length <= 1) { alert("最後の1人は解雇できません"); return; }
+        if(confirm("解雇しますか？")) { G.employees.splice(index, 1); settings.renderEmployeeList(); ui.updateStaffPanel(); ui.updateHeader(); }
     },
     renderEmployeeList: () => {
-        const list = document.getElementById('current-employees-list');
-        list.innerHTML = '';
+        const list = document.getElementById('current-employees-list'); list.innerHTML = '';
         G.employees.forEach((key, idx) => {
             const data = EMPLOYEES[key];
-            const row = document.createElement('div');
-            row.className = 'emp-row';
-            row.innerHTML = `<span>${data.name} (x${data.speed})</span> <button onclick="settings.fire(${idx})">解雇</button>`;
+            const row = document.createElement('div'); row.className = 'emp-row';
+            row.innerHTML = `<span>${data.name}</span> <button onclick="settings.fire(${idx})">解雇</button>`;
             list.appendChild(row);
         });
     },
     toggleMenuEdit: () => {
         const area = document.getElementById('menu-edit-area');
-        if (area.style.display === 'none') {
-            area.style.display = 'block';
-            settings.renderMenuEditList();
-        } else {
-            area.style.display = 'none';
-        }
+        if (area.style.display === 'none') { area.style.display = 'block'; settings.renderMenuEditList(); }
+        else area.style.display = 'none';
     },
     renderMenuEditList: () => {
-        const list = document.getElementById('menu-edit-list');
-        list.innerHTML = '';
-        const allMenus = MENUS[G.type];
-        
-        allMenus.forEach((item, idx) => {
-            const row = document.createElement('div');
-            row.className = 'menu-edit-row';
-            
+        const list = document.getElementById('menu-edit-list'); list.innerHTML = '';
+        MENUS[G.type].forEach(item => {
+            const row = document.createElement('div'); row.className = 'menu-edit-row';
             const isChecked = G.menu.includes(item.id) ? 'checked' : '';
-            
-            row.innerHTML = `
-                <label style="flex:1; font-size:0.8rem;">
-                    <input type="checkbox" class="menu-chk" value="${item.id}" ${isChecked}> ${item.name}
-                </label>
-                <input type="number" id="price-${item.id}" value="${item.price}" min="10">
-            `;
+            row.innerHTML = `<label><input type="checkbox" class="menu-chk" value="${item.id}" ${isChecked}> ${item.name}</label><input type="number" id="price-${item.id}" value="${item.price}" min="10">`;
             list.appendChild(row);
         });
     },
     saveMenuChanges: () => {
         const checkboxes = document.querySelectorAll('.menu-chk:checked');
-        if (checkboxes.length !== 5) {
-            alert("メニューは必ず5つ選択してください！");
-            return;
-        }
+        if (checkboxes.length !== 5) { alert("5つ選択してください"); return; }
         MENUS[G.type].forEach(item => {
             const input = document.getElementById(`price-${item.id}`);
-            if(input) {
-                item.price = parseInt(input.value);
-            }
+            if(input) item.price = parseInt(input.value);
         });
         G.menu = Array.from(checkboxes).map(cb => cb.value);
         G.customMenus = { fastfood: MENUS.fastfood, restaurant: MENUS.restaurant };
-
-        alert("メニューと価格を更新しました！");
-        settings.toggleMenuEdit();
+        alert("メニュー更新完了"); settings.toggleMenuEdit();
     },
     expandSeats: (target) => {
-        if (target === 15) {
-            if (G.totalEarnings < 100000) { alert("累計利益が10万円に達していません"); return; }
-        } else if (target === 20) {
-            if (G.totalEarnings < 200000) { alert("累計利益が20万円に達していません"); return; }
-        }
-
-        if (G.maxSeats >= target) {
-            alert("すでに拡張済みです");
-            return;
-        }
-
-        const added = target - G.maxSeats;
-        G.maxSeats = target;
-        for(let i=0; i<added; i++) {
-            G.seats.push({ occupied: false, customer: null, status: 'empty', waitTime: 0 });
-        }
-        
-        alert(`店舗を拡張しました！席数が${target}になりました！`);
-        ui.renderSeats();
-        ui.updateSettingsButtons(); 
+        if ((target === 15 && G.totalEarnings < 100000) || (target === 20 && G.totalEarnings < 200000)) { alert("実績不足"); return; }
+        if (G.maxSeats >= target) { alert("拡張済み"); return; }
+        const added = target - G.maxSeats; G.maxSeats = target;
+        for(let i=0; i<added; i++) G.seats.push({ occupied: false, customer: null, status: 'empty', waitTime: 0 });
+        alert(`拡張完了！${target}席`); ui.renderSeats(); ui.updateSettingsButtons();
     }
 };
 
 const ads = {
     start: (type) => {
-        let cost = 0, buff = 0, dur = 0, abuff = 0;
-        if (type === 'poster') { cost=7000; buff=15; dur=2; abuff=5; }
-        if (type === 'flyer') { cost=10000; buff=20; dur=2; abuff=5; }
-        if (type === 'cm') { cost=50000; buff=25; dur=10; abuff=20; }
-        if (type === 'tv') { cost=100000; buff=25; dur=1; abuff=40; }
-
-        if (G.money < cost) { alert("資金不足です"); return; }
-        
-        G.money -= cost;
-        G.activeAds.push({ type: type, daysLeft: dur, buff: buff, afterBuff: abuff, afterDays: 0 });
-        alert("宣伝開始！効果重複");
-        ui.updateHeader();
-        ui.closeModal('modal-ads');
+        let cost=0, buff=0, dur=0;
+        if(type==='poster'){cost=20000;buff=15;dur=2;}
+        if(type==='flyer'){cost=50000;buff=20;dur=2;}
+        if(type==='cm'){cost=200000;buff=25;dur=10;}
+        if(type==='tv'){cost=500000;buff=25;dur=1;}
+        if (G.money < cost) { alert("資金不足"); return; }
+        G.money -= cost; G.dailyExpense += cost;
+        G.activeAds.push({ type: type, daysLeft: dur, buff: buff, afterBuff: 5, afterDays: 0 });
+        if(type==='tv') G.activeAds[G.activeAds.length-1].afterBuff = 40; // TV特有
+        if(type==='cm') G.activeAds[G.activeAds.length-1].afterBuff = 20; 
+        alert("宣伝開始"); ui.updateHeader(); ui.closeModal('modal-ads');
     }
 };
 
-/* =========================================
-   UI制御
-   ========================================= */
+/* 統計機能 */
+const stats = {
+    range: 100, // 0=All
+    type: 'revenue', // revenue or assets
+    show: () => {
+        document.getElementById('modal-stats').style.display = 'flex';
+        game.togglePause(true);
+        stats.draw();
+        document.getElementById('stat-today-rev').innerText = `¥${G.dailyRevenue.toLocaleString()}`;
+        document.getElementById('stat-today-exp').innerText = `¥${G.dailyExpense.toLocaleString()}`;
+    },
+    setRange: (r) => { stats.range = r; stats.draw(); },
+    setType: (t) => { 
+        stats.type = t; 
+        document.getElementById('btn-graph-rev').classList.remove('active');
+        document.getElementById('btn-graph-asset').classList.remove('active');
+        if(t === 'revenue') document.getElementById('btn-graph-rev').classList.add('active');
+        else document.getElementById('btn-graph-asset').classList.add('active');
+        stats.draw(); 
+    },
+    draw: () => {
+        const canvas = document.getElementById('stats-canvas');
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width = canvas.offsetWidth;
+        const h = canvas.height = canvas.offsetHeight;
+        ctx.clearRect(0,0,w,h);
+
+        let data = [...G.statsHistory];
+        // 全期間以外なら切り出し
+        if (stats.range > 0 && data.length > stats.range) {
+            data = data.slice(data.length - stats.range);
+        }
+        if (data.length < 2) {
+            ctx.fillStyle = "#333"; ctx.font = "14px Arial";
+            ctx.fillText("データが足りません (2日目以降表示)", 20, 50);
+            return;
+        }
+
+        // 最大値・最小値
+        let maxVal = 0, minVal = Infinity;
+        data.forEach(d => {
+            let val = (stats.type === 'revenue') ? d.revenue : d.assets;
+            if(val > maxVal) maxVal = val;
+            if(val < minVal) minVal = val;
+        });
+        if (minVal > 0 && stats.type === 'revenue') minVal = 0; // 売上は0起点
+
+        // 描画
+        const padding = 20;
+        ctx.beginPath();
+        ctx.strokeStyle = (stats.type === 'revenue') ? '#2ecc71' : '#f1c40f';
+        ctx.lineWidth = 2;
+
+        data.forEach((d, i) => {
+            let val = (stats.type === 'revenue') ? d.revenue : d.assets;
+            let x = padding + (i / (data.length - 1)) * (w - padding * 2);
+            let y = h - padding - ((val - minVal) / (maxVal - minVal || 1)) * (h - padding * 2);
+            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+    }
+};
+
+/* UI制御 */
 const ui = {
     updateHeader: () => {
         const h = Math.floor(G.time / 60);
         const m = G.time % 60;
-        const timeStr = `${('0'+h).slice(-2)}:${('0'+m).slice(-2)}`;
-        document.getElementById('display-time').innerText = `Day ${G.day} (${DAYS[G.weekDay]}) ${timeStr}`;
+        document.getElementById('display-time').innerText = `Day ${G.day} (${DAYS[G.weekDay]}) ${('0'+h).slice(-2)}:${('0'+m).slice(-2)}`;
         document.getElementById('display-money').innerText = `¥${G.money.toLocaleString()}`;
-        // document.getElementById('display-assets').innerText = `累計: ¥${G.totalEarnings.toLocaleString()}`;
+        document.getElementById('display-earnings').innerText = `¥${G.totalEarnings.toLocaleString()}`;
         
-        let stars = "";
-        for(let i=0; i<5; i++) stars += (i < Math.floor(G.reputation)) ? "★" : "☆";
+        let stars = ""; for(let i=0; i<5; i++) stars += (i < Math.floor(G.reputation)) ? "★" : "☆";
         document.getElementById('display-stars').innerText = stars;
         
         let totalBuff = 0;
-        G.activeAds.forEach(ad => {
-            if (ad.daysLeft > 0) totalBuff += ad.buff;
-            else if (ad.afterDays > 0) totalBuff += ad.afterBuff;
-        });
-        document.getElementById('ad-buff-display').innerText = `宣伝: +${totalBuff}%`;
-        
-        if(document.getElementById('ad-status-detail')) {
-            document.getElementById('ad-status-detail').innerText = `+${totalBuff}% (${G.activeAds.length}件)`;
-        }
+        G.activeAds.forEach(ad => { if (ad.daysLeft > 0) totalBuff += ad.buff; else if (ad.afterDays > 0) totalBuff += ad.afterBuff; });
+        document.getElementById('ad-buff-display').innerText = `宣伝:+${totalBuff}%`;
 
         ui.updateSettingsButtons();
     },
-
     updateSettingsButtons: () => {
         const btn15 = document.getElementById('btn-expand-15');
         const btn20 = document.getElementById('btn-expand-20');
         if(btn15 && btn20) {
-            if(G.maxSeats >= 15) btn15.disabled = true;
-            else btn15.disabled = (G.totalEarnings < 100000);
-
-            if(G.maxSeats >= 20) btn20.disabled = true;
-            else btn20.disabled = (G.totalEarnings < 200000);
+            if(G.maxSeats >= 15) btn15.disabled = true; else btn15.disabled = (G.totalEarnings < 100000);
+            if(G.maxSeats >= 20) btn20.disabled = true; else btn20.disabled = (G.totalEarnings < 200000);
         }
     },
-    
     renderSeats: () => {
-        const con = document.getElementById('seats-container');
-        con.innerHTML = '';
+        const con = document.getElementById('seats-container'); con.innerHTML = '';
         G.seats.forEach((seat, idx) => {
-            const div = document.createElement('div');
-            div.className = 'seat';
-            div.id = `seat-${idx}`;
+            const div = document.createElement('div'); div.className = 'seat'; div.id = `seat-${idx}`;
             div.onclick = () => game.manualOrderClick(idx);
+            const info = document.createElement('div'); info.className = 'seat-status'; info.id = `seat-info-${idx}`; info.innerText = '空席';
+            div.appendChild(info); con.appendChild(div);
+        });
+    },
+    updateSeat: (idx) => {
+        const seat = G.seats[idx]; const div = document.getElementById(`seat-${idx}`); const info = document.getElementById(`seat-info-${idx}`);
+        if (seat.occupied) {
+            div.classList.add('occupied'); div.style.backgroundImage = `url(${seat.customer.img})`; div.style.backgroundSize = 'contain'; div.style.backgroundRepeat = 'no-repeat'; div.style.backgroundPosition = 'center';
+            let txt = "";
+            if (seat.status === 'sitting') txt = "着席"; else if (seat.status === 'ordering') txt = "注文";
+            else if (seat.status === 'cooking') txt = (seat.assignedChef !== undefined) ? "調理中" : "調理待";
+            else if (seat.status === 'eating') txt = "食事"; else if (seat.status === 'paying') txt = "会計";
+            info.innerText = txt;
+        } else { div.classList.remove('occupied'); div.style.backgroundImage = 'none'; info.innerText = '空席'; }
+    },
+    updateStaffPanel: () => {
+        const con = document.getElementById('staff-container'); con.innerHTML = '';
+        G.employees.forEach((key, idx) => {
+            // この従業員が担当している席を探す
+            const cookingSeatIdx = G.seats.findIndex(s => s.occupied && s.status === 'cooking' && s.assignedChef === idx);
+            const isBusy = (cookingSeatIdx !== -1);
+            const data = EMPLOYEES[key];
             
-            const info = document.createElement('div');
-            info.className = 'seat-status';
-            info.id = `seat-info-${idx}`;
-            info.innerText = '空席';
-            
-            div.appendChild(info);
+            const div = document.createElement('div');
+            div.className = `staff-card ${isBusy ? 'busy' : 'free'}`;
+            div.innerHTML = `
+                <div>${data.name}</div>
+                <div class="staff-status-text">${isBusy ? '調理中 (席'+(cookingSeatIdx+1)+')' : '待機中'}</div>
+            `;
             con.appendChild(div);
         });
     },
-
-    updateSeat: (idx) => {
-        const seat = G.seats[idx];
-        const div = document.getElementById(`seat-${idx}`);
-        const info = document.getElementById(`seat-info-${idx}`);
-        
-        if (seat.occupied) {
-            div.classList.add('occupied');
-            div.style.backgroundImage = `url(${seat.customer.img})`;
-            div.style.backgroundSize = 'contain';
-            div.style.backgroundRepeat = 'no-repeat';
-            div.style.backgroundPosition = 'center';
-            
-            let txt = "";
-            if (seat.status === 'sitting') txt = "着席";
-            if (seat.status === 'ordering') txt = "注文中";
-            if (seat.status === 'cooking') txt = "調理中";
-            if (seat.status === 'eating') txt = "食事中";
-            if (seat.status === 'paying') txt = "会計中";
-            info.innerText = txt;
-        } else {
-            div.classList.remove('occupied');
-            div.style.backgroundImage = 'none';
-            info.innerText = '空席';
-        }
-    },
-
-    ticker: (msg) => {
-        const t = document.getElementById('ticker');
-        t.innerText = msg;
-    },
-    
-    toggleMenu: () => {
-        document.getElementById('modal-menu').style.display = 'flex';
-        game.togglePause(true);
-    },
-    
-    toggleSettings: () => {
-        document.getElementById('modal-settings').style.display = 'flex';
-        game.togglePause(true);
-        settings.renderEmployeeList();
-        document.getElementById('menu-edit-area').style.display = 'none';
-        ui.updateSettingsButtons();
-    },
-    
-    toggleAds: () => {
-        document.getElementById('modal-ads').style.display = 'flex';
-        game.togglePause(true);
-        ui.updateHeader(); 
-    },
-
-    toggleHelp: () => {
-        document.getElementById('modal-help').style.display = 'flex';
-        ui.switchHelpTab('tab-basic');
-        game.togglePause(true);
-    },
-
-    switchHelpTab: (tabId) => {
-        document.querySelectorAll('.help-section').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        
-        const tabs = document.querySelectorAll('.help-tab');
-        tabs.forEach(t => t.classList.remove('active'));
-        if(tabId === 'tab-basic') tabs[0].classList.add('active');
-        if(tabId === 'tab-staff') tabs[1].classList.add('active');
-        if(tabId === 'tab-biz') tabs[2].classList.add('active');
-    },
-
-    toggleMode: () => {
-        const c = document.getElementById('game-container');
-        if (G.mode === 'pc') {
-            c.classList.remove('pc-mode');
-            G.mode = 'mobile';
-        } else {
-            c.classList.add('pc-mode');
-            G.mode = 'pc';
-        }
-    },
-
-    closeModal: (id) => {
-        document.getElementById(id).style.display = 'none';
-        game.togglePause(false);
-    }
+    ticker: (msg) => { document.getElementById('ticker').innerText = msg; },
+    toggleMenu: () => { document.getElementById('modal-menu').style.display = 'flex'; game.togglePause(true); },
+    toggleSettings: () => { document.getElementById('modal-settings').style.display = 'flex'; game.togglePause(true); settings.renderEmployeeList(); document.getElementById('menu-edit-area').style.display = 'none'; ui.updateSettingsButtons(); },
+    toggleAds: () => { document.getElementById('modal-ads').style.display = 'flex'; game.togglePause(true); ui.updateHeader(); },
+    toggleHelp: () => { document.getElementById('modal-help').style.display = 'flex'; game.togglePause(true); },
+    toggleMode: () => { const c = document.getElementById('game-container'); if (G.mode === 'pc') { c.classList.remove('pc-mode'); G.mode = 'mobile'; } else { c.classList.add('pc-mode'); G.mode = 'pc'; } },
+    closeModal: (id) => { document.getElementById(id).style.display = 'none'; game.togglePause(false); }
 };
 
-// 画面サイズで自動判定
-if (window.innerWidth > 768) {
-    document.getElementById('game-container').classList.add('pc-mode');
-    G.mode = 'pc';
-}
-
-// 初期実行
+if (window.innerWidth > 768) { document.getElementById('game-container').classList.add('pc-mode'); G.mode = 'pc'; }
 game.showHome();
 </script>
 </body>
