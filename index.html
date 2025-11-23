@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>飲食店経営シミュレーション v1.15</title>
+<title>飲食店経営シミュレーション v1.16</title>
 <style>
     :root {
         --bg-color: #2c3e50;
@@ -118,7 +118,7 @@
 
     <div id="screen-home" class="screen active">
         <h1 style="text-align: center; color: var(--warning-color); margin-top: 30px;">🍔 Kitchen Tycoon 🍝</h1>
-        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;">v1.15 Final UI Update</p>
+        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;">v1.16 Manual Fixed</p>
         <div class="home-btn-group">
             <button onclick="game.showSetup()">新しいゲームを開始</button>
             <input type="file" id="save-file-input" style="display:none" onchange="game.loadGameData(this)">
@@ -300,31 +300,32 @@
         <h2 style="text-align:center; margin-top:0;">📖 ゲーム説明書</h2>
         
         <div class="help-tabs">
-            <div class="help-tab active" onclick="ui.switchHelpTab('tab-basic')">基本</div>
-            <div class="help-tab" onclick="ui.switchHelpTab('tab-staff')">従業員</div>
-            <div class="help-tab" onclick="ui.switchHelpTab('tab-biz')">経営</div>
+            <div class="help-tab active" onclick="ui.switchHelpTab('tab-basic')">基本・ルール</div>
+            <div class="help-tab" onclick="ui.switchHelpTab('tab-staff')">従業員・設備</div>
+            <div class="help-tab" onclick="ui.switchHelpTab('tab-biz')">経営・宣伝</div>
         </div>
 
         <div id="tab-basic" class="help-section active">
-            <h4>🏆 勝利条件</h4>
+            <h4 style="border-color:white;">🏆 勝利条件と難易度</h4>
             <ul>
-                <li><strong>普通:</strong> 利益 500万円</li>
-                <li><strong>難しい:</strong> 利益 1500万円 (評価★3.5以下即死)</li>
+                <li><strong>普通:</strong> 累計利益 500万円でクリア</li>
+                <li><strong>難しい:</strong> 累計利益 1500万円でクリア <br><small style="color:#e74c3c;">※評価★3.5以下で即ゲームオーバー</small></li>
+                <li><strong>簡単:</strong> 条件なし (評価2.5以下にならない)</li>
             </ul>
-            <p>※クリア後はボーナスをもらって40席まで拡張可能。</p>
+            <p>※クリア後は<strong>ボーナス200万円</strong>を獲得し、<strong>最大40席</strong>まで拡張可能になります。</p>
 
-            <h4>🎮 流れ</h4>
+            <h4 style="border-color:white;">🎮 遊び方の流れ</h4>
             <ol>
-                <li>客が来店し、1〜5品を注文。</li>
-                <li><strong>割り当てられた従業員</strong>が調理します。</li>
-                <li>できた商品から順次提供されます。</li>
-                <li>全て提供されると食事開始→会計。</li>
-                <li>22:00で閉店(残業あり)。</li>
+                <li>客が来店 (1〜5品をランダム注文)</li>
+                <li>従業員が調理 (品数が多いと時間がかかる)</li>
+                <li>食事が終わると自動で会計</li>
+                <li><strong>22:00</strong>で閉店 (店内の客が帰るまで残業)</li>
+                <li>※閉店時、<strong>調理中・注文待ちの客は強制退去</strong>になります。</li>
             </ol>
         </div>
 
         <div id="tab-staff" class="help-section">
-            <h4>🧑‍🍳 従業員と割り当て</h4>
+            <h4 style="border-color:white;">🧑‍🍳 従業員と割り当て</h4>
             <p>「従業員」ボタンから、メニューごとに<strong>最大4人まで</strong>担当を割り当てられます。<br>暇な担当者が自動的に調理に入ります。</p>
             <p>従業員は1人につき<strong>同時に4品まで</strong>調理できます。</p>
             <table class="help-table">
@@ -334,18 +335,34 @@
                 <tr><td>標準</td><td>8万</td><td>1.0倍</td></tr>
                 <tr><td>ポンコツ</td><td>4万</td><td>0.5倍</td></tr>
             </table>
+
+            <h4 style="border-color:white;">🏗️ 店舗拡張</h4>
+            <ul>
+                <li><strong>15席へ:</strong> 累計利益10万で解禁</li>
+                <li><strong>20席へ:</strong> 累計利益20万で解禁</li>
+                <li><strong>40席まで:</strong> クリア後、5席単位で増減可能</li>
+            </ul>
         </div>
 
         <div id="tab-biz" class="help-section">
-            <h4>📢 宣伝効果 (重ねがけOK)</h4>
+            <h4 style="border-color:white;">📢 宣伝効果 (重ねがけOK)</h4>
             <table class="help-table">
                 <tr><th>種類</th><th>費用</th><th>期間</th><th>残存</th></tr>
-                <tr><td>ポスター</td><td>2万</td><td>+15%</td><td>+5%</td></tr>
-                <tr><td>チラシ</td><td>5万</td><td>+20%</td><td>+5%</td></tr>
-                <tr><td>CM</td><td>20万</td><td>+25%</td><td>+20%</td></tr>
-                <tr><td>TV</td><td>50万</td><td>+25%</td><td>+40%</td></tr>
+                <tr><td>ポスター</td><td>2万</td><td>+15%</td><td>+5% (2日)</td></tr>
+                <tr><td>チラシ</td><td>5万</td><td>+20%</td><td>+5% (1日)</td></tr>
+                <tr><td>CM</td><td>20万</td><td>+25%</td><td>+20% (3日)</td></tr>
+                <tr><td>TV</td><td>50万</td><td>+25%</td><td>+40% (5日)</td></tr>
             </table>
-            <p>平日ランチ+10%、土日祝+20%などのボーナスあり。</p>
+
+            <h4 style="border-color:white;">⚠️ 裏仕様・ボーナス</h4>
+            <ul style="font-size:0.85rem;">
+                <li><strong>平日ランチ (11-13時):</strong> 客+10%</li>
+                <li><strong>土日祝 (終日):</strong> 客+20%</li>
+                <li><strong>土日ランチ:</strong> 客+30%</li>
+                <li><strong>ゴミ箱設置:</strong> 満足度+5 (固定)</li>
+                <li><strong>家賃:</strong> 10日ごとに100万円</li>
+                <li><strong>支援金:</strong> 資産200万以下で500万 (1回のみ)</li>
+            </ul>
         </div>
 
         <div style="text-align:center; margin-top:auto; padding-top:10px;">
