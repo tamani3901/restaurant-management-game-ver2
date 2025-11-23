@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>飲食店経営シミュレーション v1.14</title>
+<title>飲食店経営シミュレーション v1.15</title>
 <style>
     :root {
         --bg-color: #2c3e50;
@@ -23,9 +23,9 @@
         overflow: hidden; height: 100dvh;
     }
     button { 
-        cursor: pointer; padding: 8px 12px; border: none; border-radius: 4px; 
-        background: var(--accent-color); color: white; font-weight: bold; margin: 3px; 
-        font-size: 0.9rem; touch-action: manipulation;
+        cursor: pointer; padding: 8px 10px; border: none; border-radius: 4px; 
+        background: var(--accent-color); color: white; font-weight: bold; margin: 2px; 
+        font-size: 0.85rem; touch-action: manipulation; white-space: nowrap;
     }
     button:hover { opacity: 0.9; }
     button:disabled { background: #7f8c8d; cursor: not-allowed; opacity: 0.6; }
@@ -39,8 +39,8 @@
     .screen.active { display: flex; }
 
     /* ヘッダー */
-    #ui-header { background: #1a252f; padding: 5px 8px; font-size: 0.8rem; flex-shrink: 0; display: flex; flex-direction: column; gap: 4px; }
-    .header-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+    #ui-header { background: #1a252f; padding: 5px; font-size: 0.8rem; flex-shrink: 0; display: flex; flex-direction: column; gap: 4px; }
+    .header-row { display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; }
     #info-bar { text-align: center; font-weight: bold; flex-grow: 1; }
 
     /* スピードボタン */
@@ -118,7 +118,7 @@
 
     <div id="screen-home" class="screen active">
         <h1 style="text-align: center; color: var(--warning-color); margin-top: 30px;">🍔 Kitchen Tycoon 🍝</h1>
-        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;">v1.14 Multi-Chef Assignment</p>
+        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;">v1.15 Final UI Update</p>
         <div class="home-btn-group">
             <button onclick="game.showSetup()">新しいゲームを開始</button>
             <input type="file" id="save-file-input" style="display:none" onchange="game.loadGameData(this)">
@@ -173,19 +173,17 @@
     <div id="screen-game" class="screen" style="padding:0; overflow:hidden;">
         <div id="ui-header">
             <div class="header-row">
-                <div style="display:flex; gap:3px;">
-                    <button onclick="ui.toggleMenu()" style="padding:6px 8px;">メニュー</button>
-                    <button onclick="ui.toggleEmployees()" style="padding:6px 8px; background:#8e44ad;">従業員</button>
-                    <button onclick="ui.toggleSettings()" style="padding:6px 8px;">設定</button>
-                    <button onclick="stats.show()" style="padding:6px 8px;">統計</button>
+                <div style="display:flex; flex-wrap:wrap; gap:2px; flex:1;">
+                    <button onclick="ui.toggleMenu()">メニュー</button>
+                    <button onclick="ui.toggleEmployees()" style="background:#8e44ad;">従業員</button>
+                    <button onclick="ui.toggleSettings()">設定</button>
+                    <button onclick="stats.show()">統計</button>
+                    <button onclick="ui.toggleHelp()" style="background:var(--info-color);">説明</button>
                 </div>
-                <div style="display:flex; gap:0;">
-                    <button class="speed-btn active" id="btn-spd-1" onclick="game.setSpeed(1)">x1</button>
-                    <button class="speed-btn" id="btn-spd-2" onclick="game.setSpeed(2)">x2</button>
-                    <button class="speed-btn" id="btn-spd-3" onclick="game.setSpeed(3)">x3</button>
-                </div>
+                <button onclick="ui.toggleMode()" style="font-size:0.7rem; background:#95a5a6; margin-left:5px;">PC/スマホ</button>
             </div>
-            <div class="header-row" style="background:#2c3e50; padding:2px; border-radius:4px; margin-top:3px;">
+            
+            <div class="header-row" style="background:#2c3e50; padding:3px; border-radius:4px; margin-top:3px;">
                 <div style="flex:1; text-align:center; font-size:0.85rem;">
                     <span id="display-time">Day 1 9:00</span>
                 </div>
@@ -193,12 +191,20 @@
                     資産: <span id="display-money">¥15,000,000</span>
                 </div>
             </div>
+
             <div class="header-row" style="font-size:0.75rem; margin-top:2px;">
-                 <span id="display-stars">★★★★★</span>
-                 <span style="margin-left:5px;">累計: <span id="display-earnings">¥0</span></span>
-                 <div style="margin-left:auto; display:flex; align-items:center;">
-                    <span id="ad-buff-display" style="color:var(--success-color); margin-right:5px;">宣伝:+0%</span>
-                    <button onclick="ui.toggleAds()" style="padding:4px 8px; font-size:0.8rem;">宣伝</button>
+                 <div style="flex:1;">
+                     <span id="display-stars">★★★★★</span>
+                     <span style="margin-left:5px;">累計: <span id="display-earnings">¥0</span></span>
+                 </div>
+                 <div style="display:flex; align-items:center; gap:5px;">
+                    <span id="ad-buff-display" style="color:var(--success-color);">宣伝:+0%</span>
+                    <button onclick="ui.toggleAds()" style="padding:2px 6px; font-size:0.75rem;">宣伝</button>
+                    <div style="display:flex; gap:0;">
+                        <button class="speed-btn active" id="btn-spd-1" onclick="game.setSpeed(1)">x1</button>
+                        <button class="speed-btn" id="btn-spd-2" onclick="game.setSpeed(2)">x2</button>
+                        <button class="speed-btn" id="btn-spd-3" onclick="game.setSpeed(3)">x3</button>
+                    </div>
                  </div>
             </div>
         </div>
@@ -208,7 +214,7 @@
                 <div id="seats-container"></div>
             </div>
             <div id="staff-section">
-                <h3>スタッフルーム (4品同時調理可)</h3>
+                <h3>スタッフルーム (4品同時)</h3>
                 <div id="staff-container">
                     </div>
             </div>
@@ -573,7 +579,6 @@ const game = {
     },
 
     processCooking: () => {
-        // 従業員負荷 (4品まで)
         const empLoad = new Array(G.employees.length).fill(0);
         G.seats.forEach(seat => {
             if (seat.occupied && seat.customer.order) {
@@ -585,25 +590,19 @@ const game = {
             }
         });
 
-        // 調理割り当て
         G.seats.forEach(seat => {
             if (seat.occupied && seat.status === 'cooking') {
                 seat.customer.order.forEach(item => {
                     if (item.status === 'pending') {
-                        // 担当可能者リスト
                         const assignedChefs = G.kitchenMap[item.id] || [0];
-                        
-                        // 最も暇なシェフを探す
                         let bestChef = -1;
                         let minLoad = 4; // Max 4
-                        
                         assignedChefs.forEach(cIdx => {
                             if (cIdx < G.employees.length && empLoad[cIdx] < minLoad) {
                                 bestChef = cIdx;
                                 minLoad = empLoad[cIdx];
                             }
                         });
-
                         if (bestChef !== -1) {
                             item.status = 'cooking';
                             item.chefIdx = bestChef;
