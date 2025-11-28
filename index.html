@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="google-site-verification" content="8o8DGhxsn_70QtPiKPjHgnpjYrCLIzxJJaIbV80KA_w" />
-<title>飲食店経営シミュレーション v1.17</title>
+<title>飲食店経営シミュレーション v1.18</title>
 <style>
     :root {
         --bg-color: #2c3e50;
@@ -119,7 +119,7 @@
 
     <div id="screen-home" class="screen active">
         <h1 style="text-align: center; color: var(--warning-color); margin-top: 30px;">🍔 Kitchen Tycoon 🍝</h1>
-        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;">v1.17 Google Verified</p>
+        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;">v1.18 Mode Icon Update</p>
         <div class="home-btn-group">
             <button onclick="game.showSetup()">新しいゲームを開始</button>
             <input type="file" id="save-file-input" style="display:none" onchange="game.loadGameData(this)">
@@ -181,7 +181,7 @@
                     <button onclick="stats.show()">統計</button>
                     <button onclick="ui.toggleHelp()" style="background:var(--info-color);">説明</button>
                 </div>
-                <button onclick="ui.toggleMode()" style="font-size:0.7rem; background:#95a5a6; margin-left:5px;">PC/スマホ</button>
+                <button id="btn-mode-toggle" onclick="ui.toggleMode()" style="font-size:0.8rem; background:#95a5a6; margin-left:5px; min-width:80px;">📱 スマホ</button>
             </div>
             
             <div class="header-row" style="background:#2c3e50; padding:3px; border-radius:4px; margin-top:3px;">
@@ -523,6 +523,7 @@ const game = {
         G.state = 'playing';
         
         game.setSpeed(1);
+        ui.updateModeBtn(); // Initialize button state
 
         ui.renderSeats();
         ui.updateStaffPanel();
@@ -748,7 +749,7 @@ const game = {
     loadGameData: (input) => { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { try { const loaded = JSON.parse(e.target.result); if(loaded.customMenus) { MENUS.fastfood = loaded.customMenus.fastfood; MENUS.restaurant = loaded.customMenus.restaurant; } G = loaded; 
         // 旧データ互換処理
         if(typeof Object.values(G.kitchenMap)[0] === 'number') settings.resetAssignments();
-        document.querySelectorAll('.screen').forEach(e => e.classList.remove('active')); document.getElementById('screen-game').classList.add('active'); game.setSpeed(1); ui.renderSeats(); ui.updateStaffPanel(); ui.updateHeader(); } catch (err) { alert("データ破損"); } }; reader.readAsText(file); },
+        document.querySelectorAll('.screen').forEach(e => e.classList.remove('active')); document.getElementById('screen-game').classList.add('active'); game.setSpeed(1); ui.updateModeBtn(); ui.renderSeats(); ui.updateStaffPanel(); ui.updateHeader(); } catch (err) { alert("データ破損"); } }; reader.readAsText(file); },
     quitGame: () => { if(confirm("本当にやめますか？")) { clearInterval(G.timerId); game.showHome(); ui.closeModal('modal-menu'); } }
 };
 
@@ -982,7 +983,16 @@ const ui = {
     toggleAds: () => { document.getElementById('modal-ads').style.display = 'flex'; game.togglePause(true); ui.updateHeader(); },
     toggleHelp: () => { document.getElementById('modal-help').style.display = 'flex'; ui.switchHelpTab('tab-basic'); game.togglePause(true); },
     switchHelpTab: (tabId) => { document.querySelectorAll('.help-section').forEach(el => el.classList.remove('active')); document.getElementById(tabId).classList.add('active'); const tabs = document.querySelectorAll('.help-tab'); tabs.forEach(t => t.classList.remove('active')); if(tabId === 'tab-basic') tabs[0].classList.add('active'); if(tabId === 'tab-staff') tabs[1].classList.add('active'); if(tabId === 'tab-biz') tabs[2].classList.add('active'); },
-    toggleMode: () => { const c = document.getElementById('game-container'); if (G.mode === 'pc') { c.classList.remove('pc-mode'); G.mode = 'mobile'; } else { c.classList.add('pc-mode'); G.mode = 'pc'; } },
+    toggleMode: () => { 
+        const c = document.getElementById('game-container'); 
+        const btn = document.getElementById('btn-mode-toggle');
+        if (G.mode === 'pc') { c.classList.remove('pc-mode'); G.mode = 'mobile'; btn.innerText = "📱 スマホ"; } 
+        else { c.classList.add('pc-mode'); G.mode = 'pc'; btn.innerText = "💻 PC"; } 
+    },
+    updateModeBtn: () => {
+        const btn = document.getElementById('btn-mode-toggle');
+        if(G.mode === 'pc') btn.innerText = "💻 PC"; else btn.innerText = "📱 スマホ";
+    },
     closeModal: (id) => { document.getElementById(id).style.display = 'none'; game.togglePause(false); }
 };
 
