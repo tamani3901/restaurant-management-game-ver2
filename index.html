@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="google-site-verification" content="8o8DGhxsn_70QtPiKPjHgnpjYrCLIzxJJaIbV80KA_w" />
-<title>飲食店経営シミュレーション v1.18</title>
+<title>飲食店経営シミュレーション v1.19</title>
 <style>
     :root {
         --bg-color: #2c3e50;
@@ -119,7 +119,7 @@
 
     <div id="screen-home" class="screen active">
         <h1 style="text-align: center; color: var(--warning-color); margin-top: 30px;">🍔 Kitchen Tycoon 🍝</h1>
-        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;">v1.18 Mode Icon Update</p>
+        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;">v1.19 BGM Enabled</p>
         <div class="home-btn-group">
             <button onclick="game.showSetup()">新しいゲームを開始</button>
             <input type="file" id="save-file-input" style="display:none" onchange="game.loadGameData(this)">
@@ -181,7 +181,8 @@
                     <button onclick="stats.show()">統計</button>
                     <button onclick="ui.toggleHelp()" style="background:var(--info-color);">説明</button>
                 </div>
-                <button id="btn-mode-toggle" onclick="ui.toggleMode()" style="font-size:0.8rem; background:#95a5a6; margin-left:5px; min-width:80px;">📱 スマホ</button>
+                <button id="btn-audio-toggle" onclick="bgm.toggle()" style="font-size:0.8rem; background:#34495e; color:white; min-width:30px;">♪</button>
+                <button id="btn-mode-toggle" onclick="ui.toggleMode()" style="font-size:0.7rem; background:#95a5a6; margin-left:5px; min-width:80px;">📱 スマホ</button>
             </div>
             
             <div class="header-row" style="background:#2c3e50; padding:3px; border-radius:4px; margin-top:3px;">
@@ -307,7 +308,7 @@
         </div>
 
         <div id="tab-basic" class="help-section active">
-            <h4 style="border-color:white;">🏆 勝利条件と難易度</h4>
+            <h4>🏆 勝利条件と難易度</h4>
             <ul>
                 <li><strong>普通:</strong> 累計利益 500万円でクリア</li>
                 <li><strong>難しい:</strong> 累計利益 1500万円でクリア <br><small style="color:#e74c3c;">※評価★3.5以下で即ゲームオーバー</small></li>
@@ -315,7 +316,7 @@
             </ul>
             <p>※クリア後は<strong>ボーナス200万円</strong>を獲得し、<strong>最大40席</strong>まで拡張可能になります。</p>
 
-            <h4 style="border-color:white;">🎮 遊び方の流れ</h4>
+            <h4>🎮 遊び方の流れ</h4>
             <ol>
                 <li>客が来店 (1〜5品をランダム注文)</li>
                 <li>従業員が調理 (品数が多いと時間がかかる)</li>
@@ -326,7 +327,7 @@
         </div>
 
         <div id="tab-staff" class="help-section">
-            <h4 style="border-color:white;">🧑‍🍳 従業員と割り当て</h4>
+            <h4>🧑‍🍳 従業員と割り当て</h4>
             <p>「従業員」ボタンから、メニューごとに<strong>最大4人まで</strong>担当を割り当てられます。<br>暇な担当者が自動的に調理に入ります。</p>
             <p>従業員は1人につき<strong>同時に4品まで</strong>調理できます。</p>
             <table class="help-table">
@@ -337,7 +338,7 @@
                 <tr><td>ポンコツ</td><td>4万</td><td>0.5倍</td></tr>
             </table>
 
-            <h4 style="border-color:white;">🏗️ 店舗拡張</h4>
+            <h4>🏗️ 店舗拡張</h4>
             <ul>
                 <li><strong>15席へ:</strong> 累計利益10万で解禁</li>
                 <li><strong>20席へ:</strong> 累計利益20万で解禁</li>
@@ -346,7 +347,7 @@
         </div>
 
         <div id="tab-biz" class="help-section">
-            <h4 style="border-color:white;">📢 宣伝効果 (重ねがけOK)</h4>
+            <h4>📢 宣伝効果 (重ねがけOK)</h4>
             <table class="help-table">
                 <tr><th>種類</th><th>費用</th><th>期間</th><th>残存</th></tr>
                 <tr><td>ポスター</td><td>2万</td><td>+15%</td><td>+5% (2日)</td></tr>
@@ -355,7 +356,7 @@
                 <tr><td>TV</td><td>50万</td><td>+25%</td><td>+40% (5日)</td></tr>
             </table>
 
-            <h4 style="border-color:white;">⚠️ 裏仕様・ボーナス</h4>
+            <h4>⚠️ 裏仕様・ボーナス</h4>
             <ul style="font-size:0.85rem;">
                 <li><strong>平日ランチ (11-13時):</strong> 客+10%</li>
                 <li><strong>土日祝 (終日):</strong> 客+20%</li>
@@ -460,6 +461,45 @@ const LOCATIONS = {
     big_city: { max: 10 }, city: { max: 8 }, mid_city: { max: 6 }, small_city: { max: 4 }
 };
 
+/* BGM設定 */
+const bgm = {
+    obj: null,
+    base: "https://raw.githubusercontent.com/tamani3901/ti-tobann/main/",
+    tracks: { weekday: "夕食後のまったりタイム.mp3", weekend: "まんぷく食堂.mp3" },
+    currentType: null,
+    muted: false,
+    play: () => {
+        if(bgm.muted) return;
+        const isWeekend = (G.weekDay >= 5);
+        const type = isWeekend ? 'weekend' : 'weekday';
+        if (!bgm.obj) {
+            bgm.obj = new Audio();
+            bgm.obj.loop = true;
+            bgm.obj.volume = 0.3;
+        }
+        if (bgm.currentType !== type) {
+            bgm.currentType = type;
+            bgm.obj.src = bgm.base + bgm.tracks[type];
+            bgm.obj.play().catch(e => console.log("Audio Error:", e));
+        } else if (bgm.obj.paused) {
+            bgm.obj.play().catch(e => console.log("Audio Error:", e));
+        }
+    },
+    toggle: () => {
+        bgm.muted = !bgm.muted;
+        const btn = document.getElementById('btn-audio-toggle');
+        if(bgm.muted) {
+            if(bgm.obj) bgm.obj.pause();
+            btn.style.opacity = "0.5";
+            btn.innerText = "🔇";
+        } else {
+            btn.style.opacity = "1";
+            btn.innerText = "♪";
+            bgm.play();
+        }
+    }
+};
+
 /* ゲーム状態 */
 let G = {
     mode: 'mobile', state: 'home', type: null, location: null, maxSeats: 0,
@@ -523,7 +563,8 @@ const game = {
         G.state = 'playing';
         
         game.setSpeed(1);
-        ui.updateModeBtn(); // Initialize button state
+        bgm.play(); // Start BGM
+        ui.updateModeBtn(); 
 
         ui.renderSeats();
         ui.updateStaffPanel();
@@ -709,6 +750,7 @@ const game = {
     endDay: () => {
         G.statsHistory.push({ day: G.day, revenue: G.dailyRevenue, assets: G.money, expense: G.dailyExpense });
         G.day++; G.weekDay = (G.weekDay + 1) % 7; G.time = 540; G.dailyRevenue = 0; G.dailyExpense = 0;
+        bgm.play(); // Update BGM type if needed
         
         G.activeAds.forEach(ad => {
             if (ad.daysLeft > 0) { ad.daysLeft--; if (ad.daysLeft === 0) { ad.afterDays = (ad.type === 'poster') ? 2 : (ad.type === 'flyer') ? 1 : (ad.type === 'cm') ? 3 : 5; } } else if (ad.afterDays > 0) { ad.afterDays--; }
@@ -749,7 +791,7 @@ const game = {
     loadGameData: (input) => { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { try { const loaded = JSON.parse(e.target.result); if(loaded.customMenus) { MENUS.fastfood = loaded.customMenus.fastfood; MENUS.restaurant = loaded.customMenus.restaurant; } G = loaded; 
         // 旧データ互換処理
         if(typeof Object.values(G.kitchenMap)[0] === 'number') settings.resetAssignments();
-        document.querySelectorAll('.screen').forEach(e => e.classList.remove('active')); document.getElementById('screen-game').classList.add('active'); game.setSpeed(1); ui.updateModeBtn(); ui.renderSeats(); ui.updateStaffPanel(); ui.updateHeader(); } catch (err) { alert("データ破損"); } }; reader.readAsText(file); },
+        document.querySelectorAll('.screen').forEach(e => e.classList.remove('active')); document.getElementById('screen-game').classList.add('active'); game.setSpeed(1); ui.updateModeBtn(); bgm.play(); ui.renderSeats(); ui.updateStaffPanel(); ui.updateHeader(); } catch (err) { alert("データ破損"); } }; reader.readAsText(file); },
     quitGame: () => { if(confirm("本当にやめますか？")) { clearInterval(G.timerId); game.showHome(); ui.closeModal('modal-menu'); } }
 };
 
