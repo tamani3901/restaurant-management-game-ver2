@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="google-site-verification" content="8o8DGhxsn_70QtPiKPjHgnpjYrCLIzxJJaIbV80KA_w" />
-<title>飲食店経営シミュレーション v1.20</title>
+<title>飲食店経営シミュレーション v1.21</title>
 <style>
     :root {
         --bg-color: #2c3e50;
@@ -119,7 +119,7 @@
 
     <div id="screen-home" class="screen active">
         <h1 style="text-align: center; color: var(--warning-color); margin-top: 30px;">🍔 Kitchen Tycoon 🍝</h1>
-        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;">v1.20 Fixed BGM Link</p>
+        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;">v1.21 BGM Tweaks</p>
         <div class="home-btn-group">
             <button onclick="game.showSetup()">新しいゲームを開始</button>
             <input type="file" id="save-file-input" style="display:none" onchange="game.loadGameData(this)">
@@ -475,7 +475,7 @@ const bgm = {
         if (!bgm.obj) {
             bgm.obj = new Audio();
             bgm.obj.loop = true;
-            bgm.obj.volume = 0.3;
+            bgm.obj.volume = 0.1; // 音量0.1
         }
         if (bgm.currentType !== type) {
             bgm.currentType = type;
@@ -483,6 +483,12 @@ const bgm = {
             bgm.obj.play().catch(e => console.log("Audio Error:", e));
         } else if (bgm.obj.paused) {
             bgm.obj.play().catch(e => console.log("Audio Error:", e));
+        }
+    },
+    stop: () => {
+        if (bgm.obj) {
+            bgm.obj.pause();
+            bgm.obj.currentTime = 0;
         }
     },
     toggle: () => {
@@ -520,6 +526,7 @@ const game = {
     showHome: () => {
         document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
         document.getElementById('screen-home').classList.add('active');
+        bgm.stop(); // ホームに戻ったらBGM停止
         G.state = 'home';
     },
     showSetup: () => {
@@ -563,8 +570,8 @@ const game = {
         G.state = 'playing';
         
         game.setSpeed(1);
-        bgm.play(); // Start BGM
-        ui.updateModeBtn(); 
+        ui.updateModeBtn();
+        bgm.play(); // BGM開始
 
         ui.renderSeats();
         ui.updateStaffPanel();
