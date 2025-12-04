@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="google-site-verification" content="8o8DGhxsn_70QtPiKPjHgnpjYrCLIzxJJaIbV80KA_w" />
-<title>飲食店経営シミュレーション v1.21</title>
+<title>飲食店経営シミュレーション v1.22</title>
 <style>
     :root {
         --bg-color: #2c3e50;
@@ -92,8 +92,8 @@
     /* グラフなど */
     #stats-canvas { background: #fff; width: 100%; height: 250px; margin-bottom: 10px; border-radius: 4px; flex-shrink: 0;}
     
-    .help-tabs { display: flex; border-bottom: 2px solid #7f8c8d; margin-bottom: 10px; flex-shrink: 0; }
-    .help-tab { flex: 1; padding: 10px 5px; font-size: 0.85rem; cursor: pointer; background: #2c3e50; border: 1px solid #7f8c8d; border-bottom: none; color: #95a5a6; }
+    .help-tabs { display: flex; border-bottom: 2px solid #7f8c8d; margin-bottom: 10px; flex-shrink: 0; overflow-x: auto;}
+    .help-tab { flex: 1; padding: 10px 5px; font-size: 0.85rem; cursor: pointer; background: #2c3e50; border: 1px solid #7f8c8d; border-bottom: none; color: #95a5a6; white-space: nowrap; }
     .help-tab.active { background: var(--panel-color); color: #fff; font-weight: bold; border-top: 3px solid var(--warning-color); }
     .help-section { display: none; text-align: left; overflow-y: auto; padding: 5px; flex: 1; }
     .help-section.active { display: block; }
@@ -119,7 +119,7 @@
 
     <div id="screen-home" class="screen active">
         <h1 style="text-align: center; color: var(--warning-color); margin-top: 30px;">🍔 Kitchen Tycoon 🍝</h1>
-        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;">v1.21 BGM Tweaks</p>
+        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;">v1.22 Guide & Salary Update</p>
         <div class="home-btn-group">
             <button onclick="game.showSetup()">新しいゲームを開始</button>
             <input type="file" id="save-file-input" style="display:none" onchange="game.loadGameData(this)">
@@ -302,48 +302,46 @@
         <h2 style="text-align:center; margin-top:0;">📖 ゲーム説明書</h2>
         
         <div class="help-tabs">
-            <div class="help-tab active" onclick="ui.switchHelpTab('tab-basic')">基本・ルール</div>
-            <div class="help-tab" onclick="ui.switchHelpTab('tab-staff')">従業員・設備</div>
-            <div class="help-tab" onclick="ui.switchHelpTab('tab-biz')">経営・宣伝</div>
+            <div class="help-tab active" onclick="ui.switchHelpTab('tab-basic')">基本</div>
+            <div class="help-tab" onclick="ui.switchHelpTab('tab-how')">操作方法</div>
+            <div class="help-tab" onclick="ui.switchHelpTab('tab-staff')">従業員</div>
+            <div class="help-tab" onclick="ui.switchHelpTab('tab-biz')">経営</div>
         </div>
 
         <div id="tab-basic" class="help-section active">
             <h4>🏆 勝利条件と難易度</h4>
             <ul>
-                <li><strong>普通:</strong> 累計利益 500万円でクリア</li>
-                <li><strong>難しい:</strong> 累計利益 1500万円でクリア <br><small style="color:#e74c3c;">※評価★3.5以下で即ゲームオーバー</small></li>
+                <li><strong>普通:</strong> 利益 500万円でクリア</li>
+                <li><strong>難しい:</strong> 利益 1500万円 (評価★3.5以下即死)</li>
                 <li><strong>簡単:</strong> 条件なし (評価2.5以下にならない)</li>
             </ul>
             <p>※クリア後は<strong>ボーナス200万円</strong>を獲得し、<strong>最大40席</strong>まで拡張可能になります。</p>
+            <p style="color:#e74c3c;">※資産がマイナスになると破産（ゲームオーバー）です。</p>
+        </div>
 
+        <div id="tab-how" class="help-section">
             <h4>🎮 遊び方の流れ</h4>
             <ol>
-                <li>客が来店 (1〜5品をランダム注文)</li>
-                <li>従業員が調理 (品数が多いと時間がかかる)</li>
-                <li>食事が終わると自動で会計</li>
-                <li><strong>22:00</strong>で閉店 (店内の客が帰るまで残業)</li>
-                <li>※閉店時、<strong>調理中・注文待ちの客は強制退去</strong>になります。</li>
+                <li><strong>開店準備:</strong> メニューと場所を選んでスタート。</li>
+                <li><strong>担当割り当て:</strong> ヘッダーの<span style="background:#8e44ad;padding:2px;border-radius:3px;">従業員</span>ボタンから、誰がどの料理を作るか決めます（重要！）。</li>
+                <li><strong>営業開始:</strong> 客が来店し注文します。割り当てられた従業員が自動で調理します。</li>
+                <li><strong>会計:</strong> 食べ終わると自動で売上が入ります。</li>
+                <li><strong>22:00 閉店:</strong> 新規来店ストップ。店内の客が全員帰るまで営業は続きます。</li>
             </ol>
+            <p>※調理が始まらない時は、担当割り当てを確認するか、従業員の手が空くのを待ってください。</p>
         </div>
 
         <div id="tab-staff" class="help-section">
-            <h4>🧑‍🍳 従業員と割り当て</h4>
-            <p>「従業員」ボタンから、メニューごとに<strong>最大4人まで</strong>担当を割り当てられます。<br>暇な担当者が自動的に調理に入ります。</p>
-            <p>従業員は1人につき<strong>同時に4品まで</strong>調理できます。</p>
+            <h4>🧑‍🍳 従業員のコスト</h4>
+            <p>雇う時の「契約金」に加え、<strong>10日ごとに「維持費（給料）」</strong>が発生します。</p>
             <table class="help-table">
-                <tr><th>ランク</th><th>費用</th><th>速度</th></tr>
-                <tr><td>マスター</td><td>20万</td><td>2.5倍</td></tr>
-                <tr><td>ベテラン</td><td>12万</td><td>1.6倍</td></tr>
-                <tr><td>標準</td><td>8万</td><td>1.0倍</td></tr>
-                <tr><td>ポンコツ</td><td>4万</td><td>0.5倍</td></tr>
+                <tr><th>ランク</th><th>契約金</th><th>維持費(10日毎)</th><th>速度</th></tr>
+                <tr><td>マスター</td><td>20万</td><td>25万</td><td>2.5倍</td></tr>
+                <tr><td>ベテラン</td><td>12万</td><td>20万</td><td>1.6倍</td></tr>
+                <tr><td>標準</td><td>8万</td><td>15万</td><td>1.0倍</td></tr>
+                <tr><td>ポンコツ</td><td>4万</td><td>10万</td><td>0.5倍</td></tr>
             </table>
-
-            <h4>🏗️ 店舗拡張</h4>
-            <ul>
-                <li><strong>15席へ:</strong> 累計利益10万で解禁</li>
-                <li><strong>20席へ:</strong> 累計利益20万で解禁</li>
-                <li><strong>40席まで:</strong> クリア後、5席単位で増減可能</li>
-            </ul>
+            <p>従業員は1人につき<strong>同時に4品</strong>まで調理可能です。</p>
         </div>
 
         <div id="tab-biz" class="help-section">
@@ -356,14 +354,13 @@
                 <tr><td>TV</td><td>50万</td><td>+25%</td><td>+40% (5日)</td></tr>
             </table>
 
-            <h4>⚠️ 裏仕様・ボーナス</h4>
+            <h4>⚠️ 裏仕様・固定費</h4>
             <ul style="font-size:0.85rem;">
                 <li><strong>平日ランチ (11-13時):</strong> 客+10%</li>
                 <li><strong>土日祝 (終日):</strong> 客+20%</li>
                 <li><strong>土日ランチ:</strong> 客+30%</li>
                 <li><strong>ゴミ箱設置:</strong> 満足度+5 (固定)</li>
                 <li><strong>家賃:</strong> 10日ごとに100万円</li>
-                <li><strong>支援金:</strong> 資産200万以下で500万 (1回のみ)</li>
             </ul>
         </div>
 
@@ -451,10 +448,10 @@ const MENUS = {
 };
 
 const EMPLOYEES = {
-    master: { name: 'マスター', speed: 2.5, cost: 200000, wait: 4, power: 4 }, 
-    veteran: { name: 'ベテラン', speed: 1.6, cost: 120000, wait: 6.25, power: 3 },
-    standard: { name: '標準', speed: 1.0, cost: 80000, wait: 10, power: 2 },
-    ponkotsu: { name: 'ポンコツ', speed: 0.5, cost: 40000, wait: 20, power: 1 }
+    master: { name: 'マスター', speed: 2.5, cost: 200000, maintain: 250000, wait: 4, power: 4 }, 
+    veteran: { name: 'ベテラン', speed: 1.6, cost: 120000, maintain: 200000, wait: 6.25, power: 3 },
+    standard: { name: '標準', speed: 1.0, cost: 80000, maintain: 150000, wait: 10, power: 2 },
+    ponkotsu: { name: 'ポンコツ', speed: 0.5, cost: 40000, maintain: 100000, wait: 20, power: 1 }
 };
 
 const LOCATIONS = {
@@ -475,7 +472,7 @@ const bgm = {
         if (!bgm.obj) {
             bgm.obj = new Audio();
             bgm.obj.loop = true;
-            bgm.obj.volume = 0.1; // 音量0.1
+            bgm.obj.volume = 0.1; 
         }
         if (bgm.currentType !== type) {
             bgm.currentType = type;
@@ -757,14 +754,24 @@ const game = {
     endDay: () => {
         G.statsHistory.push({ day: G.day, revenue: G.dailyRevenue, assets: G.money, expense: G.dailyExpense });
         G.day++; G.weekDay = (G.weekDay + 1) % 7; G.time = 540; G.dailyRevenue = 0; G.dailyExpense = 0;
-        bgm.play(); // Update BGM type if needed
+        bgm.play(); 
         
         G.activeAds.forEach(ad => {
             if (ad.daysLeft > 0) { ad.daysLeft--; if (ad.daysLeft === 0) { ad.afterDays = (ad.type === 'poster') ? 2 : (ad.type === 'flyer') ? 1 : (ad.type === 'cm') ? 3 : 5; } } else if (ad.afterDays > 0) { ad.afterDays--; }
         });
         G.activeAds = G.activeAds.filter(ad => ad.daysLeft > 0 || ad.afterDays > 0);
 
-        if (G.day % 10 === 0) { G.money -= 1000000; G.dailyExpense += 1000000; alert('家賃と光熱費 100万円を支払いました。'); }
+        if (G.day % 10 === 0) { 
+            // 従業員の維持費計算
+            let empCost = 0;
+            G.employees.forEach(key => { empCost += EMPLOYEES[key].maintain; });
+            const rent = 1000000;
+            const totalFixed = rent + empCost;
+            G.money -= totalFixed; 
+            G.dailyExpense += totalFixed; 
+            alert(`10日ごとの支払い日です。\n家賃: 100万\n人件費: ${empCost.toLocaleString()}\n合計: ${totalFixed.toLocaleString()}円支払いました。`); 
+        }
+
         if (G.money < 2000000 && !G.bailoutUsed) { G.money += 5000000; G.bailoutUsed = true; alert('経営危機のため支援金500万円を受け取りました。'); }
 
         game.checkWinLose();
@@ -796,7 +803,6 @@ const game = {
     togglePause: (forceState) => { if (forceState !== undefined) { if (forceState) clearInterval(G.timerId); else G.timerId = setInterval(game.loop, 1000 / G.speed); } else { if (G.timerId) { clearInterval(G.timerId); G.timerId = null; } else G.timerId = setInterval(game.loop, 1000 / G.speed); } },
     saveGame: () => { const json = JSON.stringify(G); const blob = new Blob([json], {type: "application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = "kitchen_tycoon_save.json"; a.click(); },
     loadGameData: (input) => { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { try { const loaded = JSON.parse(e.target.result); if(loaded.customMenus) { MENUS.fastfood = loaded.customMenus.fastfood; MENUS.restaurant = loaded.customMenus.restaurant; } G = loaded; 
-        // 旧データ互換処理
         if(typeof Object.values(G.kitchenMap)[0] === 'number') settings.resetAssignments();
         document.querySelectorAll('.screen').forEach(e => e.classList.remove('active')); document.getElementById('screen-game').classList.add('active'); game.setSpeed(1); ui.updateModeBtn(); bgm.play(); ui.renderSeats(); ui.updateStaffPanel(); ui.updateHeader(); } catch (err) { alert("データ破損"); } }; reader.readAsText(file); },
     quitGame: () => { if(confirm("本当にやめますか？")) { clearInterval(G.timerId); game.showHome(); ui.closeModal('modal-menu'); } }
@@ -1031,8 +1037,16 @@ const ui = {
     toggleEmployees: () => { document.getElementById('modal-employees').style.display = 'flex'; game.togglePause(true); settings.renderEmployeeList(); settings.switchAssignTab('assign-main'); },
     toggleAds: () => { document.getElementById('modal-ads').style.display = 'flex'; game.togglePause(true); ui.updateHeader(); },
     toggleHelp: () => { document.getElementById('modal-help').style.display = 'flex'; ui.switchHelpTab('tab-basic'); game.togglePause(true); },
-    switchHelpTab: (tabId) => { document.querySelectorAll('.help-section').forEach(el => el.classList.remove('active')); document.getElementById(tabId).classList.add('active'); const tabs = document.querySelectorAll('.help-tab'); tabs.forEach(t => t.classList.remove('active')); if(tabId === 'tab-basic') tabs[0].classList.add('active'); if(tabId === 'tab-staff') tabs[1].classList.add('active'); if(tabId === 'tab-biz') tabs[2].classList.add('active'); },
-    
+    switchHelpTab: (tabId) => {
+        document.querySelectorAll('.help-section').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        const tabs = document.querySelectorAll('.help-tab');
+        tabs.forEach(t => t.classList.remove('active'));
+        if(tabId === 'tab-basic') tabs[0].classList.add('active');
+        if(tabId === 'tab-how') tabs[1].classList.add('active');
+        if(tabId === 'tab-staff') tabs[2].classList.add('active');
+        if(tabId === 'tab-biz') tabs[3].classList.add('active');
+    },
     toggleMode: () => { 
         const c = document.getElementById('game-container'); 
         if (G.mode === 'pc') { c.classList.remove('pc-mode'); G.mode = 'mobile'; } 
