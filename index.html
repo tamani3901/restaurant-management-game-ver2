@@ -129,6 +129,7 @@
                 <button style="background:#8e44ad; width:80%;" id="btn-home-cheat">チートエディションへ</button>
             </a>
         </div>
+        <button id="btn-lang-toggle-home" onclick="ui.toggleLanguage()" style="font-size:0.8rem; background:#34495e; color:white; position:absolute; top:10px; right:10px;">EN</button>
     </div>
 
     <div id="screen-setup" class="screen">
@@ -175,7 +176,7 @@
         <div id="ui-header">
             <div class="header-row">
                 <div style="display:flex; flex-wrap:wrap; gap:2px; flex:1;">
-                    <button id="btn-lang-toggle" onclick="ui.toggleLanguage()" style="font-size:0.8rem; background:#34495e; color:white; min-width:30px;">EN</button>
+                    <button id="btn-lang-toggle" onclick="ui.toggleLanguage()" style="display:none; font-size:0.8rem; background:#34495e; color:white; min-width:30px;">EN</button>
                     <button id="btn-menu" onclick="ui.toggleMenu()">メニュー</button>
                     <button id="btn-employees" onclick="ui.toggleEmployees()" style="background:#8e44ad;">従業員</button>
                     <button id="btn-settings" onclick="ui.toggleSettings()">設定</button>
@@ -336,10 +337,10 @@
             <table class="help-table">
                 <thead><tr><th><span id="help-staff-t1">ランク</span></th><th><span id="help-staff-t2">契約金</span></th><th><span id="help-staff-t3">維持費(10日毎)</span></th><th><span id="help-staff-t4">速度</span></th></tr></thead>
                 <tbody>
-                    <tr><td>マスター</td><td id="help-staff-m1">20万</td><td id="help-staff-m2">25万</td><td id="help-staff-m3">2.5倍</td></tr>
-                    <tr><td>ベテラン</td><td id="help-staff-v1">12万</td><td id="help-staff-v2">20万</td><td id="help-staff-v3">1.6倍</td></tr>
-                    <tr><td>標準</td><td id="help-staff-s1">8万</td><td id="help-staff-s2">15万</td><td id="help-staff-s3">1.0倍</td></tr>
-                    <tr><td>ポンコツ</td><td id="help-staff-p1t">4万</td><td id="help-staff-p2">10万</td><td id="help-staff-p3">0.5倍</td></tr>
+                    <tr><td><span id="help-staff-master-name">マスター</span></td><td id="help-staff-m1">20万</td><td id="help-staff-m2">25万</td><td id="help-staff-m3">2.5倍</td></tr>
+                    <tr><td><span id="help-staff-veteran-name">ベテラン</span></td><td id="help-staff-v1">12万</td><td id="help-staff-v2">20万</td><td id="help-staff-v3">1.6倍</td></tr>
+                    <tr><td><span id="help-staff-standard-name">標準</span></td><td id="help-staff-s1">8万</td><td id="help-staff-s2">15万</td><td id="help-staff-s3">1.0倍</td></tr>
+                    <tr><td><span id="help-staff-rookie-name">ポンコツ</span></td><td id="help-staff-p1t">4万</td><td id="help-staff-p2">10万</td><td id="help-staff-p3">0.5倍</td></tr>
                 </tbody>
             </table>
             <p id="help-staff-p2">従業員は1人につき**同時に4品**まで調理可能です。</p>
@@ -440,7 +441,7 @@ const MENUS = {
         {id:'set_burger',name_ja:'バーガーセット',name_en:'Burger Set',price:700,cat:'main'}, {id:'set_potato',name_ja:'ポテトセット',name_en:'Potato Set',price:600,cat:'side'},
         {id:'pot_s',name_ja:'ポテトS',name_en:'Fries S',price:200,cat:'side'}, {id:'pot_m',name_ja:'ポテトM',name_en:'Fries M',price:300,cat:'side'}, {id:'pot_l',name_ja:'ポテトL',name_en:'Fries L',price:450,cat:'side'}, {id:'nugget',name_ja:'ナゲット',name_en:'Nuggets',price:300,cat:'side'},
         {id:'shake_v',name_ja:'バニラシェイク',name_en:'Vanilla Shake',price:300,cat:'drink'}, {id:'shake_s',name_ja:'いちごシェイク',name_en:'Strawberry Shake',price:300,cat:'drink'},
-        {id:'j_org',name_ja:'オレンジ',name_en:'Orange Juice',price:300,cat:'drink'}, {id:'j_apl',name_ja:'リンゴ',name_en:'Apple Juice',price:300,cat:'drink'}, {id:'j_col',name:'コーラ',name_en:'Coke',price:300,cat:'drink'}, {id:'j_mel',name_ja:'メロンソーダ',name_en:'Melon Soda',price:300,cat:'drink'}
+        {id:'j_org',name_ja:'オレンジ',name_en:'Orange Juice',price:300,cat:'drink'}, {id:'j_apl',name_ja:'リンゴ',name_en:'Apple Juice',price:300,cat:'drink'}, {id:'j_col',name_ja:'コーラ',name_en:'Coke',price:300,cat:'drink'}, {id:'j_mel',name_ja:'メロンソーダ',name_en:'Melon Soda',price:300,cat:'drink'}
     ],
     restaurant: [
         {id:'p_mar',name_ja:'マルゲリータ',name_en:'Margherita Pizza',price:1200,cat:'main'}, {id:'p_chs',name_ja:'チーズピザ',name_en:'Cheese Pizza',price:1200,cat:'main'},
@@ -514,15 +515,18 @@ const L = {
         alert_win: "🎉 クリア条件達成！ 🎉\nボーナス200万円を獲得！\n上限40席まで拡張可能になりました！",
         alert_game_over: (msg) => `GAME OVER\n${msg}`,
         alert_game_over_broke: "破産しました...", alert_game_over_reputation: "評価が低すぎます...",
+        alert_bailout: "資産が少なくなりましたので、支援金500万円が振り込まれました。",
         // 統計
         stats_title: "📊 経営統計",
         stats_today_rev: "本日の売上", stats_today_exp: "本日の出費",
         stats_data_short: "データ不足 (2日目以降)", graph_rev: "売上", graph_asset: "総資産",
         // 宣伝
         ads_title: "宣伝活動", ads_status: (b) => `現在効果: ${b}%`, ads_label: "宣伝",
-        ads_poster: "ポスター\n(2万)", ads_flyer: "チラシ\n(5万)", ads_cm: "CM\n(20万)", ads_tv: "TV番組\n(50万)",
+        ads_poster: "ポスター<br>(2万)", ads_flyer: "チラシ<br>(5万)", ads_cm: "CM<br>(20万)", ads_tv: "TV番組<br>(50万)",
         // プレイ中のメッセージ
-        play_open: "本日も開店です！", play_order: (n) => `席${n}: 注文待ち`, play_order_ok: (n) => `席${n}: ${n}品注文`, play_payment: (p) => `会計: ¥${p.toLocaleString()}`,
+        play_open: "本日も開店です！", play_order: (n) => `席${n}: 注文待ち`, play_order_ok: (n, count) => `席${n}: ${count}品注文`, play_payment: (p) => `会計: ¥${p.toLocaleString()}`,
+        // ヘルプテキスト（従業員名）
+        help_staff_master_name: EMPLOYEES.master.name_ja, help_staff_veteran_name: EMPLOYEES.veteran.name_ja, help_staff_standard_name: EMPLOYEES.standard.name_ja, help_staff_rookie_name: EMPLOYEES.ponkotsu.name_ja,
     },
     en: {
         // Time Display
@@ -533,7 +537,7 @@ const L = {
         mode_pc: "💻 PC", mode_mobile: "📱 Mobile", ad_buff: (b) => `Ad Buff: +${b}%`,
         // Home Screen
         title: "🍔 Kitchen Tycoon 🍝", title_ver: "v1.25 Language Support",
-        home_start: "New Game", home_load: "Load Save Data", home_help: "Manual (How to Play)",
+        home_start: "New Game", home_load: "Load Save Data", home_help: "Manual (How to Play & Specs)",
         home_cheat: "To Cheat Edition",
         // Setup
         setup_title: "New Store Setup", type: "Store Type", location: "Location",
@@ -566,20 +570,23 @@ const L = {
         alert_menu_count: "Please select exactly 5 items.", alert_menu_update: "Menu updated.",
         alert_ad_start: "Advertising started.", alert_expand_fail: "Insufficient earnings.", alert_expand_done: (s) => `Expansion complete! ${s} seats.`,
         alert_trash: "Trash bin installed!", alert_clean: "Cleaning complete!", alert_end_day: (r) => `Day finished. Revenue: ¥${r.toLocaleString()}`,
-        alert_fixed_cost: (rent, emp) => `10-day payment due.\nRent: ¥${rent.toLocaleString()}\nLabor Cost: ¥${emp.toLocaleString()} paid.`,
+        alert_fixed_cost: (rent, emp) => `10-day payment due.\nRent: ¥${rent.toLocaleString()}\nLabor Cost: ¥${emp.toLocaleString()}\nTotal: ¥${(rent+emp).toLocaleString()} paid.`,
         alert_kicked: (n) => `Closing time. Refused ${n} groups.`,
         alert_win: "🎉 Clear Condition Achieved! 🎉\nReceived ¥2,000,000 Bonus!\nMax capacity expanded to 40 seats!",
         alert_game_over: (msg) => `GAME OVER\n${msg}`,
         alert_game_over_broke: "Went bankrupt...", alert_game_over_reputation: "Reputation is too low...",
+        alert_bailout: "Assets low. Received ¥5,000,000 in aid.",
         // Stats
         stats_title: "📊 Business Stats",
         stats_today_rev: "Today's Revenue", stats_today_exp: "Today's Expense",
         stats_data_short: "Insufficient data (Day 2 onwards)", graph_rev: "Revenue", graph_asset: "Assets",
         // Ads
         ads_title: "Advertising Campaign", ads_status: (b) => `Current Buff: ${b}%`, ads_label: "Ad",
-        ads_poster: "Poster\n(¥20k)", ads_flyer: "Flyer\n(¥50k)", ads_cm: "CM\n(¥200k)", ads_tv: "TV Show\n(¥500k)",
+        ads_poster: "Poster<br>(¥20k)", ads_flyer: "Flyer<br>(¥50k)", ads_cm: "CM<br>(¥200k)", ads_tv: "TV Show<br>(¥500k)",
         // In-game messages
-        play_open: "The store is open!", play_order: (n) => `Seat ${n}: Waiting for order`, play_order_ok: (n) => `Seat ${n}: ${n} items ordered`, play_payment: (p) => `Payment: ¥${p.toLocaleString()}`,
+        play_open: "The store is open!", play_order: (n) => `Seat ${n}: Waiting for order`, play_order_ok: (n, count) => `Seat ${n}: ${count} items ordered`, play_payment: (p) => `Payment: ¥${p.toLocaleString()}`,
+        // ヘルプテキスト（従業員名）
+        help_staff_master_name: EMPLOYEES.master.name_en, help_staff_veteran_name: EMPLOYEES.veteran.name_en, help_staff_standard_name: EMPLOYEES.standard.name_en, help_staff_rookie_name: EMPLOYEES.ponkotsu.name_en,
     }
 };
 
@@ -663,10 +670,10 @@ const game = {
     showSetup: () => {
         document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
         document.getElementById('screen-setup').classList.add('active');
-        setup.updateMenuOptions();
-        setup.updateSizeOptions();
         G.state = 'setup';
         ui.localizeUI(); // セットアップ画面表示時にローカライズ
+        setup.updateMenuOptions();
+        setup.updateSizeOptions();
     },
     startGame: () => {
         const selectedMenu = Array.from(document.querySelectorAll('.item-select.selected')).map(e => e.dataset.id);
@@ -906,17 +913,17 @@ const game = {
             const totalFixed = rent + empCost;
             G.money -= totalFixed; 
             G.dailyExpense += totalFixed; 
-            alert(L[G.language].alert_fixed_cost(rent, empCost)); 
+            game.alert('alert_fixed_cost', rent, empCost);
         }
 
-        if (G.money < 2000000 && !G.bailoutUsed) { G.money += 5000000; G.bailoutUsed = true; alert(L[G.language].alert_bailout); }
+        if (G.money < 2000000 && !G.bailoutUsed) { G.money += 5000000; G.bailoutUsed = true; game.alert('alert_bailout'); }
 
         game.checkWinLose();
         clearInterval(G.timerId);
         
         const lastRevenue = G.statsHistory[G.statsHistory.length-1].revenue;
         if(G.showResultPopup) {
-            alert(L[G.language].alert_end_day(lastRevenue));
+            game.alert('alert_end_day', lastRevenue);
         } else {
             game.ticker(L[G.language].alert_end_day(lastRevenue));
         }
@@ -936,7 +943,7 @@ const game = {
             else if (G.difficulty === 'normal') { if (G.totalEarnings >= 5000000) clear = true; }
             if (clear) {
                 G.isCleared = true; G.money += 2000000;
-                alert(L[G.language].alert_win);
+                game.alert('alert_win');
                 ui.updateHeader();
             }
         }
@@ -965,7 +972,20 @@ const setup = {
         MENUS[type].forEach(item => { 
             const nameKey = `name_${G.language}`;
             const name = item[nameKey] || item.name_ja; // 翻訳がない場合は日本語
-            const div = document.createElement('div'); div.className = 'item-select'; div.innerText = `${name} (${item.price})`; div.style.cssText = "background:#2980b9;padding:8px;border-radius:4px;font-size:0.8rem;cursor:pointer;text-align:center;width:30%;"; div.dataset.id = item.id; div.onclick = () => { if (div.classList.contains('selected')) { div.classList.remove('selected'); div.style.background = '#2980b9'; } else if (document.querySelectorAll('.item-select.selected').length < 5) { div.classList.add('selected'); div.style.background = '#2ecc71'; } else { game.alert('alert_menu_count'); } }; 
+            const div = document.createElement('div'); 
+            div.className = 'item-select'; 
+            div.innerText = `${name} (${item.price})`; 
+            div.style.cssText = "background:#2980b9;padding:8px;border-radius:4px;font-size:0.8rem;cursor:pointer;text-align:center;width:30%;"; 
+            div.dataset.id = item.id; 
+            div.onclick = () => { 
+                if (div.classList.contains('selected')) { 
+                    div.classList.remove('selected'); div.style.background = '#2980b9'; 
+                } else if (document.querySelectorAll('.item-select.selected').length < 5) { 
+                    div.classList.add('selected'); div.style.background = '#2ecc71'; 
+                } else { 
+                    game.alert('alert_menu_count'); 
+                } 
+            }; 
             list.appendChild(div); 
             // 選択済みのメニューを再選択
             if (G.menu && G.menu.includes(item.id)) { div.classList.add('selected'); div.style.background = '#2ecc71'; }
@@ -1155,24 +1175,17 @@ const ui = {
     toggleLanguage: () => {
         G.language = (G.language === 'ja') ? 'en' : 'ja';
         ui.localizeUI();
+        // モーダルが開いている場合、その内容も更新
+        if (document.getElementById('modal-employees').style.display === 'flex') settings.switchAssignTab('assign-main');
+        if (document.getElementById('menu-edit-area').style.display === 'block') settings.renderMenuEditList();
     },
 
     localizeUI: () => {
         const lang = G.language;
         const L_data = L[lang];
         
-        // 1. ヘッダーボタン
-        document.getElementById('btn-lang-toggle').innerText = lang === 'ja' ? 'EN' : 'JP';
-        document.getElementById('btn-menu').innerText = L_data.menu;
-        document.getElementById('btn-employees').innerText = L_data.employees;
-        document.getElementById('btn-settings').innerText = L_data.settings;
-        document.getElementById('btn-stats').innerText = L_data.stats;
-        document.getElementById('btn-help').innerText = L_data.help;
-        document.getElementById('btn-ad-toggle').innerText = L_data.ad_btn;
-        ui.updateModeBtn();
-        game.setSpeed(G.speed); // スピードボタンのテキスト更新
-        
-        // 2. ホーム画面
+        // --- 1. ホーム画面 ---
+        document.getElementById('btn-lang-toggle-home').innerText = lang === 'ja' ? 'EN' : 'JP';
         document.getElementById('home-title').innerText = L_data.title;
         document.getElementById('home-version').innerText = L_data.title_ver;
         document.getElementById('btn-home-start').innerText = L_data.home_start;
@@ -1180,7 +1193,7 @@ const ui = {
         document.getElementById('btn-home-help').innerText = L_data.home_help;
         document.getElementById('btn-home-cheat').innerText = L_data.home_cheat;
 
-        // 3. セットアップ画面
+        // --- 2. セットアップ画面 ---
         document.getElementById('setup-title').innerText = L_data.setup_title;
         document.getElementById('label-type').innerText = L_data.type + ':';
         document.getElementById('label-location').innerText = L_data.location + ':';
@@ -1196,15 +1209,26 @@ const ui = {
         document.getElementById('label-menu-select').innerText = L_data.menu_select;
         document.getElementById('btn-setup-start').innerText = L_data.setup_start;
         document.getElementById('btn-setup-back').innerText = L_data.setup_back;
-        setup.updateMenuOptions();
-        
-        // 4. メインゲームUI
+        setup.updateMenuOptions(); // メニュー選択肢のテキストを更新
+
+        // --- 3. メインゲームUI (ヘッダー) ---
+        // document.getElementById('btn-lang-toggle').innerText = lang === 'ja' ? 'EN' : 'JP'; // ゲーム中のボタンは非表示
+        document.getElementById('btn-menu').innerText = L_data.menu;
+        document.getElementById('btn-employees').innerText = L_data.employees;
+        document.getElementById('btn-settings').innerText = L_data.settings;
+        document.getElementById('btn-stats').innerText = L_data.stats;
+        document.getElementById('btn-help').innerText = L_data.help;
+        document.getElementById('btn-ad-toggle').innerText = L_data.ad_btn;
+        ui.updateModeBtn();
+        game.setSpeed(G.speed); // スピードボタンのテキスト更新
         ui.updateHeader();
+        
+        // --- 4. メインゲームUI (メイン) ---
         document.getElementById('staff-section-title').innerText = L_data.staff_room(4);
-        ui.renderSeats(); 
+        ui.renderSeats(); // 席のステータス表示を更新
         ui.updateStaffPanel();
 
-        // 5. モーダル（従業員）
+        // --- 5. モーダル（従業員・担当） ---
         document.getElementById('emp-modal-title').innerText = L_data.emp_title;
         document.getElementById('emp-modal-hire-title').innerText = L_data.emp_hire;
         document.getElementById('emp-modal-assign-title').innerText = L_data.emp_assign;
@@ -1218,22 +1242,22 @@ const ui = {
         document.getElementById('btn-emp-close').innerText = L_data.close;
         settings.renderEmployeeList();
         
-        // 6. モーダル（統計）
+        // --- 6. モーダル（統計） ---
         document.getElementById('stats-modal-title').innerText = L_data.stats_title;
         document.getElementById('btn-graph-rev').innerText = L_data.graph_rev;
         document.getElementById('btn-graph-asset').innerText = L_data.graph_asset;
         document.getElementById('btn-stats-close').innerText = L_data.close;
         
-        // 7. モーダル（メニュー）
+        // --- 7. モーダル（メニュー） ---
         document.getElementById('menu-modal-title').innerText = L_data.modal_menu_title;
         document.getElementById('btn-menu-back').innerText = L_data.close;
         document.getElementById('btn-menu-pause').innerText = L_data.menu_pause;
         document.getElementById('btn-menu-save').innerText = L_data.menu_save;
         document.getElementById('btn-menu-quit').innerText = L_data.menu_quit;
         
-        // 8. モーダル（設定）
+        // --- 8. モーダル（設定） ---
         document.getElementById('settings-modal-title').innerText = L_data.settings_title;
-        document.getElementById('settings-popup-h4').innerText = L_data.popup_setting(true).split(':')[0];
+        document.getElementById('settings-popup-h4').innerText = L_data.popup_setting(true).split(':')[0] + '📢'; // アイコン再設定
         document.getElementById('btn-toggle-popup').innerText = L_data.popup_setting(G.showResultPopup);
         document.getElementById('settings-expand-h4').innerText = L_data.expand_title;
         document.getElementById('btn-expand-15').innerText = L_data.expand_normal_15;
@@ -1246,19 +1270,75 @@ const ui = {
         document.getElementById('btn-buy-clean').innerText = L_data.buy_clean;
         document.getElementById('btn-settings-close').innerText = L_data.close;
         
-        // 9. モーダル（宣伝）
+        // --- 9. モーダル（宣伝） ---
         document.getElementById('ads-modal-title').innerText = L_data.ads_title;
-        document.getElementById('ad-status-label').innerText = L_data.ads_status(0).split(':')[0];
+        document.getElementById('ad-status-label').innerText = L_data.ads_status(0).split(':')[0] + ':';
         document.getElementById('btn-ad-poster').innerHTML = L_data.ads_poster;
         document.getElementById('btn-ad-flyer').innerHTML = L_data.ads_flyer;
         document.getElementById('btn-ad-cm').innerHTML = L_data.ads_cm;
         document.getElementById('btn-ad-tv').innerHTML = L_data.ads_tv;
         document.getElementById('btn-ads-close').innerText = L_data.close;
 
-        // 10. モーダル（説明書）
+        // --- 10. モーダル（説明書） ---
         document.getElementById('help-modal-title').innerText = L_data.help_modal_title || '📖 ゲーム説明書';
         document.getElementById('btn-help-close').innerText = L_data.close;
-        // 説明書の本文も更新が必要 (ここでは簡略化のため省略)
+        
+        // ヘルプ内のテキストも更新
+        document.getElementById('help-basic-h4').innerText = '🏆 ' + L_data.help_basic_h4;
+        document.getElementById('help-how-h4').innerText = '🎮 ' + L_data.help_how_h4;
+        document.getElementById('help-staff-h4').innerText = '🧑‍🍳 ' + L_data.help_staff_h4;
+        document.getElementById('help-biz-h4').innerText = '📢 ' + L_data.help_biz_h4;
+        document.getElementById('help-biz-h4-2').innerText = '⚠️ ' + L_data.help_biz_h4_2;
+        
+        // スタッフ表の名前更新
+        document.getElementById('help-staff-t1').innerText = L_data.help_staff_t1;
+        document.getElementById('help-staff-t2').innerText = L_data.help_staff_t2;
+        document.getElementById('help-staff-t3').innerText = L_data.help_staff_t3;
+        document.getElementById('help-staff-t4').innerText = L_data.help_staff_t4;
+        document.getElementById('help-staff-master-name').innerText = L_data.help_staff_master_name;
+        document.getElementById('help-staff-veteran-name').innerText = L_data.help_staff_veteran_name;
+        document.getElementById('help-staff-standard-name').innerText = L_data.help_staff_standard_name;
+        document.getElementById('help-staff-rookie-name').innerText = L_data.help_staff_rookie_name;
+
+        // 宣伝表のヘッダー更新
+        document.getElementById('help-biz-t1').innerText = L_data.help_biz_t1;
+        document.getElementById('help-biz-t2').innerText = L_data.help_biz_t2;
+        document.getElementById('help-biz-t3').innerText = L_data.help_biz_t3;
+        document.getElementById('help-biz-t4').innerText = L_data.help_biz_t4;
+
+        // HTML内の静的な翻訳テキスト
+        const translations = {
+            'help-basic-p1': '**' + L_data.diff_normal + '**<br>累計利益 500万円でクリア',
+            'help-basic-p2': '**' + L_data.diff_hard + '**<br>累計利益 1500万円でクリア <br><small id="help-basic-small1" style="color:#e74c3c;">' + (lang === 'ja' ? '※評価★3.5以下で即ゲームオーバー' : '※Game Over immediately if reputation drops below ★3.5') + '</small>',
+            'help-basic-p3': '**' + L_data.diff_easy + '**<br>' + (lang === 'ja' ? '条件なし (評価2.5以下にならない)' : 'No condition (Reputation won\'t drop below 2.5)'),
+            'help-basic-p4': (lang === 'ja' ? '※クリア後は**ボーナス200万円**を獲得し、**最大40席**まで拡張可能になります。' : '※After clearing, gain a **¥2,000,000 bonus** and **Max 40 seats** expansion.'),
+            'help-basic-p5': (lang === 'ja' ? '※資産がマイナスになると破産（ゲームオーバー）です。' : '※Bankruptcy (Game Over) if assets become negative.'),
+            'help-how-l1': '**' + (lang === 'ja' ? '開店準備' : 'Open Prep') + ':** ' + (lang === 'ja' ? 'メニューと場所を選んでスタート。' : 'Select menu and location to start.'),
+            'help-how-l2': '**' + (lang === 'ja' ? '担当割り当て' : 'Assignment') + ':** ' + (lang === 'ja' ? 'ヘッダーの' : 'From the header\'s') + '<span style="background:#8e44ad;padding:2px;border-radius:3px;">' + L_data.employees + '</span>' + (lang === 'ja' ? 'ボタンから、誰がどの料理を作るか決めます（重要！）。' : ' button, decide who makes which dish (Important!).'),
+            'help-how-l3': '**' + (lang === 'ja' ? '営業開始' : 'Start Operation') + ':** ' + (lang === 'ja' ? '客が来店し注文します。割り当てられた従業員が自動で調理します。' : 'Customers arrive and order. Assigned staff cook automatically.'),
+            'help-how-l4': '**' + (lang === 'ja' ? '会計' : 'Payment') + ':** ' + (lang === 'ja' ? '食べ終わると自動で売上が入ります。' : 'Sales are automatically recorded after eating.'),
+            'help-how-l5': '**' + (lang === 'ja' ? '22:00 閉店' : '22:00 Close') + ':** ' + (lang === 'ja' ? '新規来店ストップ。店内の客が全員帰るまで営業は続きます。' : 'New customers stop coming. Operation continues until all inside customers leave.'),
+            'help-how-p1': (lang === 'ja' ? '※調理が始まらない時は、担当割り当てを確認するか、従業員の手が空くのを待ってください。' : '※If cooking does not start, check the assignment or wait for staff to be free.'),
+            'help-staff-p1': (lang === 'ja' ? '雇う時の「契約金」に加え、**10日ごとに「維持費（給料）」**が発生します。' : 'In addition to the hiring fee, **"Maintenance Costs (Salary)"** are incurred **every 10 days**.'),
+            'help-staff-p2': (lang === 'ja' ? '従業員は1人につき**同時に4品**まで調理可能です。' : 'Each employee can cook **up to 4 items simultaneously**.'),
+            // 宣伝表の中身の翻訳（費用、期間、残存）
+            'help-biz-p1': lang === 'ja' ? 'ポスター' : 'Poster', 'help-biz-p2': lang === 'ja' ? '2万' : '¥20k', 'help-biz-p3': lang === 'ja' ? '+15% (2日)' : '+15% (2 days)', 'help-biz-p4': lang === 'ja' ? '+5% (2日)' : '+5% (2 days)',
+            'help-biz-f1': lang === 'ja' ? 'チラシ' : 'Flyer', 'help-biz-f2': lang === 'ja' ? '5万' : '¥50k', 'help-biz-f3': lang === 'ja' ? '+20% (2日)' : '+20% (2 days)', 'help-biz-f4': lang === 'ja' ? '+5% (1日)' : '+5% (1 day)',
+            'help-biz-c1': lang === 'ja' ? 'CM' : 'Commercial', 'help-biz-c2': lang === 'ja' ? '20万' : '¥200k', 'help-biz-c3': lang === 'ja' ? '+25% (10日)' : '+25% (10 days)', 'help-biz-c4': lang === 'ja' ? '+20% (3日)' : '+20% (3 days)',
+            'help-biz-t1t': lang === 'ja' ? 'TV' : 'TV Program', 'help-biz-t2t': lang === 'ja' ? '50万' : '¥500k', 'help-biz-t3t': lang === 'ja' ? '+25% (1日)' : '+25% (1 day)', 'help-biz-t4t': lang === 'ja' ? '+40% (5日)' : '+40% (5 days)',
+            // 裏仕様・固定費
+            'help-biz-l1': lang === 'ja' ? '**平日ランチ (11-13時):** 客+10%' : '**Weekday Lunch (11-13h):** Customers +10%',
+            'help-biz-l2': lang === 'ja' ? '**土日祝 (終日):** 客+20%' : '**Weekend/Holiday (All Day):** Customers +20%',
+            'help-biz-l3': lang === 'ja' ? '**土日ランチ:** 客+30%' : '**Weekend Lunch:** Customers +30%',
+            'help-biz-l4': lang === 'ja' ? '**ゴミ箱設置:** 満足度+5 (固定)' : '**Install Trash Bin:** Satisfaction +5 (Fixed)',
+            'help-biz-l5': lang === 'ja' ? '**家賃:** 10日ごとに100万円' : '**Rent:** ¥1,000,000 every 10 days',
+            'help-biz-l6': lang === 'ja' ? '**支援金:** 資産200万以下で500万 (1回のみ)' : '**Bailout:** ¥5,000,000 if assets below ¥2,000,000 (Once)',
+        };
+
+        for (const id in translations) {
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = translations[id];
+        }
     },
     
     updateHeader: () => {
@@ -1286,13 +1366,16 @@ const ui = {
         }
     },
     renderSeats: () => {
-        const con = document.getElementById('seats-container'); con.innerHTML = '';
-        G.seats.forEach((seat, idx) => {
-            const div = document.createElement('div'); div.className = 'seat'; div.id = `seat-${idx}`; div.onclick = () => game.manualOrderClick(idx);
-            const info = document.createElement('div'); info.className = 'seat-status'; info.id = `seat-info-${idx}`; info.innerText = L[G.language].seat_empty;
-            div.appendChild(info); con.appendChild(div);
-            ui.updateSeat(idx); // 初回描画でステータスを更新
-        });
+        const con = document.getElementById('seats-container'); 
+        if(con) { // メイン画面でない場合は実行しない
+            con.innerHTML = '';
+            G.seats.forEach((seat, idx) => {
+                const div = document.createElement('div'); div.className = 'seat'; div.id = `seat-${idx}`; div.onclick = () => game.manualOrderClick(idx);
+                const info = document.createElement('div'); info.className = 'seat-status'; info.id = `seat-info-${idx}`; info.innerText = L[G.language].seat_empty;
+                div.appendChild(info); con.appendChild(div);
+                ui.updateSeat(idx); // 初回描画でステータスを更新
+            });
+        }
     },
     updateSeat: (idx) => {
         const seat = G.seats[idx]; const div = document.getElementById(`seat-${idx}`); const info = document.getElementById(`seat-info-${idx}`);
@@ -1312,7 +1395,9 @@ const ui = {
         } else { div.classList.remove('occupied'); div.style.backgroundImage = 'none'; info.innerText = L[G.language].seat_empty; }
     },
     updateStaffPanel: () => {
-        const con = document.getElementById('staff-container'); con.innerHTML = '';
+        const con = document.getElementById('staff-container'); 
+        if(!con) return; // メイン画面でない場合は実行しない
+        con.innerHTML = '';
         const empLoad = new Array(G.employees.length).fill(0);
         G.seats.forEach(seat => {
             if(seat.occupied && seat.customer.order) {
