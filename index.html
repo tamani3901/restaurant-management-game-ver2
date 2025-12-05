@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="google-site-verification" content="8o8DGhxsn_70QtPiKPjHgnpjYrCLIzxJJaIbV80KA_w" />
-<title id="game-title">飲食店経営シミュレーション v1.25</title>
+<title id="game-title">飲食店経営シミュレーション v1.26</title>
 <style>
     :root {
         --bg-color: #2c3e50;
@@ -119,7 +119,7 @@
 
     <div id="screen-home" class="screen active">
         <h1 style="text-align: center; color: var(--warning-color); margin-top: 30px;" id="home-title">🍔 Kitchen Tycoon 🍝</h1>
-        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;" id="home-version">v1.25 Language Support</p>
+        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;" id="home-version">v1.26 Language & Speed Fix</p>
         <div class="home-btn-group">
             <button onclick="game.showSetup()" id="btn-home-start">新しいゲームを開始</button>
             <input type="file" id="save-file-input" style="display:none" onchange="game.loadGameData(this)">
@@ -176,7 +176,6 @@
         <div id="ui-header">
             <div class="header-row">
                 <div style="display:flex; flex-wrap:wrap; gap:2px; flex:1;">
-                    <button id="btn-lang-toggle" onclick="ui.toggleLanguage()" style="display:none; font-size:0.8rem; background:#34495e; color:white; min-width:30px;">EN</button>
                     <button id="btn-menu" onclick="ui.toggleMenu()">メニュー</button>
                     <button id="btn-employees" onclick="ui.toggleEmployees()" style="background:#8e44ad;">従業員</button>
                     <button id="btn-settings" onclick="ui.toggleSettings()">設定</button>
@@ -379,6 +378,8 @@
     <div class="modal-content">
         <h3 id="settings-modal-title">店舗設定</h3>
         
+        <button id="btn-lang-toggle-settings" onclick="ui.toggleLanguage()" style="font-size:0.9rem; background:#3498db; color:white; width:100%; margin-bottom:10px;">Language: JA</button>
+
         <h4 id="settings-popup-h4">📢 ポップアップ設定</h4>
         <button id="btn-toggle-popup" onclick="settings.togglePopup()" style="width:100%;">1日終了時の結果表示: ON</button>
         <hr>
@@ -476,7 +477,7 @@ const L = {
         menu: "メニュー", employees: "従業員", settings: "設定", stats: "統計", help: "説明", ad_btn: "宣伝",
         mode_pc: "💻 PC", mode_mobile: "📱 スマホ", ad_buff: (b) => `宣伝:+${b}%`,
         // ホーム画面
-        title: "🍔 Kitchen Tycoon 🍝", title_ver: "v1.25 Language Support",
+        title: "🍔 Kitchen Tycoon 🍝", title_ver: "v1.26 Language & Speed Fix",
         home_start: "新しいゲームを開始", home_load: "セーブデータ読込", home_help: "説明書 (遊び方・裏仕様)",
         home_cheat: "チートエディションへ",
         // セットアップ
@@ -504,6 +505,7 @@ const L = {
         expand_title: "🏗️ 店舗拡張",
         expand_normal_15: "15席へ (累計10万)", expand_normal_20: "20席へ (累計20万)",
         expand_cleared_title: "🎉 自由拡張 (Max 40)",
+        lang_btn: (l) => `言語: ${l.toUpperCase()}`,
         // 通知・アラート
         alert_no_menu: "メニューを選んでください", alert_money_short: "資金不足",
         alert_hired: (name) => `${name}を雇いました！`, alert_fire_fail: "最後の1人は解雇できません", alert_fire_confirm: "解雇しますか？",
@@ -536,7 +538,7 @@ const L = {
         menu: "Menu", employees: "Staff", settings: "Settings", stats: "Stats", help: "Help", ad_btn: "Ad",
         mode_pc: "💻 PC", mode_mobile: "📱 Mobile", ad_buff: (b) => `Ad Buff: +${b}%`,
         // Home Screen
-        title: "🍔 Kitchen Tycoon 🍝", title_ver: "v1.25 Language Support",
+        title: "🍔 Kitchen Tycoon 🍝", title_ver: "v1.26 Language & Speed Fix",
         home_start: "New Game", home_load: "Load Save Data", home_help: "Manual (How to Play & Specs)",
         home_cheat: "To Cheat Edition",
         // Setup
@@ -564,6 +566,7 @@ const L = {
         expand_title: "🏗️ Store Expansion",
         expand_normal_15: "Expand to 15 Seats (¥100k)", expand_normal_20: "Expand to 20 Seats (¥200k)",
         expand_cleared_title: "🎉 Free Expansion (Max 40)",
+        lang_btn: (l) => `Language: ${l.toUpperCase()}`,
         // Notifications/Alerts
         alert_no_menu: "Please select a menu.", alert_money_short: "Insufficient funds.",
         alert_hired: (name) => `Hired ${name}!`, alert_fire_fail: "Cannot fire the last employee.", alert_fire_confirm: "Are you sure you want to fire?",
@@ -654,7 +657,7 @@ let G = {
     timerId: null, activeOrder: null,
     statsHistory: [], dailyRevenue: 0, dailyExpense: 0,
     speed: 1, isCleared: false, showResultPopup: true,
-    language: 'ja' // ★★★ 言語設定を追加 ★★★
+    language: 'ja' 
 };
 
 
@@ -665,13 +668,13 @@ const game = {
         document.getElementById('screen-home').classList.add('active');
         bgm.stop();
         G.state = 'home';
-        ui.localizeUI(); // ホーム画面表示時にローカライズ
+        ui.localizeUI();
     },
     showSetup: () => {
         document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
         document.getElementById('screen-setup').classList.add('active');
         G.state = 'setup';
-        ui.localizeUI(); // セットアップ画面表示時にローカライズ
+        ui.localizeUI();
         setup.updateMenuOptions();
         setup.updateSizeOptions();
     },
@@ -718,14 +721,23 @@ const game = {
         game.ticker(L[G.language].play_open);
     },
 
+    // ★★★ 早送り速度の異常を防ぐための修正 ★★★
     setSpeed: (spd) => {
+        // 既存のタイマーを停止する
+        if (G.timerId) {
+            clearInterval(G.timerId);
+            G.timerId = null;
+        }
+        
         G.speed = spd;
-        if (G.timerId) clearInterval(G.timerId);
+        
         if (G.state === 'playing') {
+            // 新しい速度でタイマーを再設定する
             G.timerId = setInterval(game.loop, 1000 / G.speed);
         }
+        
         document.querySelectorAll('.speed-btn').forEach((btn, idx) => {
-            btn.innerText = L[G.language].speed(idx + 1); // 言語適用
+            btn.innerText = L[G.language].speed(idx + 1);
             if (idx + 1 === spd) btn.classList.add('active');
             else btn.classList.remove('active');
         });
@@ -919,6 +931,7 @@ const game = {
         if (G.money < 2000000 && !G.bailoutUsed) { G.money += 5000000; G.bailoutUsed = true; game.alert('alert_bailout'); }
 
         game.checkWinLose();
+        // タイマーを確実に止める
         clearInterval(G.timerId);
         
         const lastRevenue = G.statsHistory[G.statsHistory.length-1].revenue;
@@ -929,6 +942,7 @@ const game = {
         }
 
         G.dailyRevenue = 0; G.dailyExpense = 0;
+        // 新しいタイマーを再設定する
         G.timerId = setInterval(game.loop, 1000 / G.speed);
     },
 
@@ -961,7 +975,7 @@ const game = {
     saveGame: () => { const json = JSON.stringify(G); const blob = new Blob([json], {type: "application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = "kitchen_tycoon_save.json"; a.click(); },
     loadGameData: (input) => { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { try { const loaded = JSON.parse(e.target.result); if(loaded.customMenus) { MENUS.fastfood = loaded.customMenus.fastfood; MENUS.restaurant = loaded.customMenus.restaurant; } G = loaded; 
         if(typeof Object.values(G.kitchenMap)[0] === 'number') settings.resetAssignments();
-        document.querySelectorAll('.screen').forEach(e => e.classList.remove('active')); document.getElementById('screen-game').classList.add('active'); game.setSpeed(1); ui.localizeUI(); bgm.play(); ui.renderSeats(); ui.updateStaffPanel(); ui.updateHeader(); } catch (err) { alert("データ破損"); } }; reader.readAsText(file); },
+        document.querySelectorAll('.screen').forEach(e => e.classList.remove('active')); document.getElementById('screen-game').classList.add('active'); game.setSpeed(G.speed); ui.localizeUI(); bgm.play(); ui.renderSeats(); ui.updateStaffPanel(); ui.updateHeader(); } catch (err) { alert("データ破損"); } }; reader.readAsText(file); },
     quitGame: () => { if(confirm(L[G.language].menu_quit + "?")) { clearInterval(G.timerId); game.showHome(); ui.closeModal('modal-menu'); } }
 };
 
@@ -1212,7 +1226,6 @@ const ui = {
         setup.updateMenuOptions(); // メニュー選択肢のテキストを更新
 
         // --- 3. メインゲームUI (ヘッダー) ---
-        // document.getElementById('btn-lang-toggle').innerText = lang === 'ja' ? 'EN' : 'JP'; // ゲーム中のボタンは非表示
         document.getElementById('btn-menu').innerText = L_data.menu;
         document.getElementById('btn-employees').innerText = L_data.employees;
         document.getElementById('btn-settings').innerText = L_data.settings;
@@ -1257,6 +1270,7 @@ const ui = {
         
         // --- 8. モーダル（設定） ---
         document.getElementById('settings-modal-title').innerText = L_data.settings_title;
+        document.getElementById('btn-lang-toggle-settings').innerText = L_data.lang_btn(lang); // 新しい言語ボタン
         document.getElementById('settings-popup-h4').innerText = L_data.popup_setting(true).split(':')[0] + '📢'; // アイコン再設定
         document.getElementById('btn-toggle-popup').innerText = L_data.popup_setting(G.showResultPopup);
         document.getElementById('settings-expand-h4').innerText = L_data.expand_title;
@@ -1288,7 +1302,7 @@ const ui = {
         document.getElementById('help-how-h4').innerText = '🎮 ' + L_data.help_how_h4;
         document.getElementById('help-staff-h4').innerText = '🧑‍🍳 ' + L_data.help_staff_h4;
         document.getElementById('help-biz-h4').innerText = '📢 ' + L_data.help_biz_h4;
-        document.getElementById('help-biz-h4-2').innerText = '⚠️ ' + L_data.help_biz_h4_2;
+        document.getElementById('help-biz-h4-2').innerText = '⚠️ ' + L_data.help_biz_h4-2;
         
         // スタッフ表の名前更新
         document.getElementById('help-staff-t1').innerText = L_data.help_staff_t1;
