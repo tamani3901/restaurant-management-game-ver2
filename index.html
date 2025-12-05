@@ -477,7 +477,7 @@ const bgm = {
         }
         
         // 土日だけ音量を 0.3 に上げる (平日は 0.1)
-        bgm.obj.volume = isWeekend ? 3.5 : 0.1; 
+        bgm.obj.volume = isWeekend ? 0.3 : 0.1; 
 
         // URLエンコード処理
         const targetSrc = bgm.base + encodeURIComponent(bgm.tracks[type]);
