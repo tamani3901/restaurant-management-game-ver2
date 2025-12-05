@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="google-site-verification" content="8o8DGhxsn_70QtPiKPjHgnpjYrCLIzxJJaIbV80KA_w" />
-<title>飲食店経営シミュレーション v1.24</title>
+<title id="game-title">飲食店経営シミュレーション v1.25</title>
 <style>
     :root {
         --bg-color: #2c3e50;
@@ -118,56 +118,56 @@
     <div id="ticker">システム起動: 準備完了...</div>
 
     <div id="screen-home" class="screen active">
-        <h1 style="text-align: center; color: var(--warning-color); margin-top: 30px;">🍔 Kitchen Tycoon 🍝</h1>
-        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;">v1.24 BGM Volume Fix</p>
+        <h1 style="text-align: center; color: var(--warning-color); margin-top: 30px;" id="home-title">🍔 Kitchen Tycoon 🍝</h1>
+        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;" id="home-version">v1.25 Language Support</p>
         <div class="home-btn-group">
-            <button onclick="game.showSetup()">新しいゲームを開始</button>
+            <button onclick="game.showSetup()" id="btn-home-start">新しいゲームを開始</button>
             <input type="file" id="save-file-input" style="display:none" onchange="game.loadGameData(this)">
-            <button onclick="document.getElementById('save-file-input').click()">セーブデータ読込</button>
-            <button onclick="ui.toggleHelp()" style="background:var(--info-color);">説明書 (遊び方・裏仕様)</button>
+            <button onclick="document.getElementById('save-file-input').click()" id="btn-home-load">セーブデータ読込</button>
+            <button onclick="ui.toggleHelp()" style="background:var(--info-color);" id="btn-home-help">説明書 (遊び方・裏仕様)</button>
             <a href="https://tamani3901.github.io/ti-tobann/" target="_blank" style="width:100%; text-align:center;">
-                <button style="background:#8e44ad; width:80%;">チートエディションへ</button>
+                <button style="background:#8e44ad; width:80%;" id="btn-home-cheat">チートエディションへ</button>
             </a>
         </div>
     </div>
 
     <div id="screen-setup" class="screen">
-        <h2 style="text-align:center;">新規店舗セットアップ</h2>
+        <h2 style="text-align:center;" id="setup-title">新規店舗セットアップ</h2>
         <div style="margin-bottom:10px;">
-            <label>店の種類:</label>
+            <label id="label-type">店の種類:</label>
             <select id="setup-type" onchange="setup.updateMenuOptions()" style="width:100%;">
                 <option value="fastfood">ファーストフード</option>
                 <option value="restaurant">レストラン</option>
             </select>
         </div>
         <div style="margin-bottom:10px;">
-            <label>場所:</label>
+            <label id="label-location">場所:</label>
             <select id="setup-location" onchange="setup.updateSizeOptions()" style="width:100%;">
-                <option value="big_city">大都市 (MAX 10席)</option>
-                <option value="city">都市部 (MAX 8席)</option>
-                <option value="mid_city">中都市 (MAX 6席)</option>
-                <option value="small_city">小都市 (MAX 4席)</option>
+                <option value="big_city" id="opt-loc-big">大都市 (MAX 10席)</option>
+                <option value="city" id="opt-loc-city">都市部 (MAX 8席)</option>
+                <option value="mid_city" id="opt-loc-mid">中都市 (MAX 6席)</option>
+                <option value="small_city" id="opt-loc-small">小都市 (MAX 4席)</option>
             </select>
         </div>
         <div style="display:flex; gap:10px;">
             <div style="flex:1;">
-                <label>初期席数:</label>
+                <label id="label-seats">初期席数:</label>
                 <select id="setup-seats" style="width:100%;"></select>
             </div>
             <div style="flex:1;">
-                <label>難易度:</label>
+                <label id="label-difficulty">難易度:</label>
                 <select id="setup-difficulty" style="width:100%;">
-                    <option value="hard">難しい</option>
-                    <option value="normal" selected>普通</option>
-                    <option value="easy">簡単</option>
+                    <option value="hard" id="opt-diff-hard">難しい</option>
+                    <option value="normal" selected id="opt-diff-normal">普通</option>
+                    <option value="easy" id="opt-diff-easy">簡単</option>
                 </select>
             </div>
         </div>
-        <label style="margin-top:15px; display:block;">初期メニュー (5つ選択):</label>
+        <label style="margin-top:15px; display:block;" id="label-menu-select">初期メニュー (5つ選択):</label>
         <div id="setup-menu-list" style="display: flex; flex-wrap: wrap; gap: 5px; justify-content: center;"></div>
         <div style="margin-top: 20px; text-align: center;">
-            <button onclick="game.startGame()" style="width:100%; padding:12px; font-size:1.1rem;">開店する</button>
-            <button onclick="game.showHome()" style="background:#7f8c8d; width:100%; margin-top:10px;">戻る</button>
+            <button onclick="game.startGame()" style="width:100%; padding:12px; font-size:1.1rem;" id="btn-setup-start">開店する</button>
+            <button onclick="game.showHome()" style="background:#7f8c8d; width:100%; margin-top:10px;" id="btn-setup-back">戻る</button>
         </div>
     </div>
 
@@ -175,11 +175,12 @@
         <div id="ui-header">
             <div class="header-row">
                 <div style="display:flex; flex-wrap:wrap; gap:2px; flex:1;">
-                    <button onclick="ui.toggleMenu()">メニュー</button>
-                    <button onclick="ui.toggleEmployees()" style="background:#8e44ad;">従業員</button>
-                    <button onclick="ui.toggleSettings()">設定</button>
-                    <button onclick="stats.show()">統計</button>
-                    <button onclick="ui.toggleHelp()" style="background:var(--info-color);">説明</button>
+                    <button id="btn-lang-toggle" onclick="ui.toggleLanguage()" style="font-size:0.8rem; background:#34495e; color:white; min-width:30px;">EN</button>
+                    <button id="btn-menu" onclick="ui.toggleMenu()">メニュー</button>
+                    <button id="btn-employees" onclick="ui.toggleEmployees()" style="background:#8e44ad;">従業員</button>
+                    <button id="btn-settings" onclick="ui.toggleSettings()">設定</button>
+                    <button id="btn-stats" onclick="stats.show()">統計</button>
+                    <button id="btn-help" onclick="ui.toggleHelp()" style="background:var(--info-color);">説明</button>
                 </div>
                 <button id="btn-audio-toggle" onclick="bgm.toggle()" style="font-size:0.8rem; background:#34495e; color:white; min-width:30px;">♪</button>
                 <button id="btn-mode-toggle" onclick="ui.toggleMode()" style="font-size:0.7rem; background:#95a5a6; margin-left:5px; min-width:80px;">📱 スマホ</button>
@@ -190,18 +191,18 @@
                     <span id="display-time">Day 1 9:00</span>
                 </div>
                 <div style="flex:1; text-align:center; font-weight:bold; color:var(--warning-color); font-size:0.9rem;">
-                    資産: <span id="display-money">¥15,000,000</span>
+                    <span id="display-money">資産: ¥15,000,000</span>
                 </div>
             </div>
 
             <div class="header-row" style="font-size:0.75rem; margin-top:2px;">
                  <div style="flex:1;">
                      <span id="display-stars">★★★★★</span>
-                     <span style="margin-left:5px;">累計: <span id="display-earnings">¥0</span></span>
+                     <span style="margin-left:5px;" id="display-earnings">累計: ¥0</span>
                  </div>
                  <div style="display:flex; align-items:center; gap:5px;">
                     <span id="ad-buff-display" style="color:var(--success-color);">宣伝:+0%</span>
-                    <button onclick="ui.toggleAds()" style="padding:2px 6px; font-size:0.75rem;">宣伝</button>
+                    <button id="btn-ad-toggle" onclick="ui.toggleAds()" style="padding:2px 6px; font-size:0.75rem;">宣伝</button>
                     <div style="display:flex; gap:0;">
                         <button class="speed-btn active" id="btn-spd-1" onclick="game.setSpeed(1)">x1</button>
                         <button class="speed-btn" id="btn-spd-2" onclick="game.setSpeed(2)">x2</button>
@@ -216,7 +217,7 @@
                 <div id="seats-container"></div>
             </div>
             <div id="staff-section">
-                <h3>スタッフルーム (4品同時)</h3>
+                <h3 id="staff-section-title">スタッフルーム (4品同時)</h3>
                 <div id="staff-container">
                     </div>
             </div>
@@ -227,21 +228,21 @@
 
 <div id="modal-employees" class="modal-overlay">
     <div class="modal-content" style="height:85vh; display:flex; flex-direction:column;">
-        <h3>👩‍🍳 従業員 & キッチン担当</h3>
+        <h3 id="emp-modal-title">👩‍🍳 従業員 & キッチン担当</h3>
         
         <div style="margin-bottom:10px;">
-            <h4>雇用センター</h4>
+            <h4 id="emp-modal-hire-title">雇用センター</h4>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
-                <button onclick="settings.hire('master')" style="font-size:0.8rem;">マスター(20万)</button>
-                <button onclick="settings.hire('veteran')" style="font-size:0.8rem;">ベテラン(12万)</button>
-                <button onclick="settings.hire('standard')" style="font-size:0.8rem;">標準(8万)</button>
-                <button onclick="settings.hire('ponkotsu')" style="font-size:0.8rem;">ポンコツ(4万)</button>
+                <button onclick="settings.hire('master')" style="font-size:0.8rem;" id="btn-hire-master">マスター(20万)</button>
+                <button onclick="settings.hire('veteran')" style="font-size:0.8rem;" id="btn-hire-veteran">ベテラン(12万)</button>
+                <button onclick="settings.hire('standard')" style="font-size:0.8rem;" id="btn-hire-standard">標準(8万)</button>
+                <button onclick="settings.hire('ponkotsu')" style="font-size:0.8rem;" id="btn-hire-ponkotsu">ポンコツ(4万)</button>
             </div>
             <div id="current-employees-list" style="max-height: 60px; overflow-y: auto; border:1px solid #7f8c8d; padding:5px; margin-top:5px;"></div>
         </div>
 
         <hr>
-        <h4>🍽️ 担当割り当て (1品につき4人まで)</h4>
+        <h4 id="emp-modal-assign-title">🍽️ 担当割り当て (1品につき4人まで)</h4>
         <div class="help-tabs">
             <div id="tab-btn-main" class="help-tab active" onclick="settings.switchAssignTab('assign-main')">メイン</div>
             <div id="tab-btn-side" class="help-tab" onclick="settings.switchAssignTab('assign-side')">サイド</div>
@@ -251,13 +252,13 @@
         <div id="assignment-container" style="flex:1; overflow-y:auto;">
             </div>
 
-        <button onclick="ui.closeModal('modal-employees')" style="width:100%; margin-top:10px;">閉じる</button>
+        <button onclick="ui.closeModal('modal-employees')" style="width:100%; margin-top:10px;" id="btn-emp-close">閉じる</button>
     </div>
 </div>
 
 <div id="modal-stats" class="modal-overlay">
     <div class="modal-content">
-        <h3>📊 経営統計</h3>
+        <h3 id="stats-modal-title">📊 経営統計</h3>
         <div class="tab-group">
             <button class="tab-btn" onclick="stats.setRange(1)">1日</button>
             <button class="tab-btn" onclick="stats.setRange(5)">5日</button>
@@ -272,10 +273,10 @@
         </div>
         <canvas id="stats-canvas"></canvas>
         <div style="text-align:left; font-size:0.85rem; background:rgba(0,0,0,0.2); padding:5px;">
-            <p>本日の売上: <span id="stat-today-rev">¥0</span></p>
-            <p>本日の出費: <span id="stat-today-exp" style="color:#e74c3c;">¥0</span></p>
+            <p><span id="stat-label-rev">本日の売上</span>: <span id="stat-today-rev">¥0</span></p>
+            <p><span id="stat-label-exp">本日の出費</span>: <span id="stat-today-exp" style="color:#e74c3c;">¥0</span></p>
         </div>
-        <button onclick="ui.closeModal('modal-stats')" style="width:100%; margin-top:10px;">閉じる</button>
+        <button onclick="ui.closeModal('modal-stats')" style="width:100%; margin-top:10px;" id="btn-stats-close">閉じる</button>
     </div>
 </div>
 
@@ -289,17 +290,17 @@
 
 <div id="modal-menu" class="modal-overlay">
     <div class="modal-content">
-        <h3>メニュー</h3>
-        <button onclick="ui.closeModal('modal-menu')" style="width:100%;">戻る</button>
-        <button onclick="game.togglePause()" style="width:100%;">一時停止/再開</button>
-        <button onclick="game.saveGame()" style="width:100%;">セーブ</button>
-        <button onclick="game.quitGame()" style="background:#c0392b; width:100%;">やめる</button>
+        <h3 id="menu-modal-title">メニュー</h3>
+        <button onclick="ui.closeModal('modal-menu')" style="width:100%;" id="btn-menu-back">戻る</button>
+        <button onclick="game.togglePause()" style="width:100%;" id="btn-menu-pause">一時停止/再開</button>
+        <button onclick="game.saveGame()" style="width:100%;" id="btn-menu-save">セーブ</button>
+        <button onclick="game.quitGame()" style="background:#c0392b; width:100%;" id="btn-menu-quit">やめる</button>
     </div>
 </div>
 
 <div id="modal-help" class="modal-overlay">
     <div class="modal-content" style="height:85vh; display:flex; flex-direction:column;">
-        <h2 style="text-align:center; margin-top:0;">📖 ゲーム説明書</h2>
+        <h2 style="text-align:center; margin-top:0;" id="help-modal-title">📖 ゲーム説明書</h2>
         
         <div class="help-tabs">
             <div id="ht-btn-basic" class="help-tab active" onclick="ui.switchHelpTab('tab-basic')">基本</div>
@@ -309,83 +310,85 @@
         </div>
 
         <div id="tab-basic" class="help-section active">
-            <h4>🏆 勝利条件と難易度</h4>
-            <ul>
-                <li><strong>普通:</strong> 累計利益 500万円でクリア</li>
-                <li><strong>難しい:</strong> 累計利益 1500万円でクリア <br><small style="color:#e74c3c;">※評価★3.5以下で即ゲームオーバー</small></li>
-                <li><strong>簡単:</strong> 条件なし (評価2.5以下にならない)</li>
-            </ul>
-            <p>※クリア後は<strong>ボーナス200万円</strong>を獲得し、<strong>最大40席</strong>まで拡張可能になります。</p>
-            <p style="color:#e74c3c;">※資産がマイナスになると破産（ゲームオーバー）です。</p>
+            <h4 id="help-basic-h4">🏆 勝利条件と難易度</h4>
+            <p id="help-basic-p1">**難易度：普通**<br>累計利益 500万円でクリア</p>
+            <p id="help-basic-p2">**難易度：難しい**<br>累計利益 1500万円でクリア <br><small id="help-basic-small1" style="color:#e74c3c;">※評価★3.5以下で即ゲームオーバー</small></p>
+            <p id="help-basic-p3">**難易度：簡単**<br>条件なし (評価2.5以下にならない)</p>
+            <p id="help-basic-p4">※クリア後は**ボーナス200万円**を獲得し、**最大40席**まで拡張可能になります。</p>
+            <p id="help-basic-p5" style="color:#e74c3c;">※資産がマイナスになると破産（ゲームオーバー）です。</p>
         </div>
 
         <div id="tab-how" class="help-section">
-            <h4>🎮 遊び方の流れ</h4>
+            <h4 id="help-how-h4">🎮 遊び方の流れ</h4>
             <ol>
-                <li><strong>開店準備:</strong> メニューと場所を選んでスタート。</li>
-                <li><strong>担当割り当て:</strong> ヘッダーの<span style="background:#8e44ad;padding:2px;border-radius:3px;">従業員</span>ボタンから、誰がどの料理を作るか決めます（重要！）。</li>
-                <li><strong>営業開始:</strong> 客が来店し注文します。割り当てられた従業員が自動で調理します。</li>
-                <li><strong>会計:</strong> 食べ終わると自動で売上が入ります。</li>
-                <li><strong>22:00 閉店:</strong> 新規来店ストップ。店内の客が全員帰るまで営業は続きます。</li>
+                <li id="help-how-l1">**開店準備:** メニューと場所を選んでスタート。</li>
+                <li id="help-how-l2">**担当割り当て:** ヘッダーの<span style="background:#8e44ad;padding:2px;border-radius:3px;">従業員</span>ボタンから、誰がどの料理を作るか決めます（重要！）。</li>
+                <li id="help-how-l3">**営業開始:** 客が来店し注文します。割り当てられた従業員が自動で調理します。</li>
+                <li id="help-how-l4">**会計:** 食べ終わると自動で売上が入ります。</li>
+                <li id="help-how-l5">**22:00 閉店:** 新規来店ストップ。店内の客が全員帰るまで営業は続きます。</li>
             </ol>
-            <p>※調理が始まらない時は、担当割り当てを確認するか、従業員の手が空くのを待ってください。</p>
+            <p id="help-how-p1">※調理が始まらない時は、担当割り当てを確認するか、従業員の手が空くのを待ってください。</p>
         </div>
 
         <div id="tab-staff" class="help-section">
-            <h4>🧑‍🍳 従業員のコスト</h4>
-            <p>雇う時の「契約金」に加え、<strong>10日ごとに「維持費（給料）」</strong>が発生します。</p>
+            <h4 id="help-staff-h4">🧑‍🍳 従業員のコスト</h4>
+            <p id="help-staff-p1">雇う時の「契約金」に加え、**10日ごとに「維持費（給料）」**が発生します。</p>
             <table class="help-table">
-                <tr><th>ランク</th><th>契約金</th><th>維持費(10日毎)</th><th>速度</th></tr>
-                <tr><td>マスター</td><td>20万</td><td>25万</td><td>2.5倍</td></tr>
-                <tr><td>ベテラン</td><td>12万</td><td>20万</td><td>1.6倍</td></tr>
-                <tr><td>標準</td><td>8万</td><td>15万</td><td>1.0倍</td></tr>
-                <tr><td>ポンコツ</td><td>4万</td><td>10万</td><td>0.5倍</td></tr>
+                <thead><tr><th><span id="help-staff-t1">ランク</span></th><th><span id="help-staff-t2">契約金</span></th><th><span id="help-staff-t3">維持費(10日毎)</span></th><th><span id="help-staff-t4">速度</span></th></tr></thead>
+                <tbody>
+                    <tr><td>マスター</td><td id="help-staff-m1">20万</td><td id="help-staff-m2">25万</td><td id="help-staff-m3">2.5倍</td></tr>
+                    <tr><td>ベテラン</td><td id="help-staff-v1">12万</td><td id="help-staff-v2">20万</td><td id="help-staff-v3">1.6倍</td></tr>
+                    <tr><td>標準</td><td id="help-staff-s1">8万</td><td id="help-staff-s2">15万</td><td id="help-staff-s3">1.0倍</td></tr>
+                    <tr><td>ポンコツ</td><td id="help-staff-p1t">4万</td><td id="help-staff-p2">10万</td><td id="help-staff-p3">0.5倍</td></tr>
+                </tbody>
             </table>
-            <p>従業員は1人につき<strong>同時に4品</strong>まで調理可能です。</p>
+            <p id="help-staff-p2">従業員は1人につき**同時に4品**まで調理可能です。</p>
         </div>
 
         <div id="tab-biz" class="help-section">
-            <h4>📢 宣伝効果 (重ねがけOK)</h4>
+            <h4 id="help-biz-h4">📢 宣伝効果 (重ねがけOK)</h4>
             <table class="help-table">
-                <tr><th>種類</th><th>費用</th><th>期間</th><th>残存</th></tr>
-                <tr><td>ポスター</td><td>2万</td><td>+15%</td><td>+5% (2日)</td></tr>
-                <tr><td>チラシ</td><td>5万</td><td>+20%</td><td>+5% (1日)</td></tr>
-                <tr><td>CM</td><td>20万</td><td>+25%</td><td>+20% (3日)</td></tr>
-                <tr><td>TV</td><td>50万</td><td>+25%</td><td>+40% (5日)</td></tr>
+                <thead><tr><th><span id="help-biz-t1">種類</span></th><th><span id="help-biz-t2">費用</span></th><th><span id="help-biz-t3">期間</span></th><th><span id="help-biz-t4">残存</span></th></tr></thead>
+                <tbody>
+                    <tr><td id="help-biz-p1">ポスター</td><td id="help-biz-p2">2万</td><td id="help-biz-p3">+15% (2日)</td><td id="help-biz-p4">+5% (2日)</td></tr>
+                    <tr><td id="help-biz-f1">チラシ</td><td id="help-biz-f2">5万</td><td id="help-biz-f3">+20% (2日)</td><td id="help-biz-f4">+5% (1日)</td></tr>
+                    <tr><td id="help-biz-c1">CM</td><td id="help-biz-c2">20万</td><td id="help-biz-c3">+25% (10日)</td><td id="help-biz-c4">+20% (3日)</td></tr>
+                    <tr><td id="help-biz-t1t">TV</td><td id="help-biz-t2t">50万</td><td id="help-biz-t3t">+25% (1日)</td><td id="help-biz-t4t">+40% (5日)</td></tr>
+                </tbody>
             </table>
 
-            <h4>⚠️ 裏仕様・固定費</h4>
+            <h4 id="help-biz-h4-2">⚠️ 裏仕様・固定費</h4>
             <ul style="font-size:0.85rem;">
-                <li><strong>平日ランチ (11-13時):</strong> 客+10%</li>
-                <li><strong>土日祝 (終日):</strong> 客+20%</li>
-                <li><strong>土日ランチ:</strong> 客+30%</li>
-                <li><strong>ゴミ箱設置:</strong> 満足度+5 (固定)</li>
-                <li><strong>家賃:</strong> 10日ごとに100万円</li>
-                <li><strong>支援金:</strong> 資産200万以下で500万 (1回のみ)</li>
+                <li id="help-biz-l1">**平日ランチ (11-13時):** 客+10%</li>
+                <li id="help-biz-l2">**土日祝 (終日):** 客+20%</li>
+                <li id="help-biz-l3">**土日ランチ:** 客+30%</li>
+                <li id="help-biz-l4">**ゴミ箱設置:** 満足度+5 (固定)</li>
+                <li id="help-biz-l5">**家賃:** 10日ごとに100万円</li>
+                <li id="help-biz-l6">**支援金:** 資産200万以下で500万 (1回のみ)</li>
             </ul>
         </div>
 
         <div style="text-align:center; margin-top:auto; padding-top:10px;">
-            <button onclick="ui.closeModal('modal-help')" style="width:100%;">閉じる</button>
+            <button onclick="ui.closeModal('modal-help')" style="width:100%;" id="btn-help-close">閉じる</button>
         </div>
     </div>
 </div>
 
 <div id="modal-settings" class="modal-overlay">
     <div class="modal-content">
-        <h3>店舗設定</h3>
+        <h3 id="settings-modal-title">店舗設定</h3>
         
-        <h4>📢 ポップアップ設定</h4>
+        <h4 id="settings-popup-h4">📢 ポップアップ設定</h4>
         <button id="btn-toggle-popup" onclick="settings.togglePopup()" style="width:100%;">1日終了時の結果表示: ON</button>
         <hr>
 
-        <h4>🏗️ 店舗拡張</h4>
+        <h4 id="settings-expand-h4">🏗️ 店舗拡張</h4>
         <div id="expansion-normal" style="display:flex; justify-content:center; gap:5px; margin-bottom:10px;">
             <button id="btn-expand-15" onclick="settings.expandSeats(15)" disabled style="font-size:0.8rem;">15席へ (累計10万)</button>
             <button id="btn-expand-20" onclick="settings.expandSeats(20)" disabled style="font-size:0.8rem;">20席へ (累計20万)</button>
         </div>
         <div id="expansion-cleared" style="display:none; background:#2c3e50; padding:10px; border-radius:5px; margin-bottom:10px;">
-            <p style="margin:0 0 5px 0; font-size:0.9rem; color:var(--success-color);">🎉 自由拡張 (Max 40)</p>
+            <p style="margin:0 0 5px 0; font-size:0.9rem; color:var(--success-color);" id="expand-cleared-title">🎉 自由拡張 (Max 40)</p>
             <div style="display:flex; justify-content:center; align-items:center; gap:10px;">
                 <button onclick="settings.changeSeats(-5)" style="background:#c0392b;">－5席</button>
                 <span id="current-seats-display" style="font-weight:bold; font-size:1.2rem;">20席</span>
@@ -394,34 +397,34 @@
         </div>
         
         <hr>
-        <button onclick="settings.toggleMenuEdit()" style="background:#2980b9; width:100%;">📝 メニュー価格管理</button>
+        <button id="btn-menu-edit" onclick="settings.toggleMenuEdit()" style="background:#2980b9; width:100%;">📝 メニュー価格管理</button>
         <div id="menu-edit-area" style="display:none; margin-top:10px; background:#2c3e50; padding:10px;">
             <div id="menu-edit-list" style="max-height:150px; overflow-y:auto;"></div>
-            <button onclick="settings.saveMenuChanges()" style="background:#2ecc71; width:100%; margin-top:5px;">適用</button>
+            <button onclick="settings.saveMenuChanges()" style="background:#2ecc71; width:100%; margin-top:5px;" id="btn-menu-apply">適用</button>
         </div>
 
         <div style="margin-top:10px;">
             <button id="btn-order-mode" onclick="settings.toggleOrderMode()" style="width:100%;">手動注文: OFF</button>
             <div style="display:flex; gap:5px; margin-top:5px;">
-                <button onclick="settings.buyItem('trash')" style="flex:1;">ゴミ箱(1万)</button>
-                <button onclick="settings.buyItem('clean')" style="flex:1;">清掃(5万)</button>
+                <button onclick="settings.buyItem('trash')" style="flex:1;" id="btn-buy-trash">ゴミ箱(1万)</button>
+                <button onclick="settings.buyItem('clean')" style="flex:1;" id="btn-buy-clean">清掃(5万)</button>
             </div>
         </div>
-        <button onclick="ui.closeModal('modal-settings')" style="width:100%; margin-top:10px;">閉じる</button>
+        <button onclick="ui.closeModal('modal-settings')" style="width:100%; margin-top:10px;" id="btn-settings-close">閉じる</button>
     </div>
 </div>
 
 <div id="modal-ads" class="modal-overlay">
     <div class="modal-content">
-        <h3>宣伝活動</h3>
-        <p>現在効果: <span id="ad-status-detail" style="color:#2ecc71; font-weight:bold;">0%</span></p>
+        <h3 id="ads-modal-title">宣伝活動</h3>
+        <p><span id="ad-status-label">現在効果</span>: <span id="ad-status-detail" style="color:#2ecc71; font-weight:bold;">0%</span></p>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <button onclick="ads.start('poster')">ポスター<br>(2万)</button>
-            <button onclick="ads.start('flyer')">チラシ<br>(5万)</button>
-            <button onclick="ads.start('cm')">CM<br>(20万)</button>
-            <button onclick="ads.start('tv')">TV番組<br>(50万)</button>
+            <button onclick="ads.start('poster')" id="btn-ad-poster">ポスター<br>(2万)</button>
+            <button onclick="ads.start('flyer')" id="btn-ad-flyer">チラシ<br>(5万)</button>
+            <button onclick="ads.start('cm')" id="btn-ad-cm">CM<br>(20万)</button>
+            <button onclick="ads.start('tv')" id="btn-ad-tv">TV番組<br>(50万)</button>
         </div>
-        <button onclick="ui.closeModal('modal-ads')" style="width:100%; margin-top:15px;">閉じる</button>
+        <button onclick="ui.closeModal('modal-ads')" style="width:100%; margin-top:15px;" id="btn-ads-close">閉じる</button>
     </div>
 </div>
 
@@ -430,34 +433,156 @@
 /* データ定義 */
 const IMAGES = ["https://i.ibb.co/2YPFhJ1D/IMG-2529.jpg","https://i.ibb.co/p6DSzpHQ/IMG-2529.jpg","https://i.ibb.co/BHW5cMvS/IMG-2529.jpg","https://i.ibb.co/7tjqbkkX/IMG-2529.jpg","https://i.ibb.co/Xkkr114y/IMG-2529.jpg"];
 
-// メニューデータ (カテゴリ付与)
+// メニューデータ (カテゴリ付与) - 翻訳が必要なのはnameだけ
 const MENUS = {
     fastfood: [
-        {id:'b_cheese',name:'チーズバーガー',price:500,cat:'main'}, {id:'b_teri',name:'テリヤキ',price:500,cat:'main'}, {id:'b_plain',name:'ハンバーガー',price:500,cat:'main'}, {id:'b_rice',name:'ライスバーガー',price:500,cat:'main'},
-        {id:'set_burger',name:'バーガーセット',price:700,cat:'main'}, {id:'set_potato',name:'ポテトセット',price:600,cat:'side'},
-        {id:'pot_s',name:'ポテトS',price:200,cat:'side'}, {id:'pot_m',name:'ポテトM',price:300,cat:'side'}, {id:'pot_l',name:'ポテトL',price:450,cat:'side'}, {id:'nugget',name:'ナゲット',price:300,cat:'side'},
-        {id:'shake_v',name:'バニラシェイク',price:300,cat:'drink'}, {id:'shake_s',name:'いちごシェイク',price:300,cat:'drink'},
-        {id:'j_org',name:'オレンジ',price:300,cat:'drink'}, {id:'j_apl',name:'リンゴ',price:300,cat:'drink'}, {id:'j_col',name:'コーラ',price:300,cat:'drink'}, {id:'j_mel',name:'メロンソーダ',price:300,cat:'drink'}
+        {id:'b_cheese',name_ja:'チーズバーガー',name_en:'Cheeseburger',price:500,cat:'main'}, {id:'b_teri',name_ja:'テリヤキ',name_en:'Teriyaki Burger',price:500,cat:'main'}, {id:'b_plain',name_ja:'ハンバーガー',name_en:'Plain Burger',price:500,cat:'main'}, {id:'b_rice',name_ja:'ライスバーガー',name_en:'Rice Burger',price:500,cat:'main'},
+        {id:'set_burger',name_ja:'バーガーセット',name_en:'Burger Set',price:700,cat:'main'}, {id:'set_potato',name_ja:'ポテトセット',name_en:'Potato Set',price:600,cat:'side'},
+        {id:'pot_s',name_ja:'ポテトS',name_en:'Fries S',price:200,cat:'side'}, {id:'pot_m',name_ja:'ポテトM',name_en:'Fries M',price:300,cat:'side'}, {id:'pot_l',name_ja:'ポテトL',name_en:'Fries L',price:450,cat:'side'}, {id:'nugget',name_ja:'ナゲット',name_en:'Nuggets',price:300,cat:'side'},
+        {id:'shake_v',name_ja:'バニラシェイク',name_en:'Vanilla Shake',price:300,cat:'drink'}, {id:'shake_s',name_ja:'いちごシェイク',name_en:'Strawberry Shake',price:300,cat:'drink'},
+        {id:'j_org',name_ja:'オレンジ',name_en:'Orange Juice',price:300,cat:'drink'}, {id:'j_apl',name_ja:'リンゴ',name_en:'Apple Juice',price:300,cat:'drink'}, {id:'j_col',name:'コーラ',name_en:'Coke',price:300,cat:'drink'}, {id:'j_mel',name_ja:'メロンソーダ',name_en:'Melon Soda',price:300,cat:'drink'}
     ],
     restaurant: [
-        {id:'p_mar',name:'マルゲリータ',price:1200,cat:'main'}, {id:'p_chs',name:'チーズピザ',price:1200,cat:'main'},
-        {id:'spa_nap',name:'ナポリタン',price:1000,cat:'main'}, {id:'spa_tom',name:'トマトパスタ',price:1000,cat:'main'}, {id:'spa_car',name:'カルボナーラ',price:1000,cat:'main'},
-        {id:'pancake',name:'パンケーキ',price:900,cat:'main'}, {id:'hamburg',name:'ハンバーグ',price:1300,cat:'main'}, {id:'steak',name:'ステーキ',price:1400,cat:'main'},
-        {id:'salad',name:'サラダ',price:500,cat:'side'}, {id:'potato',name:'ポテト',price:400,cat:'side'}, {id:'parfait',name:'パフェ',price:700,cat:'side'}, {id:'pudding',name:'プリン',price:400,cat:'side'},
-        {id:'rice',name:'ご飯',price:350,cat:'side'}, {id:'j_org',name:'オレンジ',price:300,cat:'drink'}, {id:'j_apl',name:'リンゴ',price:300,cat:'drink'}, {id:'j_cal',name:'カルピス',price:300,cat:'drink'}, {id:'j_col',name:'コーラ',price:300,cat:'drink'}, {id:'j_mel',name:'メロンソーダ',price:300,cat:'drink'}
+        {id:'p_mar',name_ja:'マルゲリータ',name_en:'Margherita Pizza',price:1200,cat:'main'}, {id:'p_chs',name_ja:'チーズピザ',name_en:'Cheese Pizza',price:1200,cat:'main'},
+        {id:'spa_nap',name_ja:'ナポリタン',name_en:'Napolitan Pasta',price:1000,cat:'main'}, {id:'spa_tom',name_ja:'トマトパスタ',name_en:'Tomato Pasta',price:1000,cat:'main'}, {id:'spa_car',name_ja:'カルボナーラ',name_en:'Carbonara',price:1000,cat:'main'},
+        {id:'pancake',name_ja:'パンケーキ',name_en:'Pancake',price:900,cat:'main'}, {id:'hamburg',name_ja:'ハンバーグ',name_en:'Hamburg Steak',price:1300,cat:'main'}, {id:'steak',name_ja:'ステーキ',name_en:'Steak',price:1400,cat:'main'},
+        {id:'salad',name_ja:'サラダ',name_en:'Salad',price:500,cat:'side'}, {id:'potato',name_ja:'ポテト',name_en:'Fries',price:400,cat:'side'}, {id:'parfait',name_ja:'パフェ',name_en:'Parfait',price:700,cat:'side'}, {id:'pudding',name_ja:'プリン',name_en:'Pudding',price:400,cat:'side'},
+        {id:'rice',name_ja:'ご飯',name_en:'Rice',price:350,cat:'side'}, {id:'j_org',name_ja:'オレンジ',name_en:'Orange Juice',price:300,cat:'drink'}, {id:'j_apl',name_ja:'リンゴ',name_en:'Apple Juice',price:300,cat:'drink'}, {id:'j_cal',name_ja:'カルピス',name_en:'Calpis',price:300,cat:'drink'}, {id:'j_col',name_ja:'コーラ',name_en:'Coke',price:300,cat:'drink'}, {id:'j_mel',name_ja:'メロンソーダ',name_en:'Melon Soda',price:300,cat:'drink'}
     ]
 };
 
 const EMPLOYEES = {
-    master: { name: 'マスター', speed: 2.5, cost: 200000, maintain: 250000, wait: 4, power: 4 }, 
-    veteran: { name: 'ベテラン', speed: 1.6, cost: 120000, maintain: 200000, wait: 6.25, power: 3 },
-    standard: { name: '標準', speed: 1.0, cost: 80000, maintain: 150000, wait: 10, power: 2 },
-    ponkotsu: { name: 'ポンコツ', speed: 0.5, cost: 40000, maintain: 100000, wait: 20, power: 1 }
+    master: { name_ja: 'マスター', name_en: 'Master', speed: 2.5, cost: 200000, maintain: 250000, wait: 4, power: 4 }, 
+    veteran: { name_ja: 'ベテラン', name_en: 'Veteran', speed: 1.6, cost: 120000, maintain: 200000, wait: 6.25, power: 3 },
+    standard: { name_ja: '標準', name_en: 'Standard', speed: 1.0, cost: 80000, maintain: 150000, wait: 10, power: 2 },
+    ponkotsu: { name_ja: 'ポンコツ', name_en: 'Rookie', speed: 0.5, cost: 40000, maintain: 100000, wait: 20, power: 1 }
 };
 
 const LOCATIONS = {
     big_city: { max: 10 }, city: { max: 8 }, mid_city: { max: 6 }, small_city: { max: 4 }
 };
+
+const DAYS = ['月', '火', '水', '木', '金', '土', '日'];
+
+
+/* 言語データ定義 (L) */
+const L = {
+    ja: {
+        // 時刻表示
+        time: (day, wd, h, m) => `Day ${day} (${DAYS[wd]}) ${('0'+h).slice(-2)}:${('0'+m).slice(-2)}`,
+        // ヘッダー
+        money: "資産", earnings: "累計", speed: (s) => `x${s}`,
+        menu: "メニュー", employees: "従業員", settings: "設定", stats: "統計", help: "説明", ad_btn: "宣伝",
+        mode_pc: "💻 PC", mode_mobile: "📱 スマホ", ad_buff: (b) => `宣伝:+${b}%`,
+        // ホーム画面
+        title: "🍔 Kitchen Tycoon 🍝", title_ver: "v1.25 Language Support",
+        home_start: "新しいゲームを開始", home_load: "セーブデータ読込", home_help: "説明書 (遊び方・裏仕様)",
+        home_cheat: "チートエディションへ",
+        // セットアップ
+        setup_title: "新規店舗セットアップ", type: "店の種類", location: "場所",
+        loc_big_city: "大都市 (MAX 10席)", loc_city: "都市部 (MAX 8席)", loc_mid_city: "中都市 (MAX 6席)", loc_small_city: "小都市 (MAX 4席)",
+        seats: "初期席数", difficulty: "難易度", diff_hard: "難しい", diff_normal: "普通", diff_easy: "簡単",
+        menu_select: "初期メニュー (5つ選択):", setup_start: "開店する", setup_back: "戻る",
+        // シートステータス
+        seat_empty: "空席", seat_sitting: "着席", seat_ordering: "注文", 
+        seat_cooking: (r) => `調理(${r})`, seat_eating: "食事", seat_paying: "会計",
+        staff_room: (load) => `スタッフルーム (${load}品同時)`,
+        staff_status: (load) => `${load}/4 調理`,
+        // 従業員
+        emp_title: "👩‍🍳 従業員 & キッチン担当", emp_hire: "雇用センター", emp_assign: "🍽️ 担当割り当て (1品につき4人まで)",
+        main: "メイン", side: "サイド", drink: "ドリンク", assign_empty: "このカテゴリのメニューはありません",
+        hire_master: "マスター(20万)", hire_veteran: "ベテラン(12万)", hire_standard: "標準(8万)", hire_ponkotsu: "ポンコツ(4万)",
+        fire: "解雇", close: "閉じる",
+        // モーダルメニュー
+        modal_menu_title: "メニュー", menu_pause: "一時停止/再開", menu_save: "セーブ", menu_quit: "やめる",
+        // 設定
+        settings_title: "店舗設定", popup_setting: (on) => `1日終了時の結果表示: ${on ? 'ON' : 'OFF'}`,
+        menu_edit_btn: "📝 メニュー価格管理", menu_edit_apply: "適用",
+        order_mode: (on) => `手動注文: ${on ? 'ON' : 'OFF'}`,
+        buy_trash: "ゴミ箱(1万)", buy_clean: "清掃(5万)",
+        expand_title: "🏗️ 店舗拡張",
+        expand_normal_15: "15席へ (累計10万)", expand_normal_20: "20席へ (累計20万)",
+        expand_cleared_title: "🎉 自由拡張 (Max 40)",
+        // 通知・アラート
+        alert_no_menu: "メニューを選んでください", alert_money_short: "資金不足",
+        alert_hired: (name) => `${name}を雇いました！`, alert_fire_fail: "最後の1人は解雇できません", alert_fire_confirm: "解雇しますか？",
+        alert_menu_count: "5つ選択してください", alert_menu_update: "メニュー更新完了",
+        alert_ad_start: "宣伝開始", alert_expand_fail: "実績不足", alert_expand_done: (s) => `拡張完了！${s}席`,
+        alert_trash: "ゴミ箱設置！", alert_clean: "清掃完了！", alert_end_day: (r) => `1日終了。売上: ¥${r.toLocaleString()}`,
+        alert_fixed_cost: (rent, emp) => `10日ごとの支払い日です。\n家賃: ${rent.toLocaleString()}円\n人件費: ${emp.toLocaleString()}円\n合計: ${(rent+emp).toLocaleString()}円支払いました。`,
+        alert_kicked: (n) => `閉店時間。${n}組をお断りしました。`,
+        alert_win: "🎉 クリア条件達成！ 🎉\nボーナス200万円を獲得！\n上限40席まで拡張可能になりました！",
+        alert_game_over: (msg) => `GAME OVER\n${msg}`,
+        alert_game_over_broke: "破産しました...", alert_game_over_reputation: "評価が低すぎます...",
+        // 統計
+        stats_title: "📊 経営統計",
+        stats_today_rev: "本日の売上", stats_today_exp: "本日の出費",
+        stats_data_short: "データ不足 (2日目以降)", graph_rev: "売上", graph_asset: "総資産",
+        // 宣伝
+        ads_title: "宣伝活動", ads_status: (b) => `現在効果: ${b}%`, ads_label: "宣伝",
+        ads_poster: "ポスター\n(2万)", ads_flyer: "チラシ\n(5万)", ads_cm: "CM\n(20万)", ads_tv: "TV番組\n(50万)",
+        // プレイ中のメッセージ
+        play_open: "本日も開店です！", play_order: (n) => `席${n}: 注文待ち`, play_order_ok: (n) => `席${n}: ${n}品注文`, play_payment: (p) => `会計: ¥${p.toLocaleString()}`,
+    },
+    en: {
+        // Time Display
+        time: (day, wd, h, m) => `Day ${day} (${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][wd]}) ${('0'+h).slice(-2)}:${('0'+m).slice(-2)}`,
+        // Header
+        money: "Assets", earnings: "Total", speed: (s) => `x${s}`,
+        menu: "Menu", employees: "Staff", settings: "Settings", stats: "Stats", help: "Help", ad_btn: "Ad",
+        mode_pc: "💻 PC", mode_mobile: "📱 Mobile", ad_buff: (b) => `Ad Buff: +${b}%`,
+        // Home Screen
+        title: "🍔 Kitchen Tycoon 🍝", title_ver: "v1.25 Language Support",
+        home_start: "New Game", home_load: "Load Save Data", home_help: "Manual (How to Play)",
+        home_cheat: "To Cheat Edition",
+        // Setup
+        setup_title: "New Store Setup", type: "Store Type", location: "Location",
+        loc_big_city: "Big City (MAX 10 Seats)", loc_city: "City (MAX 8 Seats)", loc_mid_city: "Mid City (MAX 6 Seats)", loc_small_city: "Small City (MAX 4 Seats)",
+        seats: "Initial Seats", difficulty: "Difficulty", diff_hard: "Hard", diff_normal: "Normal", diff_easy: "Easy",
+        menu_select: "Initial Menu (Select 5):", setup_start: "Open Store", setup_back: "Back",
+        // Seat Status
+        seat_empty: "Empty", seat_sitting: "Sitting", seat_ordering: "Ordering", 
+        seat_cooking: (r) => `Cooking(${r})`, seat_eating: "Eating", seat_paying: "Paying",
+        staff_room: (load) => `Staff Room (${load} Dishes Max)`,
+        staff_status: (load) => `${load}/4 Cooking`,
+        // Employees
+        emp_title: "👩‍🍳 Staff & Kitchen Assignment", emp_hire: "Hiring Center", emp_assign: "🍽️ Task Assignment (Max 4 per Dish)",
+        main: "Main", side: "Side", drink: "Drink", assign_empty: "No menus in this category",
+        hire_master: "Master(¥200k)", hire_veteran: "Veteran(¥120k)", hire_standard: "Standard(¥80k)", hire_ponkotsu: "Rookie(¥40k)",
+        fire: "Fire", close: "Close",
+        // Modal Menu
+        modal_menu_title: "Menu", menu_pause: "Pause/Resume", menu_save: "Save", menu_quit: "Quit",
+        // Settings
+        settings_title: "Store Settings", popup_setting: (on) => `Daily Result Pop-up: ${on ? 'ON' : 'OFF'}`,
+        menu_edit_btn: "📝 Manage Menu Prices", menu_edit_apply: "Apply",
+        order_mode: (on) => `Manual Ordering: ${on ? 'ON' : 'OFF'}`,
+        buy_trash: "Trash Bin(¥10k)", buy_clean: "Cleaning(¥50k)",
+        expand_title: "🏗️ Store Expansion",
+        expand_normal_15: "Expand to 15 Seats (¥100k)", expand_normal_20: "Expand to 20 Seats (¥200k)",
+        expand_cleared_title: "🎉 Free Expansion (Max 40)",
+        // Notifications/Alerts
+        alert_no_menu: "Please select a menu.", alert_money_short: "Insufficient funds.",
+        alert_hired: (name) => `Hired ${name}!`, alert_fire_fail: "Cannot fire the last employee.", alert_fire_confirm: "Are you sure you want to fire?",
+        alert_menu_count: "Please select exactly 5 items.", alert_menu_update: "Menu updated.",
+        alert_ad_start: "Advertising started.", alert_expand_fail: "Insufficient earnings.", alert_expand_done: (s) => `Expansion complete! ${s} seats.`,
+        alert_trash: "Trash bin installed!", alert_clean: "Cleaning complete!", alert_end_day: (r) => `Day finished. Revenue: ¥${r.toLocaleString()}`,
+        alert_fixed_cost: (rent, emp) => `10-day payment due.\nRent: ¥${rent.toLocaleString()}\nLabor Cost: ¥${emp.toLocaleString()} paid.`,
+        alert_kicked: (n) => `Closing time. Refused ${n} groups.`,
+        alert_win: "🎉 Clear Condition Achieved! 🎉\nReceived ¥2,000,000 Bonus!\nMax capacity expanded to 40 seats!",
+        alert_game_over: (msg) => `GAME OVER\n${msg}`,
+        alert_game_over_broke: "Went bankrupt...", alert_game_over_reputation: "Reputation is too low...",
+        // Stats
+        stats_title: "📊 Business Stats",
+        stats_today_rev: "Today's Revenue", stats_today_exp: "Today's Expense",
+        stats_data_short: "Insufficient data (Day 2 onwards)", graph_rev: "Revenue", graph_asset: "Assets",
+        // Ads
+        ads_title: "Advertising Campaign", ads_status: (b) => `Current Buff: ${b}%`, ads_label: "Ad",
+        ads_poster: "Poster\n(¥20k)", ads_flyer: "Flyer\n(¥50k)", ads_cm: "CM\n(¥200k)", ads_tv: "TV Show\n(¥500k)",
+        // In-game messages
+        play_open: "The store is open!", play_order: (n) => `Seat ${n}: Waiting for order`, play_order_ok: (n) => `Seat ${n}: ${n} items ordered`, play_payment: (p) => `Payment: ¥${p.toLocaleString()}`,
+    }
+};
+
 
 /* BGM設定 */
 const bgm = {
@@ -521,18 +646,19 @@ let G = {
     manualOrder: false, difficulty: 'normal', activeAds: [], bailoutUsed: false, trashBin: false,
     timerId: null, activeOrder: null,
     statsHistory: [], dailyRevenue: 0, dailyExpense: 0,
-    speed: 1, isCleared: false, showResultPopup: true
+    speed: 1, isCleared: false, showResultPopup: true,
+    language: 'ja' // ★★★ 言語設定を追加 ★★★
 };
 
-const DAYS = ['月', '火', '水', '木', '金', '土', '日'];
 
 /* ロジック */
 const game = {
     showHome: () => {
         document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
         document.getElementById('screen-home').classList.add('active');
-        bgm.stop(); // ホームに戻ったらBGM停止
+        bgm.stop();
         G.state = 'home';
+        ui.localizeUI(); // ホーム画面表示時にローカライズ
     },
     showSetup: () => {
         document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
@@ -540,10 +666,11 @@ const game = {
         setup.updateMenuOptions();
         setup.updateSizeOptions();
         G.state = 'setup';
+        ui.localizeUI(); // セットアップ画面表示時にローカライズ
     },
     startGame: () => {
         const selectedMenu = Array.from(document.querySelectorAll('.item-select.selected')).map(e => e.dataset.id);
-        if (selectedMenu.length < 1) { alert('メニューを選んでください'); return; } 
+        if (selectedMenu.length < 5) { game.alert('alert_no_menu'); return; } 
         
         G.type = document.getElementById('setup-type').value;
         const locKey = document.getElementById('setup-location').value;
@@ -575,13 +702,13 @@ const game = {
         G.state = 'playing';
         
         game.setSpeed(1);
-        ui.updateModeBtn();
-        bgm.play(); // BGM開始
+        ui.localizeUI();
+        bgm.play();
 
         ui.renderSeats();
         ui.updateStaffPanel();
         ui.updateHeader();
-        ui.ticker("本日も開店です！");
+        game.ticker(L[G.language].play_open);
     },
 
     setSpeed: (spd) => {
@@ -591,6 +718,7 @@ const game = {
             G.timerId = setInterval(game.loop, 1000 / G.speed);
         }
         document.querySelectorAll('.speed-btn').forEach((btn, idx) => {
+            btn.innerText = L[G.language].speed(idx + 1); // 言語適用
             if (idx + 1 === spd) btn.classList.add('active');
             else btn.classList.remove('active');
         });
@@ -609,7 +737,7 @@ const game = {
                     kicked++;
                 }
             });
-            if(kicked > 0) ui.ticker(`閉店時間。${kicked}組をお断りしました。`);
+            if(kicked > 0) game.ticker(L[G.language].alert_kicked(kicked));
             ui.renderSeats(); ui.updateStaffPanel();
         }
 
@@ -630,7 +758,7 @@ const game = {
             if (seat.status === 'sitting') {
                 seat.status = 'ordering';
                 if (c.isTablet || !G.manualOrder) setTimeout(() => game.processOrder(idx), 500 / G.speed);
-                else { ui.updateSeat(idx); ui.ticker(`席${idx+1}: 注文待ち`); }
+                else { ui.updateSeat(idx); game.ticker(L[G.language].play_order(idx + 1)); }
             } else if (seat.status === 'cooking') {
                 const pending = c.order.filter(o => o.status !== 'served');
                 if (pending.length === 0) {
@@ -651,6 +779,7 @@ const game = {
     },
 
     processCooking: () => {
+        // ... (省略: このロジックはテキスト表示に関わらないため)
         const empLoad = new Array(G.employees.length).fill(0);
         G.seats.forEach(seat => {
             if (seat.occupied && seat.customer.order) {
@@ -726,7 +855,7 @@ const game = {
             orderItems.push({ ...m, status: 'pending', progress: 0, chefIdx: null });
         }
         seat.customer.order = orderItems; seat.status = 'cooking'; 
-        ui.updateSeat(seatIdx); ui.ticker(`席${seatIdx+1}: ${count}品注文`);
+        ui.updateSeat(seatIdx); game.ticker(L[G.language].play_order_ok(seatIdx + 1, count));
     },
 
     manualOrderClick: (seatIdx) => {
@@ -741,7 +870,7 @@ const game = {
                 orderItems.push({ ...m, status: 'pending', progress: 0, chefIdx: null });
             }
             seat.customer.order = orderItems;
-            document.getElementById('order-text').innerHTML = `${count}品をお願いします！`;
+            document.getElementById('order-text').innerText = L[G.language].play_order(count);
             document.getElementById('modal-order').style.display = 'flex'; game.togglePause(true);
         }
     },
@@ -756,12 +885,13 @@ const game = {
         G.reputation = (G.reputation * 0.9) + ((sat / 20) * 0.1); 
         if (G.reputation > 5) G.reputation = 5; if (G.reputation < 1) G.reputation = 1;
         G.seats[seatIdx] = { occupied: false, customer: null, status: 'empty' };
-        ui.updateSeat(seatIdx); ui.updateHeader(); ui.ticker(`会計: ¥${totalProfit.toLocaleString()}`);
+        ui.updateSeat(seatIdx); ui.updateHeader(); game.ticker(L[G.language].play_payment(totalProfit));
     },
 
     endDay: () => {
         G.statsHistory.push({ day: G.day, revenue: G.dailyRevenue, assets: G.money, expense: G.dailyExpense });
-        G.day++; G.weekDay = (G.weekDay + 1) % 7; G.time = 540; G.dailyRevenue = 0; G.dailyExpense = 0;
+        G.day++; G.weekDay = (G.weekDay + 1) % 7; G.time = 540; 
+        
         bgm.play(); 
         
         G.activeAds.forEach(ad => {
@@ -770,137 +900,162 @@ const game = {
         G.activeAds = G.activeAds.filter(ad => ad.daysLeft > 0 || ad.afterDays > 0);
 
         if (G.day % 10 === 0) { 
-            // 従業員の維持費計算
             let empCost = 0;
             G.employees.forEach(key => { empCost += EMPLOYEES[key].maintain; });
             const rent = 1000000;
             const totalFixed = rent + empCost;
             G.money -= totalFixed; 
             G.dailyExpense += totalFixed; 
-            alert(`10日ごとの支払い日です。\n家賃: 100万\n人件費: ${empCost.toLocaleString()}\n合計: ${totalFixed.toLocaleString()}円支払いました。`); 
+            alert(L[G.language].alert_fixed_cost(rent, empCost)); 
         }
 
-        if (G.money < 2000000 && !G.bailoutUsed) { G.money += 5000000; G.bailoutUsed = true; alert('経営危機のため支援金500万円を受け取りました。'); }
+        if (G.money < 2000000 && !G.bailoutUsed) { G.money += 5000000; G.bailoutUsed = true; alert(L[G.language].alert_bailout); }
 
         game.checkWinLose();
         clearInterval(G.timerId);
         
+        const lastRevenue = G.statsHistory[G.statsHistory.length-1].revenue;
         if(G.showResultPopup) {
-            alert(`1日が終了しました。\n売上: ¥${G.statsHistory[G.statsHistory.length-1].revenue.toLocaleString()}`);
+            alert(L[G.language].alert_end_day(lastRevenue));
         } else {
-            ui.ticker(`1日終了。売上: ¥${G.statsHistory[G.statsHistory.length-1].revenue.toLocaleString()}`);
+            game.ticker(L[G.language].alert_end_day(lastRevenue));
         }
+
+        G.dailyRevenue = 0; G.dailyExpense = 0;
         G.timerId = setInterval(game.loop, 1000 / G.speed);
     },
 
     checkWinLose: () => {
-        if (G.money < 0) { game.gameOver("破産しました..."); return; }
+        if (G.money < 0) { game.gameOver(L[G.language].alert_game_over_broke); return; }
         if (!G.isCleared) {
             let clear = false;
-            if (G.difficulty === 'hard') { if (G.reputation < 3.5) { game.gameOver("評価が低すぎます..."); return; } if (G.totalEarnings >= 15000000) clear = true; }
+            if (G.difficulty === 'hard') { 
+                if (G.reputation < 3.5) { game.gameOver(L[G.language].alert_game_over_reputation); return; } 
+                if (G.totalEarnings >= 15000000) clear = true; 
+            }
             else if (G.difficulty === 'normal') { if (G.totalEarnings >= 5000000) clear = true; }
             if (clear) {
                 G.isCleared = true; G.money += 2000000;
-                alert("🎉 クリア条件達成！ 🎉\nボーナス200万円を獲得！\n上限40席まで拡張可能になりました！");
+                alert(L[G.language].alert_win);
                 ui.updateHeader();
             }
         }
     },
     
-    gameOver: (msg) => { clearInterval(G.timerId); alert("GAME OVER\n" + msg); game.showHome(); },
+    // ★★★ アラートを言語対応
+    alert: (key, ...args) => {
+        let msg = L[G.language][key];
+        if (typeof msg === 'function') msg = msg(...args);
+        alert(msg);
+    },
+    gameOver: (msg) => { clearInterval(G.timerId); alert(L[G.language].alert_game_over(msg)); game.showHome(); },
+    ticker: (msg) => { document.getElementById('ticker').innerText = msg; },
     togglePause: (forceState) => { if (forceState !== undefined) { if (forceState) clearInterval(G.timerId); else G.timerId = setInterval(game.loop, 1000 / G.speed); } else { if (G.timerId) { clearInterval(G.timerId); G.timerId = null; } else G.timerId = setInterval(game.loop, 1000 / G.speed); } },
     saveGame: () => { const json = JSON.stringify(G); const blob = new Blob([json], {type: "application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = "kitchen_tycoon_save.json"; a.click(); },
     loadGameData: (input) => { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { try { const loaded = JSON.parse(e.target.result); if(loaded.customMenus) { MENUS.fastfood = loaded.customMenus.fastfood; MENUS.restaurant = loaded.customMenus.restaurant; } G = loaded; 
-        // 旧データ互換処理
         if(typeof Object.values(G.kitchenMap)[0] === 'number') settings.resetAssignments();
-        document.querySelectorAll('.screen').forEach(e => e.classList.remove('active')); document.getElementById('screen-game').classList.add('active'); game.setSpeed(1); ui.updateModeBtn(); bgm.play(); ui.renderSeats(); ui.updateStaffPanel(); ui.updateHeader(); } catch (err) { alert("データ破損"); } }; reader.readAsText(file); },
-    quitGame: () => { if(confirm("本当にやめますか？")) { clearInterval(G.timerId); game.showHome(); ui.closeModal('modal-menu'); } }
+        document.querySelectorAll('.screen').forEach(e => e.classList.remove('active')); document.getElementById('screen-game').classList.add('active'); game.setSpeed(1); ui.localizeUI(); bgm.play(); ui.renderSeats(); ui.updateStaffPanel(); ui.updateHeader(); } catch (err) { alert("データ破損"); } }; reader.readAsText(file); },
+    quitGame: () => { if(confirm(L[G.language].menu_quit + "?")) { clearInterval(G.timerId); game.showHome(); ui.closeModal('modal-menu'); } }
 };
 
 /* 設定・セットアップ */
 const setup = {
     updateMenuOptions: () => {
         const type = document.getElementById('setup-type').value; const list = document.getElementById('setup-menu-list'); list.innerHTML = '';
-        MENUS[type].forEach(item => { const div = document.createElement('div'); div.className = 'item-select'; div.innerText = `${item.name} (${item.price})`; div.style.cssText = "background:#2980b9;padding:8px;border-radius:4px;font-size:0.8rem;cursor:pointer;text-align:center;width:30%;"; div.dataset.id = item.id; div.onclick = () => { if (div.classList.contains('selected')) { div.classList.remove('selected'); div.style.background = '#2980b9'; } else if (document.querySelectorAll('.item-select.selected').length < 5) { div.classList.add('selected'); div.style.background = '#2ecc71'; } }; list.appendChild(div); });
+        MENUS[type].forEach(item => { 
+            const nameKey = `name_${G.language}`;
+            const name = item[nameKey] || item.name_ja; // 翻訳がない場合は日本語
+            const div = document.createElement('div'); div.className = 'item-select'; div.innerText = `${name} (${item.price})`; div.style.cssText = "background:#2980b9;padding:8px;border-radius:4px;font-size:0.8rem;cursor:pointer;text-align:center;width:30%;"; div.dataset.id = item.id; div.onclick = () => { if (div.classList.contains('selected')) { div.classList.remove('selected'); div.style.background = '#2980b9'; } else if (document.querySelectorAll('.item-select.selected').length < 5) { div.classList.add('selected'); div.style.background = '#2ecc71'; } else { game.alert('alert_menu_count'); } }; 
+            list.appendChild(div); 
+            // 選択済みのメニューを再選択
+            if (G.menu && G.menu.includes(item.id)) { div.classList.add('selected'); div.style.background = '#2ecc71'; }
+        });
     },
     updateSizeOptions: () => {
         const loc = document.getElementById('setup-location').value; const max = LOCATIONS[loc].max; const select = document.getElementById('setup-seats'); select.innerHTML = '';
-        for (let i = 4; i <= max; i+=2) { const op = document.createElement('option'); op.value = i; op.innerText = `${i}席`; if (i===max) op.selected = true; select.appendChild(op); }
+        for (let i = 4; i <= max; i+=2) { const op = document.createElement('option'); op.value = i; op.innerText = `${i}席`; if (i===G.maxSeats) op.selected = true; select.appendChild(op); }
+        if(G.state !== 'playing' && G.maxSeats === 0) select.value = max; // 新規ゲーム開始時
     }
 };
 
 const settings = {
-    toggleOrderMode: () => { G.manualOrder = !G.manualOrder; document.getElementById('btn-order-mode').innerText = G.manualOrder ? "手動注文: ON" : "手動注文: OFF"; },
-    togglePopup: () => { G.showResultPopup = !G.showResultPopup; document.getElementById('btn-toggle-popup').innerText = `1日終了時の結果表示: ${G.showResultPopup ? 'ON' : 'OFF'}`; },
-    buyItem: (item) => { if (item === 'trash' && G.money >= 10000) { G.money -= 10000; G.dailyExpense += 10000; G.trashBin = true; alert("ゴミ箱設置！"); } else if (item === 'clean' && G.money >= 50000) { G.money -= 50000; G.dailyExpense += 50000; G.reputation += 0.2; alert("清掃完了！"); } ui.updateHeader(); },
-    hire: (type) => { const emp = EMPLOYEES[type]; if (G.money >= emp.cost) { G.money -= emp.cost; G.dailyExpense += emp.cost; G.employees.push(type); alert(`${emp.name}を雇いました！`); settings.renderEmployeeList(); settings.switchAssignTab('assign-main'); ui.updateStaffPanel(); ui.updateHeader(); } else alert("資金不足"); },
-    fire: (index) => { if (G.employees.length <= 1) { alert("最後の1人は解雇できません"); return; } if(confirm("解雇しますか？")) { G.employees.splice(index, 1); settings.renderEmployeeList(); settings.switchAssignTab('assign-main'); ui.updateStaffPanel(); ui.updateHeader(); } },
-    renderEmployeeList: () => { const list = document.getElementById('current-employees-list'); list.innerHTML = ''; G.employees.forEach((key, idx) => { const data = EMPLOYEES[key]; const row = document.createElement('div'); row.className = 'emp-row'; row.innerHTML = `<span>${idx+1}. ${data.name}</span> <button onclick="settings.fire(${idx})">解雇</button>`; list.appendChild(row); }); },
+    toggleOrderMode: () => { G.manualOrder = !G.manualOrder; document.getElementById('btn-order-mode').innerText = L[G.language].order_mode(G.manualOrder); },
+    togglePopup: () => { G.showResultPopup = !G.showResultPopup; document.getElementById('btn-toggle-popup').innerText = L[G.language].popup_setting(G.showResultPopup); },
+    buyItem: (item) => { 
+        if (item === 'trash' && G.money >= 10000) { G.money -= 10000; G.dailyExpense += 10000; G.trashBin = true; game.alert('alert_trash'); } 
+        else if (item === 'clean' && G.money >= 50000) { G.money -= 50000; G.dailyExpense += 50000; G.reputation += 0.2; game.alert('alert_clean'); } 
+        else { game.alert('alert_money_short'); } 
+        ui.updateHeader(); 
+    },
+    hire: (type) => { 
+        const emp = EMPLOYEES[type]; const nameKey = `name_${G.language}`;
+        if (G.money >= emp.cost) { G.money -= emp.cost; G.dailyExpense += emp.cost; G.employees.push(type); game.alert('alert_hired', emp[nameKey] || emp.name_ja); settings.renderEmployeeList(); settings.switchAssignTab('assign-main'); ui.updateStaffPanel(); ui.updateHeader(); } else game.alert('alert_money_short'); 
+    },
+    fire: (index) => { 
+        if (G.employees.length <= 1) { game.alert('alert_fire_fail'); return; } 
+        if(confirm(L[G.language].alert_fire_confirm)) { G.employees.splice(index, 1); settings.renderEmployeeList(); settings.switchAssignTab('assign-main'); ui.updateStaffPanel(); ui.updateHeader(); } 
+    },
+    renderEmployeeList: () => { 
+        const list = document.getElementById('current-employees-list'); list.innerHTML = ''; 
+        G.employees.forEach((key, idx) => { 
+            const nameKey = `name_${G.language}`;
+            const data = EMPLOYEES[key]; const row = document.createElement('div'); row.className = 'emp-row'; row.style.cssText = 'display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;';
+            row.innerHTML = `<span>${idx+1}. ${data[nameKey] || data.name_ja}</span> <button onclick="settings.fire(${idx})" style="padding:2px 6px; font-size:0.7rem;">${L[G.language].fire}</button>`; list.appendChild(row); 
+        }); 
+    },
     
     resetAssignments: () => {
         G.kitchenMap = {};
-        // デフォルト: メニューごとに0(マスター)を割り当て
         if(G.menu) G.menu.forEach(mid => G.kitchenMap[mid] = [0]);
     },
     switchAssignTab: (tabId) => {
         document.querySelectorAll('.help-tab').forEach(t => t.classList.remove('active'));
-        // 簡易タブ判定 (Tab IDとButton IDの紐付け)
-        if(tabId === 'assign-main') { document.getElementById('tab-btn-main').classList.add('active'); settings.renderAssignmentList('main'); }
-        if(tabId === 'assign-side') { document.getElementById('tab-btn-side').classList.add('active'); settings.renderAssignmentList('side'); }
-        if(tabId === 'assign-drink') { document.getElementById('tab-btn-drink').classList.add('active'); settings.renderAssignmentList('drink'); }
+        const tabBtnMap = { 'assign-main': 'tab-btn-main', 'assign-side': 'tab-btn-side', 'assign-drink': 'tab-btn-drink' };
+        document.getElementById(tabBtnMap[tabId]).classList.add('active');
+        
+        const category = tabId.split('-')[1];
+        settings.renderAssignmentList(category);
     },
     renderAssignmentList: (category = 'main') => {
         const list = document.getElementById('assignment-container'); list.innerHTML = '';
         const currentMenu = MENUS[G.type].filter(m => G.menu.includes(m.id) && m.cat === category);
         
         if (currentMenu.length === 0) {
-            list.innerHTML = '<p style="padding:10px; text-align:center; color:#bdc3c7;">このカテゴリのメニューはありません</p>';
+            list.innerHTML = `<p style="padding:10px; text-align:center; color:#bdc3c7;">${L[G.language].assign_empty}</p>`;
             return;
         }
 
         currentMenu.forEach(item => {
+            const nameKey = `name_${G.language}`;
             const row = document.createElement('div'); row.className = 'assign-row';
-            
-            const nameDiv = document.createElement('div');
-            nameDiv.className = 'assign-name';
-            nameDiv.innerText = item.name;
-            
-            const selectsDiv = document.createElement('div');
-            selectsDiv.className = 'assign-selects';
+            const nameDiv = document.createElement('div'); nameDiv.className = 'assign-name'; nameDiv.innerText = item[nameKey] || item.name_ja;
+            const selectsDiv = document.createElement('div'); selectsDiv.className = 'assign-selects';
 
-            // 4枠のセレクトボックス
-            const assigned = G.kitchenMap[item.id] || [0]; // デフォルト0
+            const assigned = G.kitchenMap[item.id] || [0];
             
             for(let i=0; i<4; i++) {
-                const select = document.createElement('select');
-                select.className = 'assign-select';
+                const select = document.createElement('select'); select.className = 'assign-select';
                 
-                // 選択肢: 「なし」 + 全従業員
-                const nullOpt = document.createElement('option');
-                nullOpt.value = -1; nullOpt.innerText = "-";
-                select.appendChild(nullOpt);
+                const nullOpt = document.createElement('option'); nullOpt.value = -1; nullOpt.innerText = "-"; select.appendChild(nullOpt);
 
                 G.employees.forEach((ekey, idx) => {
+                    const empNameKey = `name_${G.language}`;
                     const opt = document.createElement('option');
                     opt.value = idx;
-                    opt.innerText = `${idx+1}.${EMPLOYEES[ekey].name.substr(0,3)}`;
+                    opt.innerText = `${idx+1}.${(EMPLOYEES[ekey][empNameKey] || EMPLOYEES[ekey].name_ja).substr(0,3)}`;
                     select.appendChild(opt);
                 });
 
-                // 現在の割り当てを反映
                 if (i < assigned.length) select.value = assigned[i];
                 else select.value = -1;
 
-                // 変更時イベント
                 select.onchange = () => {
-                    // 現在のUIの全スロットから値を収集して保存
                     const newAssign = [];
                     const selects = selectsDiv.querySelectorAll('select');
                     selects.forEach(s => {
                         const val = parseInt(s.value);
                         if(val !== -1) newAssign.push(val);
                     });
-                    // 最低1人は必要(0)
                     if(newAssign.length === 0) {
                         newAssign.push(0);
                         selectsDiv.querySelectorAll('select')[0].value = 0;
@@ -910,35 +1065,45 @@ const settings = {
                 selectsDiv.appendChild(select);
             }
 
-            row.appendChild(nameDiv);
-            row.appendChild(selectsDiv);
-            list.appendChild(row);
+            row.appendChild(nameDiv); row.appendChild(selectsDiv); list.appendChild(row);
         });
     },
 
-    toggleMenuEdit: () => { const area = document.getElementById('menu-edit-area'); if (area.style.display === 'none') { area.style.display = 'block'; settings.renderMenuEditList(); } else area.style.display = 'none'; },
-    renderMenuEditList: () => { const list = document.getElementById('menu-edit-list'); list.innerHTML = ''; MENUS[G.type].forEach(item => { const row = document.createElement('div'); row.className = 'menu-edit-row'; const isChecked = G.menu.includes(item.id) ? 'checked' : ''; row.innerHTML = `<label><input type="checkbox" class="menu-chk" value="${item.id}" ${isChecked}> ${item.name}</label><input type="number" id="price-${item.id}" value="${item.price}" min="10">`; list.appendChild(row); }); },
+    toggleMenuEdit: () => { 
+        const area = document.getElementById('menu-edit-area'); 
+        if (area.style.display === 'none') { area.style.display = 'block'; settings.renderMenuEditList(); } else area.style.display = 'none'; 
+    },
+    renderMenuEditList: () => { 
+        const list = document.getElementById('menu-edit-list'); list.innerHTML = ''; 
+        MENUS[G.type].forEach(item => { 
+            const nameKey = `name_${G.language}`;
+            const row = document.createElement('div'); row.className = 'menu-edit-row'; 
+            const isChecked = G.menu.includes(item.id) ? 'checked' : ''; 
+            row.style.cssText = 'display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;';
+            row.innerHTML = `<label><input type="checkbox" class="menu-chk" value="${item.id}" ${isChecked}> ${item[nameKey] || item.name_ja}</label><input type="number" id="price-${item.id}" value="${item.price}" min="10" style="width:60px;">`; 
+            list.appendChild(row); 
+        }); 
+    },
     saveMenuChanges: () => { 
         const checkboxes = document.querySelectorAll('.menu-chk:checked'); 
-        if (checkboxes.length !== 5) { alert("5つ選択してください"); return; } 
+        if (checkboxes.length !== 5) { game.alert("alert_menu_count"); return; } 
         MENUS[G.type].forEach(item => { const input = document.getElementById(`price-${item.id}`); if(input) item.price = parseInt(input.value); }); 
         G.menu = Array.from(checkboxes).map(cb => cb.value); 
         G.customMenus = { fastfood: MENUS.fastfood, restaurant: MENUS.restaurant }; 
-        // メニュー変更時の整合性確保
         G.menu.forEach(mid => { if(G.kitchenMap[mid] === undefined) G.kitchenMap[mid] = [0]; });
-        alert("メニュー更新完了"); settings.toggleMenuEdit(); 
+        game.alert("alert_menu_update"); settings.toggleMenuEdit(); 
     },
     expandSeats: (target) => {
-        if ((target === 15 && G.totalEarnings < 100000) || (target === 20 && G.totalEarnings < 200000)) { alert("実績不足"); return; }
-        if (G.maxSeats >= target) { alert("拡張済み"); return; }
+        if ((target === 15 && G.totalEarnings < 100000) || (target === 20 && G.totalEarnings < 200000)) { game.alert('alert_expand_fail'); return; }
+        if (G.maxSeats >= target) { game.alert('alert_expand_done', target); return; }
         const added = target - G.maxSeats; G.maxSeats = target;
         for(let i=0; i<added; i++) G.seats.push({ occupied: false, customer: null, status: 'empty', waitTime: 0 });
-        alert(`拡張完了！${target}席`); ui.renderSeats(); ui.updateSettingsButtons();
+        game.alert('alert_expand_done', target); ui.renderSeats(); ui.updateSettingsButtons();
     },
     changeSeats: (delta) => {
         if(!G.isCleared) return;
         const current = G.maxSeats; const next = current + delta;
-        if (next < 4) { alert("これ以上減らせません"); return; } if (next > 40) { alert("最大40席までです"); return; }
+        if (next < 4) { alert(L[G.language].expand_cleared_title); return; } if (next > 40) { alert(L[G.language].expand_cleared_title); return; }
         if (delta > 0) { for(let i=0; i<delta; i++) G.seats.push({ occupied: false, customer: null, status: 'empty', waitTime: 0 }); } 
         else { for(let i=0; i<Math.abs(delta); i++) G.seats.pop(); }
         G.maxSeats = next; ui.renderSeats(); ui.updateSettingsButtons();
@@ -947,24 +1112,38 @@ const settings = {
 
 const ads = {
     start: (type) => {
-        let cost=0, buff=0, dur=0; if(type==='poster'){cost=20000;buff=15;dur=2;} if(type==='flyer'){cost=50000;buff=20;dur=2;} if(type==='cm'){cost=200000;buff=25;dur=10;} if(type==='tv'){cost=500000;buff=25;dur=1;}
-        if (G.money < cost) { alert("資金不足"); return; }
+        let cost=0, buff=0, dur=0; 
+        if(type==='poster'){cost=20000;buff=15;dur=2;} if(type==='flyer'){cost=50000;buff=20;dur=2;} if(type==='cm'){cost=200000;buff=25;dur=10;} if(type==='tv'){cost=500000;buff=25;dur=1;}
+        if (G.money < cost) { game.alert('alert_money_short'); return; }
         G.money -= cost; G.dailyExpense += cost;
         G.activeAds.push({ type: type, daysLeft: dur, buff: buff, afterBuff: 5, afterDays: 0 });
         if(type==='tv') G.activeAds[G.activeAds.length-1].afterBuff = 40; if(type==='cm') G.activeAds[G.activeAds.length-1].afterBuff = 20; 
-        alert("宣伝開始"); ui.updateHeader(); ui.closeModal('modal-ads');
+        game.alert('alert_ad_start'); ui.updateHeader(); ui.closeModal('modal-ads');
     }
 };
 
 const stats = {
     range: 100, type: 'revenue',
-    show: () => { document.getElementById('modal-stats').style.display = 'flex'; game.togglePause(true); stats.draw(); document.getElementById('stat-today-rev').innerText = `¥${G.dailyRevenue.toLocaleString()}`; document.getElementById('stat-today-exp').innerText = `¥${G.dailyExpense.toLocaleString()}`; },
+    show: () => { 
+        document.getElementById('modal-stats').style.display = 'flex'; game.togglePause(true); 
+        stats.draw(); 
+        document.getElementById('stat-label-rev').innerText = L[G.language].stats_today_rev; // 言語対応
+        document.getElementById('stat-label-exp').innerText = L[G.language].stats_today_exp; // 言語対応
+        document.getElementById('stat-today-rev').innerText = `¥${G.dailyRevenue.toLocaleString()}`; 
+        document.getElementById('stat-today-exp').innerText = `¥${G.dailyExpense.toLocaleString()}`; 
+    },
     setRange: (r) => { stats.range = r; stats.draw(); },
-    setType: (t) => { stats.type = t; document.getElementById('btn-graph-rev').classList.remove('active'); document.getElementById('btn-graph-asset').classList.remove('active'); if(t === 'revenue') document.getElementById('btn-graph-rev').classList.add('active'); else document.getElementById('btn-graph-asset').classList.add('active'); stats.draw(); },
+    setType: (t) => { 
+        stats.type = t; 
+        document.getElementById('btn-graph-rev').classList.remove('active'); document.getElementById('btn-graph-asset').classList.remove('active'); 
+        if(t === 'revenue') document.getElementById('btn-graph-rev').classList.add('active'); 
+        else document.getElementById('btn-graph-asset').classList.add('active'); 
+        stats.draw(); 
+    },
     draw: () => {
         const canvas = document.getElementById('stats-canvas'); const ctx = canvas.getContext('2d'); const w = canvas.width = canvas.offsetWidth; const h = canvas.height = canvas.offsetHeight; ctx.clearRect(0,0,w,h);
         let data = [...G.statsHistory]; if (stats.range > 0 && data.length > stats.range) data = data.slice(data.length - stats.range);
-        if (data.length < 2) { ctx.fillStyle = "#333"; ctx.font = "14px Arial"; ctx.fillText("データ不足 (2日目以降)", 20, 50); return; }
+        if (data.length < 2) { ctx.fillStyle = "#333"; ctx.font = "14px Arial"; ctx.fillText(L[G.language].stats_data_short, 20, 50); return; } // 言語対応
         let maxVal = 0, minVal = Infinity; data.forEach(d => { let val = (stats.type === 'revenue') ? d.revenue : d.assets; if(val > maxVal) maxVal = val; if(val < minVal) minVal = val; }); if (minVal > 0 && stats.type === 'revenue') minVal = 0;
         const padding = 20; ctx.beginPath(); ctx.strokeStyle = (stats.type === 'revenue') ? '#2ecc71' : '#f1c40f'; ctx.lineWidth = 2;
         data.forEach((d, i) => { let val = (stats.type === 'revenue') ? d.revenue : d.assets; let x = padding + (i / (data.length - 1)) * (w - padding * 2); let y = h - padding - ((val - minVal) / (maxVal - minVal || 1)) * (h - padding * 2); if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); }); ctx.stroke();
@@ -972,13 +1151,125 @@ const stats = {
 };
 
 const ui = {
+    // ★★★ 言語切り替え機能 ★★★
+    toggleLanguage: () => {
+        G.language = (G.language === 'ja') ? 'en' : 'ja';
+        ui.localizeUI();
+    },
+
+    localizeUI: () => {
+        const lang = G.language;
+        const L_data = L[lang];
+        
+        // 1. ヘッダーボタン
+        document.getElementById('btn-lang-toggle').innerText = lang === 'ja' ? 'EN' : 'JP';
+        document.getElementById('btn-menu').innerText = L_data.menu;
+        document.getElementById('btn-employees').innerText = L_data.employees;
+        document.getElementById('btn-settings').innerText = L_data.settings;
+        document.getElementById('btn-stats').innerText = L_data.stats;
+        document.getElementById('btn-help').innerText = L_data.help;
+        document.getElementById('btn-ad-toggle').innerText = L_data.ad_btn;
+        ui.updateModeBtn();
+        game.setSpeed(G.speed); // スピードボタンのテキスト更新
+        
+        // 2. ホーム画面
+        document.getElementById('home-title').innerText = L_data.title;
+        document.getElementById('home-version').innerText = L_data.title_ver;
+        document.getElementById('btn-home-start').innerText = L_data.home_start;
+        document.getElementById('btn-home-load').innerText = L_data.home_load;
+        document.getElementById('btn-home-help').innerText = L_data.home_help;
+        document.getElementById('btn-home-cheat').innerText = L_data.home_cheat;
+
+        // 3. セットアップ画面
+        document.getElementById('setup-title').innerText = L_data.setup_title;
+        document.getElementById('label-type').innerText = L_data.type + ':';
+        document.getElementById('label-location').innerText = L_data.location + ':';
+        document.getElementById('opt-loc-big').innerText = L_data.loc_big_city;
+        document.getElementById('opt-loc-city').innerText = L_data.loc_city;
+        document.getElementById('opt-loc-mid').innerText = L_data.loc_mid_city;
+        document.getElementById('opt-loc-small').innerText = L_data.loc_small_city;
+        document.getElementById('label-seats').innerText = L_data.seats + ':';
+        document.getElementById('label-difficulty').innerText = L_data.difficulty + ':';
+        document.getElementById('opt-diff-hard').innerText = L_data.diff_hard;
+        document.getElementById('opt-diff-normal').innerText = L_data.diff_normal;
+        document.getElementById('opt-diff-easy').innerText = L_data.diff_easy;
+        document.getElementById('label-menu-select').innerText = L_data.menu_select;
+        document.getElementById('btn-setup-start').innerText = L_data.setup_start;
+        document.getElementById('btn-setup-back').innerText = L_data.setup_back;
+        setup.updateMenuOptions();
+        
+        // 4. メインゲームUI
+        ui.updateHeader();
+        document.getElementById('staff-section-title').innerText = L_data.staff_room(4);
+        ui.renderSeats(); 
+        ui.updateStaffPanel();
+
+        // 5. モーダル（従業員）
+        document.getElementById('emp-modal-title').innerText = L_data.emp_title;
+        document.getElementById('emp-modal-hire-title').innerText = L_data.emp_hire;
+        document.getElementById('emp-modal-assign-title').innerText = L_data.emp_assign;
+        document.getElementById('tab-btn-main').innerText = L_data.main;
+        document.getElementById('tab-btn-side').innerText = L_data.side;
+        document.getElementById('tab-btn-drink').innerText = L_data.drink;
+        document.getElementById('btn-hire-master').innerText = L_data.hire_master;
+        document.getElementById('btn-hire-veteran').innerText = L_data.hire_veteran;
+        document.getElementById('btn-hire-standard').innerText = L_data.hire_standard;
+        document.getElementById('btn-hire-ponkotsu').innerText = L_data.hire_ponkotsu;
+        document.getElementById('btn-emp-close').innerText = L_data.close;
+        settings.renderEmployeeList();
+        
+        // 6. モーダル（統計）
+        document.getElementById('stats-modal-title').innerText = L_data.stats_title;
+        document.getElementById('btn-graph-rev').innerText = L_data.graph_rev;
+        document.getElementById('btn-graph-asset').innerText = L_data.graph_asset;
+        document.getElementById('btn-stats-close').innerText = L_data.close;
+        
+        // 7. モーダル（メニュー）
+        document.getElementById('menu-modal-title').innerText = L_data.modal_menu_title;
+        document.getElementById('btn-menu-back').innerText = L_data.close;
+        document.getElementById('btn-menu-pause').innerText = L_data.menu_pause;
+        document.getElementById('btn-menu-save').innerText = L_data.menu_save;
+        document.getElementById('btn-menu-quit').innerText = L_data.menu_quit;
+        
+        // 8. モーダル（設定）
+        document.getElementById('settings-modal-title').innerText = L_data.settings_title;
+        document.getElementById('settings-popup-h4').innerText = L_data.popup_setting(true).split(':')[0];
+        document.getElementById('btn-toggle-popup').innerText = L_data.popup_setting(G.showResultPopup);
+        document.getElementById('settings-expand-h4').innerText = L_data.expand_title;
+        document.getElementById('btn-expand-15').innerText = L_data.expand_normal_15;
+        document.getElementById('btn-expand-20').innerText = L_data.expand_normal_20;
+        document.getElementById('expand-cleared-title').innerText = L_data.expand_cleared_title;
+        document.getElementById('btn-menu-edit').innerText = L_data.menu_edit_btn;
+        document.getElementById('btn-menu-apply').innerText = L_data.menu_edit_apply;
+        document.getElementById('btn-order-mode').innerText = L_data.order_mode(G.manualOrder);
+        document.getElementById('btn-buy-trash').innerText = L_data.buy_trash;
+        document.getElementById('btn-buy-clean').innerText = L_data.buy_clean;
+        document.getElementById('btn-settings-close').innerText = L_data.close;
+        
+        // 9. モーダル（宣伝）
+        document.getElementById('ads-modal-title').innerText = L_data.ads_title;
+        document.getElementById('ad-status-label').innerText = L_data.ads_status(0).split(':')[0];
+        document.getElementById('btn-ad-poster').innerHTML = L_data.ads_poster;
+        document.getElementById('btn-ad-flyer').innerHTML = L_data.ads_flyer;
+        document.getElementById('btn-ad-cm').innerHTML = L_data.ads_cm;
+        document.getElementById('btn-ad-tv').innerHTML = L_data.ads_tv;
+        document.getElementById('btn-ads-close').innerText = L_data.close;
+
+        // 10. モーダル（説明書）
+        document.getElementById('help-modal-title').innerText = L_data.help_modal_title || '📖 ゲーム説明書';
+        document.getElementById('btn-help-close').innerText = L_data.close;
+        // 説明書の本文も更新が必要 (ここでは簡略化のため省略)
+    },
+    
     updateHeader: () => {
         const h = Math.floor(G.time / 60); const m = G.time % 60;
-        document.getElementById('display-time').innerText = `Day ${G.day} (${DAYS[G.weekDay]}) ${('0'+h).slice(-2)}:${('0'+m).slice(-2)}`;
-        document.getElementById('display-money').innerText = `¥${G.money.toLocaleString()}`;
-        document.getElementById('display-earnings').innerText = `¥${G.totalEarnings.toLocaleString()}`;
+        document.getElementById('display-time').innerText = L[G.language].time(G.day, G.weekDay, h, m);
+        
+        document.getElementById('display-money').innerHTML = `${L[G.language].money}: <span style="color:var(--warning-color);">¥${G.money.toLocaleString()}</span>`;
+        document.getElementById('display-earnings').innerHTML = `${L[G.language].earnings}: <span>¥${G.totalEarnings.toLocaleString()}</span>`;
+
         let stars = ""; for(let i=0; i<5; i++) stars += (i < Math.floor(G.reputation)) ? "★" : "☆"; document.getElementById('display-stars').innerText = stars;
-        let totalBuff = 0; G.activeAds.forEach(ad => { if (ad.daysLeft > 0) totalBuff += ad.buff; else if (ad.afterDays > 0) totalBuff += ad.afterBuff; }); document.getElementById('ad-buff-display').innerText = `宣伝:+${totalBuff}%`;
+        let totalBuff = 0; G.activeAds.forEach(ad => { if (ad.daysLeft > 0) totalBuff += ad.buff; else if (ad.afterDays > 0) totalBuff += ad.afterBuff; }); document.getElementById('ad-buff-display').innerText = L[G.language].ad_buff(totalBuff);
         ui.updateSettingsButtons();
     },
     updateSettingsButtons: () => {
@@ -998,8 +1289,9 @@ const ui = {
         const con = document.getElementById('seats-container'); con.innerHTML = '';
         G.seats.forEach((seat, idx) => {
             const div = document.createElement('div'); div.className = 'seat'; div.id = `seat-${idx}`; div.onclick = () => game.manualOrderClick(idx);
-            const info = document.createElement('div'); info.className = 'seat-status'; info.id = `seat-info-${idx}`; info.innerText = '空席';
+            const info = document.createElement('div'); info.className = 'seat-status'; info.id = `seat-info-${idx}`; info.innerText = L[G.language].seat_empty;
             div.appendChild(info); con.appendChild(div);
+            ui.updateSeat(idx); // 初回描画でステータスを更新
         });
     },
     updateSeat: (idx) => {
@@ -1008,14 +1300,16 @@ const ui = {
         if (seat.occupied) {
             div.classList.add('occupied'); div.style.backgroundImage = `url(${seat.customer.img})`; div.style.backgroundSize = 'contain'; div.style.backgroundRepeat = 'no-repeat'; div.style.backgroundPosition = 'center';
             let txt = "";
-            if (seat.status === 'sitting') txt = "着席"; else if (seat.status === 'ordering') txt = "注文"; 
+            if (seat.status === 'sitting') txt = L[G.language].seat_sitting; 
+            else if (seat.status === 'ordering') txt = L[G.language].seat_ordering; 
             else if (seat.status === 'cooking') {
                 const remain = seat.customer.order.filter(o => o.status !== 'served').length;
-                txt = `調理(${remain})`;
+                txt = L[G.language].seat_cooking(remain);
             }
-            else if (seat.status === 'eating') txt = "食事"; else if (seat.status === 'paying') txt = "会計";
+            else if (seat.status === 'eating') txt = L[G.language].seat_eating; 
+            else if (seat.status === 'paying') txt = L[G.language].seat_paying;
             info.innerText = txt;
-        } else { div.classList.remove('occupied'); div.style.backgroundImage = 'none'; info.innerText = '空席'; }
+        } else { div.classList.remove('occupied'); div.style.backgroundImage = 'none'; info.innerText = L[G.language].seat_empty; }
     },
     updateStaffPanel: () => {
         const con = document.getElementById('staff-container'); con.innerHTML = '';
@@ -1029,32 +1323,27 @@ const ui = {
         });
 
         G.employees.forEach((key, idx) => {
+            const nameKey = `name_${G.language}`;
             const load = empLoad[idx];
             const data = EMPLOYEES[key];
             const div = document.createElement('div');
             div.className = `staff-card ${load > 0 ? 'busy' : 'free'}`;
-            div.innerHTML = `<div>${idx+1}. ${data.name}</div><div class="staff-status-text">${load}/4 調理</div>`;
+            div.innerHTML = `<div>${idx+1}. ${data[nameKey] || data.name_ja}</div><div class="staff-status-text">${L[G.language].staff_status(load)}</div>`;
             con.appendChild(div);
         });
     },
-    ticker: (msg) => { document.getElementById('ticker').innerText = msg; },
-    toggleMenu: () => { document.getElementById('modal-menu').style.display = 'flex'; game.togglePause(true); },
-    toggleSettings: () => { document.getElementById('modal-settings').style.display = 'flex'; game.togglePause(true); settings.renderEmployeeList(); document.getElementById('menu-edit-area').style.display = 'none'; ui.updateSettingsButtons(); },
-    toggleEmployees: () => { document.getElementById('modal-employees').style.display = 'flex'; game.togglePause(true); settings.renderEmployeeList(); settings.switchAssignTab('assign-main'); },
-    toggleAds: () => { document.getElementById('modal-ads').style.display = 'flex'; game.togglePause(true); ui.updateHeader(); },
-    toggleHelp: () => { document.getElementById('modal-help').style.display = 'flex'; ui.switchHelpTab('tab-basic'); game.togglePause(true); },
+    toggleMenu: () => { document.getElementById('modal-menu').style.display = 'flex'; game.togglePause(true); ui.localizeUI(); },
+    toggleSettings: () => { document.getElementById('modal-settings').style.display = 'flex'; game.togglePause(true); settings.renderEmployeeList(); document.getElementById('menu-edit-area').style.display = 'none'; ui.updateSettingsButtons(); ui.localizeUI(); },
+    toggleEmployees: () => { document.getElementById('modal-employees').style.display = 'flex'; game.togglePause(true); settings.renderEmployeeList(); settings.switchAssignTab('assign-main'); ui.localizeUI(); },
+    toggleAds: () => { document.getElementById('modal-ads').style.display = 'flex'; game.togglePause(true); ui.updateHeader(); ui.localizeUI(); },
+    toggleHelp: () => { document.getElementById('modal-help').style.display = 'flex'; ui.switchHelpTab('tab-basic'); game.togglePause(true); ui.localizeUI(); },
     switchHelpTab: (tabId) => { 
         document.querySelectorAll('.help-section').forEach(el => el.classList.remove('active')); 
         document.getElementById(tabId).classList.add('active'); 
         
-        // タブボタンのハイライト切り替え (IDベースで厳密に)
-        const buttons = document.querySelectorAll('.help-tab');
-        buttons.forEach(b => b.classList.remove('active'));
-        
-        if(tabId === 'tab-basic') document.getElementById('ht-btn-basic').classList.add('active');
-        if(tabId === 'tab-how') document.getElementById('ht-btn-how').classList.add('active');
-        if(tabId === 'tab-staff') document.getElementById('ht-btn-staff').classList.add('active');
-        if(tabId === 'tab-biz') document.getElementById('ht-btn-biz').classList.add('active');
+        const tabBtnMap = { 'tab-basic': 'ht-btn-basic', 'tab-how': 'ht-btn-how', 'tab-staff': 'ht-btn-staff', 'tab-biz': 'ht-btn-biz' };
+        document.querySelectorAll('.help-tab').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabBtnMap[tabId]).classList.add('active');
     },
     
     toggleMode: () => { 
@@ -1065,7 +1354,7 @@ const ui = {
     },
     updateModeBtn: () => {
         const btn = document.getElementById('btn-mode-toggle');
-        if(G.mode === 'pc') btn.innerText = "💻 PC"; else btn.innerText = "📱 スマホ";
+        btn.innerText = (G.mode === 'pc') ? L[G.language].mode_pc : L[G.language].mode_mobile;
     },
     closeModal: (id) => { document.getElementById(id).style.display = 'none'; game.togglePause(false); }
 };
