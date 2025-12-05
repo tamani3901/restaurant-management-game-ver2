@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="google-site-verification" content="8o8DGhxsn_70QtPiKPjHgnpjYrCLIzxJJaIbV80KA_w" />
-<title>飲食店経営シミュレーション v1.23</title>
+<title>飲食店経営シミュレーション v1.24</title>
 <style>
     :root {
         --bg-color: #2c3e50;
@@ -119,7 +119,7 @@
 
     <div id="screen-home" class="screen active">
         <h1 style="text-align: center; color: var(--warning-color); margin-top: 30px;">🍔 Kitchen Tycoon 🍝</h1>
-        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;">v1.23 Tab Fix</p>
+        <p style="text-align:center; font-size:0.8rem; color:#bdc3c7;">v1.24 BGM Volume Fix</p>
         <div class="home-btn-group">
             <button onclick="game.showSetup()">新しいゲームを開始</button>
             <input type="file" id="save-file-input" style="display:none" onchange="game.loadGameData(this)">
@@ -470,12 +470,16 @@ const bgm = {
         if(bgm.muted) return;
         const isWeekend = (G.weekDay >= 5);
         const type = isWeekend ? 'weekend' : 'weekday';
+        
         if (!bgm.obj) {
             bgm.obj = new Audio();
             bgm.obj.loop = true;
-            bgm.obj.volume = 0.1; 
         }
-        // URLエンコード処理追加
+        
+        // 土日だけ音量を 0.3 に上げる (平日は 0.1)
+        bgm.obj.volume = isWeekend ? 0.3 : 0.1; 
+
+        // URLエンコード処理
         const targetSrc = bgm.base + encodeURIComponent(bgm.tracks[type]);
         
         if (bgm.currentType !== type) {
